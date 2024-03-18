@@ -1,9 +1,11 @@
 package com.example.alpha2.DBManager.User
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 
+@Dao
 interface UserDao {
     //檢查是否有符合id的用戶
     @Query("SELECT * FROM Users WHERE id = :uId")
