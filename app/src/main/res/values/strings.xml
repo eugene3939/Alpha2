@@ -4,4 +4,5 @@
     <string name="title_dashboard">銷售查詢</string>
     <string name="title_notifications">Notifications</string>
     <string name="downloadingText">下載進度</string>
+    <string name="downloadPercentage">0 %</string>
 </resources>
