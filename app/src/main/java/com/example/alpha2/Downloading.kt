@@ -134,7 +134,7 @@ class Downloading : AppCompatActivity() {
             try {
                 if (totalFilesCount != 0 ){
                     val progress = (downloadCount.toFloat() * 100 / totalFilesCount).toInt()
-                    binding.downloadProBar.incrementProgressBy(progress)
+                    binding.downloadProBar.setProgress(progress,false)
                     binding.txPercentage.text = "$progress %"
 
                     Log.d("進度","$progress")

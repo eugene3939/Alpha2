@@ -5,4 +5,9 @@
     <string name="title_notifications">Notifications</string>
     <string name="downloadingText">下載進度</string>
     <string name="downloadPercentage">0 %</string>
+    <string name="txtAccountHint">請輸入帳號</string>
+    <string name="txtPassword">密碼</string>
+    <string name="txtPasswordHint">請輸入密碼</string>
+    <string name="txtClerk">收銀員</string>
+    <string name="txtLogin">登入</string>
 </resources>

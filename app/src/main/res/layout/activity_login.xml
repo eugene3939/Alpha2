@@ -7,12 +7,57 @@
     android:layout_height="match_parent"
     tools:context=".Login">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="@string/app_name"
-        android:textStyle="bold"
-        android:textSize="30sp"/>
+        android:orientation="vertical"
+        android:padding="20dp">
 
+        <TextView
+            android:id="@+id/login_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/txtClerk"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/edt_acc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/txtAccountHint"
+            android:backgroundTint="#E91E63"
+            android:inputType="text"
+            android:textSize="30sp"
+            android:importantForAutofill="no" />
+
+        <TextView
+            android:id="@+id/txtPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/txtPassword"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/edt_pas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#E91E63"
+            android:inputType="text"
+            android:hint="@string/txtPasswordHint"
+            android:textSize="30sp"
+            android:importantForAutofill="no" />
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_gravity="center_horizontal"
+            android:backgroundTint="#B18FEF"
+            android:text="@string/txtLogin"
+            android:textSize="30sp"/>
+
+    </LinearLayout>
 </RelativeLayout>
