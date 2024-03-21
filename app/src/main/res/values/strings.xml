@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">POS tester</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">銷售查詢</string>
+    <string name="title_dashboard">POS主頁</string>
     <string name="title_notifications">Notifications</string>
     <string name="downloadingText">下載進度</string>
     <string name="downloadPercentage">0 %</string>
@@ -10,4 +10,10 @@
     <string name="txtPasswordHint">請輸入密碼</string>
     <string name="txtClerk">收銀員</string>
     <string name="txtLogin">登入</string>
+    <string name="txtSearchBarHint">請輸入貨號</string>
+    <string name="txtConfirm">確定</string>
+    <string name="txtClearText">清除</string>
+    <string name="txtTotalPrice">總價</string>
+    <string name="txtSumShopCart">小計</string>
+    <string name="txtClerkName">收銀員</string>
 </resources>

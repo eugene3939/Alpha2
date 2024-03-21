@@ -36,12 +36,11 @@ class HomeFragment : Fragment() {
         if (userID!=null){
             val accessUser = userDBManager.getUserById(userID)
             if (accessUser != null) {
-                binding.textHome.text = "目前登入用戶名: ${accessUser.name}"
+                binding.textDashboard.text = "收銀員: ${accessUser.name}"
             }
         }else{
-            binding.textHome.text = "Null user access"
+            binding.textDashboard.text = "Null user access"
         }
-
 
         return root
     }

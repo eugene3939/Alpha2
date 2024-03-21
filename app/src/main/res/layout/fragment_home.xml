@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,16 +8,94 @@
     tools:context=".ui.home.HomeFragment">
 
     <TextView
-        android:id="@+id/text_home"
+        android:id="@+id/textDashboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="@string/txtClerkName"
+        android:textStyle="bold"
+        android:textSize="25sp"/>
+
+    <LinearLayout
+        android:id="@+id/SearchBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_below="@+id/textDashboard"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/edt_searchRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.75"
+            android:autofillHints="empty"
+            android:hint="@string/txtSearchBarHint"
+            android:inputType="text"
+            android:textSize="25sp"
+            android:textColor="#5622B3"
+            android:textColorHint="#21329F"
+            android:textColorLink="#E91E63" />
+
+        <Button
+            android:id="@+id/btn_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="0.125"
+            android:selectAllOnFocus="false"
+            android:text="@string/txtConfirm"
+            android:textSize="20sp"/>
+
+        <Button
+            android:id="@+id/btn_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_weight="0.125"
+            android:text="@string/txtClearText"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+    <!-- 商品分類 -->
+    <Spinner
+        android:id="@+id/sp_productType"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/SearchBarLayout"
+        android:background="#8493EA"/>
+
+    <!-- 欄位內容 -->
+    <GridView
+        android:id="@+id/gr_tableData"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:layout_below="@+id/sp_productType"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <TextView
+        android:id="@+id/txt_totalPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/gr_tableData"
+        android:text="@string/txtTotalPrice"
+        android:textColor="#4B5485"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <!-- 確認價格 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/txt_totalPrice"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_deal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="@string/txtSumShopCart"
+            android:textSize="30sp" />
+    </LinearLayout>
+</RelativeLayout>
