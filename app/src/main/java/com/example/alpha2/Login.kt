@@ -1,9 +1,12 @@
 package com.example.alpha2
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Product.ClusterProduct
@@ -13,6 +16,7 @@ import com.example.alpha2.DBManager.Product.ProductManager
 import com.example.alpha2.DBManager.System.CashState
 import com.example.alpha2.DBManager.System.CashSystem
 import com.example.alpha2.DBManager.System.SystemManager
+import com.example.alpha2.DBManager.System.SystemSetting
 import com.example.alpha2.DBManager.User.User
 import com.example.alpha2.DBManager.User.UserManager
 import com.example.alpha2.databinding.ActivityLoginBinding
@@ -62,6 +66,9 @@ class Login : AppCompatActivity() {
         //Dao匯入收銀機設定檔 (預設)
         insertCashSystemDB("1","Eugene")
 
+        //Dao匯入系統設定檔 (預設)
+        insertSystemSettingDB("store123","Nintendo","cashRegister123",30)
+
         // 登入按鈕
         binding.btnLogin.setOnClickListener {
             // 取得帳號、密碼
@@ -76,6 +83,12 @@ class Login : AppCompatActivity() {
                 if (accessUser != null){
                     //顯示登入成功訊息
                     Log.d("登入成功", "用戶名稱: ${accessUser.name}")
+
+                    //保存用戶訊息到sharedReference
+                    val sharedPreferences = getSharedPreferences("loginUser", Context.MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    editor.putString("userId", accessUser.id)
+                    editor.apply()
 
                     //跳轉到登入頁面
                     val intent = Intent(this@Login,MainActivity::class.java)
@@ -104,6 +117,19 @@ class Login : AppCompatActivity() {
             }else{
                 Log.d("既有收銀機狀態檔", "Cash System ecrNo $ecrNo already exists")
             }
+        }
+    }
+
+    //預設系統設定檔案
+    private fun insertSystemSettingDB(storeNo: String,storeNm: String,ecrNo: String, mBRDiscRate: Int){
+        //確認一般設定檔是否已經存在
+        val existingSysSetting= systemDBManager.getSystemSettingNoById(ecrNo)
+        if (existingSysSetting == null) {
+            val sys = SystemSetting(storeNo = storeNo, storeNm = storeNm, ecrNo = ecrNo,mBRDiscRate = mBRDiscRate)
+            systemDBManager.addSystem(sys)
+            Log.d("新增一般設定檔", "User added: $ecrNo")
+        } else {    //確認是否為已知id
+            Log.d("既有一般設定檔", "User with ID $ecrNo already exists")
         }
     }
 

@@ -8,6 +8,9 @@ import androidx.room.Query
 @Dao
 interface SystemDao {
     //系統設定檔
+    @Query("SELECT * FROM SystemSettings WHERE ecrNo = :eId")   //單一收集機號對應單一設定檔案
+    suspend fun getSystemSettingNoById(eId: String): SystemSetting?
+
     @Insert
     suspend fun insert(system: SystemSetting)
 

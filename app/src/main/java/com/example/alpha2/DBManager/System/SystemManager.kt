@@ -14,6 +14,14 @@ class SystemManager(context: Context) {
     private val systemDao: SystemDao = db.systemDao()
 
     //---以下為系統設定檔---
+
+    //檢查是否有收銀機號id的資料
+    fun getSystemSettingNoById(eId: String): SystemSetting? {
+        return runBlocking {
+            systemDao.getSystemSettingNoById(eId)
+        }
+    }
+
     fun addSystem(s: SystemSetting) {
         runBlocking {
             systemDao.insert(s)

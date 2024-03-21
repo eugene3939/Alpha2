@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.Serializable
 
+//商品主檔(原POS2004)
 @Entity(tableName = "Products")
 data class Product (
   @PrimaryKey
