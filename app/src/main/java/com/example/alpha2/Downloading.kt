@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.databinding.ActivityDownloadingBinding
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +37,7 @@ class Downloading : AppCompatActivity() {
         binding.downloadProBar.progress = 0
 
         //FTP連線
-        GlobalScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             // 在 IO 調度器中呼叫 connectFTP()
             connectFTP()
         }
@@ -57,7 +58,7 @@ class Downloading : AppCompatActivity() {
             //請下載的檔案不要有中文
             // 確保外部存儲目錄可用
             val externalFilesDir = this.getExternalFilesDir(null)   //儲存到sd card
-            //val externalFilesDir = requireContext().filesDir //儲存內部私有空間
+            //val internalFilesDir = requireContext().filesDir //儲存內部私有空間
             externalFilesDir?.let { externalDir ->
                 // 2. 創建 DevicePOS 資料夾在外部存儲目錄中
                 val devicePOSDirectory = File(externalDir, "devicePOS")
@@ -75,6 +76,9 @@ class Downloading : AppCompatActivity() {
             }
 
         } catch (e: IOException) {
+            runOnUiThread{
+                binding.txtTest.text = "連線失敗"
+            }
             // FTP連接失敗
             Log.e("FTP 連線失敗", "Failed to connect to FTP server: ${e.message}")
         }
@@ -137,7 +141,7 @@ class Downloading : AppCompatActivity() {
                     binding.downloadProBar.setProgress(progress,false)
                     binding.txPercentage.text = "$progress %"
 
-                    Log.d("進度","$progress")
+//                    Log.d("進度","$progress")
                 }
             } catch (e: Exception) {
                 println(e)

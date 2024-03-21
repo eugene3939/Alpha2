@@ -3,6 +3,8 @@ package com.example.alpha2.DBManager.User
 import androidx.room.Room
 import kotlinx.coroutines.runBlocking
 import android.content.Context
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 class UserManager(context: Context){
     private val db: UserDatabase = Room.databaseBuilder(
@@ -27,9 +29,9 @@ class UserManager(context: Context){
     }
 
     //檢查是否有符合帳號密碼的用戶
-    fun loginByAccPas(acc: String, pas: String): User?{
+    fun loginByAccPas(acc: String, pas: String): User? {
         return runBlocking {
-            userDao.loginByAccPas(acc,pas)
+            userDao.loginByAccPas(acc, pas)
         }
     }
 }
