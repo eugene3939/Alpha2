@@ -5,15 +5,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.viewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Product.ClusterProduct
 import com.example.alpha2.DBManager.Product.DiscountProduct
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.Product.ProductManager
-import com.example.alpha2.DBManager.System.CashState
 import com.example.alpha2.DBManager.System.CashSystem
 import com.example.alpha2.DBManager.System.SystemManager
 import com.example.alpha2.DBManager.System.SystemSetting
@@ -22,6 +18,7 @@ import com.example.alpha2.DBManager.User.UserManager
 import com.example.alpha2.databinding.ActivityLoginBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 class Login : AppCompatActivity() {
 
@@ -48,13 +45,13 @@ class Login : AppCompatActivity() {
         insertUserDB("2","Oscar", "3", "3")
 
         //----DAO 方式建立預設商品資料庫
-        insertMerchandisesDB("1","Apple", "水果","SBC", 50, 100)        //建立商品資料
-        insertMerchandisesDB("2","Pineapple", "水果","123", 100, 80)
-        insertMerchandisesDB("3","Snapple", "其他","A12", 200, 60)
-        insertMerchandisesDB("17","可可亞", "食物","ABC", 500, 80)
-        insertMerchandisesDB("18","西瓜", "飲料","RCT", 230, 60)
-        insertMerchandisesDB("19","綠茶", "飲料","CCC", 80, 25)
-        insertMerchandisesDB("20","Apple set", "組合商品","RTX", 300, 200)
+        insertMerchandisesDB("1","拿鐵", "飲料","SBC123",50, 50, 50,100)        //建立商品資料
+        insertMerchandisesDB("2","起司蛋糕", "食物","XYZ123", 100, 100,50,80,mamMethod = "H", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
+        insertMerchandisesDB("3","熱美式", "飲料","ABC125", 200,180,100, 60,mamMethod = "H", pluType = "4",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
+        insertMerchandisesDB("17","冰美式", "飲料","ABC123", 500, 450,400,80,mamMethod = "1", pluType = "3",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
+        insertMerchandisesDB("18","曼特寧", "飲料","RCT567", 230,200,150, 60,mamMethod = "B", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
+        insertMerchandisesDB("19","摩卡", "飲料","CCC876", 80, 80,80,25,mamMethod = "D")
+        insertMerchandisesDB("20","晨間套餐", "組合商品","RTX546", 300, 300,200,200,mamMethod = "E")
 
         insertDiscountProductDB("1","蘋果9折", 0.1 , 0)  //折扣商品清單
         insertDiscountProductDB("2","單品折30", 0.0, 30)
@@ -149,12 +146,12 @@ class Login : AppCompatActivity() {
     }
 
     //一般商品資料庫
-    private fun insertMerchandisesDB(id: String, name: String, type: String, barcode: String, price: Int, number: Int) {
+    private fun insertMerchandisesDB(id: String, name: String, type: String, pluMagNo: String, fixPrc: Int, salePrc: Int,unitPrc: Int, number: Int,mamMethod:String = "0",pluType: String = "1",mmpBegDate: LocalDateTime? = null,mmpEndDate:LocalDateTime? = null) {
         lifecycleScope.launch(Dispatchers.IO) {
             //確認用戶是否已經存在
             val existingMerchandise = productDBManager.getMerchandiseByID(id)
             if (existingMerchandise == null) {
-                val item = Product(pId = id, pName = name, pType = type, pBarcode = barcode, pNumber = number, pPrice = price, selectedQuantity = 0)
+                val item = Product(pId = id, pName = name, pType = type, pluMagNo = pluMagNo, pNumber = number, fixPrc = fixPrc,salePrc = salePrc, unitPrc = unitPrc,mamMethod = mamMethod,pluType = pluType,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate,selectedQuantity = 0)
                 productDBManager.insert(item)
                 Log.d("新增商品", "Merchandise added: $item")
             } else {    //確認是否為已知id

@@ -8,10 +8,10 @@ import androidx.room.PrimaryKey
 
 data class CashState (
     @PrimaryKey
-    val ecrNo: String,      //收銀機代碼
-    val userNo: String,     //作業中的收銀員代碼
-    val userLevel: String,  //權限等級
-    val txnNextNo: Int = 0,    //下一個可使用交易序號
+    val ecrNo: String,           //收銀機代碼
+    val userNo: String,          //作業中的收銀員代碼
+    val userLevel: String,       //權限等級
+    val txnNextNo: Int = 0,      //下一個可使用交易序號
     val guiBegNo: String = "A",  //起始發票號碼
     val guiNextNo: String = "B", //下一個可使用發票號碼
     val guiEndNo: String = "C"   //最後一個發票號碼

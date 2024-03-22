@@ -47,7 +47,7 @@ class Downloading : AppCompatActivity() {
         ftpClient = FTPClient()
         try {
             //1.連線遠端FTP
-            ftpClient.connect("10.60.200.18",21)
+            ftpClient.connect("10.60.200.11",21)
             ftpClient.login("tester","eugenemiku")
             ftpClient.enterLocalPassiveMode()
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
@@ -56,12 +56,15 @@ class Downloading : AppCompatActivity() {
             Log.d("FTP 連線成功", "Connected to FTP server")
 
             //請下載的檔案不要有中文
+
+            //儲存目錄(/storage/emulated/0/Android/data/com.example.alpha2/files/deviceDownLoad)
+
             // 確保外部存儲目錄可用
             val externalFilesDir = this.getExternalFilesDir(null)   //儲存到sd card
             //val internalFilesDir = requireContext().filesDir //儲存內部私有空間
             externalFilesDir?.let { externalDir ->
                 // 2. 創建 DevicePOS 資料夾在外部存儲目錄中
-                val devicePOSDirectory = File(externalDir, "devicePOS")
+                val devicePOSDirectory = File(externalDir, "deviceDownLoad")
                 if (!devicePOSDirectory.exists()) {
                     devicePOSDirectory.mkdirs() // 如果目錄不存在，則創建它
                 } else {
