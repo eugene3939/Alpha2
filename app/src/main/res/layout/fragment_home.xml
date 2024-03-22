@@ -66,7 +66,7 @@
 
     <!-- 欄位內容 -->
     <GridView
-        android:id="@+id/gr_tableData"
+        android:id="@+id/gr_tableProduct"
         android:layout_width="match_parent"
         android:layout_height="450dp"
         android:layout_below="@+id/sp_productType"
@@ -76,7 +76,7 @@
         android:id="@+id/txt_totalPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/gr_tableData"
+        android:layout_below="@+id/gr_tableProduct"
         android:text="@string/txtTotalPrice"
         android:textColor="#4B5485"
         android:textSize="30sp"

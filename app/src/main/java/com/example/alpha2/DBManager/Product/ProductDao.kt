@@ -6,14 +6,17 @@ import androidx.room.Query
 
 @Dao
 interface ProductDao {
+    //尋找全部項目的product
     @Query("SELECT * FROM Products")
-    fun getAllMerchandiseTable(): MutableList<Product>?
+    fun getAllProductTable(): MutableList<Product>?
 
-    @Query("SELECT * FROM Products WHERE pId = :id") //尋找符合項目的單一id
-    fun getMerchandiseByID(id: String): Product?
+    //尋找符合單一ID項目的Product
+    @Query("SELECT * FROM Products WHERE pId = :id")
+    fun getProductByID(id: String): Product?
 
-    @Query("SELECT * FROM Products WHERE :column = :value")  //篩選特定欄位
-    fun getMerchandiseByColumn(column: String,value: String): MutableList<Product>?
+    //尋找所有Ptype的所有內容中非空值的項目
+    @Query("SELECT DISTINCT pType FROM Products WHERE :columnName IS NOT NULL")
+    fun getCategoryList(columnName: String): List<String>?
 
     @Insert
     suspend fun insert(merchandise: Product)

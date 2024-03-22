@@ -28,22 +28,23 @@ class ProductManager(context: Context) {
     }
 
     //尋找商品id
-    fun getMerchandiseByID(id: String): Product?{
+    fun getProductByID(id: String): Product?{
         return runBlocking {
-            productDao.getMerchandiseByID(id)
+            productDao.getProductByID(id)
         }
     }
 
-    fun getMerchandiseByColumn(column: String,value: String): List<Product>{
+    //尋找該欄位不重複的所有內容
+    fun getCategoryList(columName: String): List<String>?{
         return runBlocking {
-            productDao.getMerchandiseByColumn(column, value)!!
+            productDao.getCategoryList(columName)
         }
     }
 
     //尋找全部商品
-    fun getAllMerchandiseTable(): MutableList<Product>?{
+    fun getAllProductTable(): MutableList<Product>?{
         return runBlocking {
-            productDao.getAllMerchandiseTable()
+            productDao.getAllProductTable()
         }
     }
 

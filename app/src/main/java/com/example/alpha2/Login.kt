@@ -44,8 +44,8 @@ class Login : AppCompatActivity() {
         insertUserDB("1","Eugene", "1", "1")        //建立預設用戶
         insertUserDB("2","Oscar", "3", "3")
 
-        //----DAO 方式建立預設商品資料庫
-        insertMerchandisesDB("1","拿鐵", "飲料","SBC123",50, 50, 50,100)        //建立商品資料
+        //----DAO 方式建立預設商品資料庫 (建立商品資料)
+        insertMerchandisesDB("1","拿鐵", "飲料","SBC123",50, 50, 50,100)
         insertMerchandisesDB("2","起司蛋糕", "食物","XYZ123", 100, 100,50,80,mamMethod = "H", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
         insertMerchandisesDB("3","熱美式", "飲料","ABC125", 200,180,100, 60,mamMethod = "H", pluType = "4",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
         insertMerchandisesDB("17","冰美式", "飲料","ABC123", 500, 450,400,80,mamMethod = "1", pluType = "3",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
@@ -149,7 +149,7 @@ class Login : AppCompatActivity() {
     private fun insertMerchandisesDB(id: String, name: String, type: String, pluMagNo: String, fixPrc: Int, salePrc: Int,unitPrc: Int, number: Int,mamMethod:String = "0",pluType: String = "1",mmpBegDate: LocalDateTime? = null,mmpEndDate:LocalDateTime? = null) {
         lifecycleScope.launch(Dispatchers.IO) {
             //確認用戶是否已經存在
-            val existingMerchandise = productDBManager.getMerchandiseByID(id)
+            val existingMerchandise = productDBManager.getProductByID(id)
             if (existingMerchandise == null) {
                 val item = Product(pId = id, pName = name, pType = type, pluMagNo = pluMagNo, pNumber = number, fixPrc = fixPrc,salePrc = salePrc, unitPrc = unitPrc,mamMethod = mamMethod,pluType = pluType,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate,selectedQuantity = 0)
                 productDBManager.insert(item)
