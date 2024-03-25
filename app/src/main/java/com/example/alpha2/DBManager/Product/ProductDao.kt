@@ -14,6 +14,10 @@ interface ProductDao {
     @Query("SELECT * FROM Products WHERE pId = :id")
     fun getProductByID(id: String): Product?
 
+    //尋找符合單一貨號的Product
+    @Query("SELECT * FROM Products WHERE pluMagNo = :magNo")
+    fun getProductByMagNo(magNo: String): Product?
+
     //尋找所有Ptype的所有內容中非空值的項目
     @Query("SELECT DISTINCT pType FROM Products WHERE :columnName IS NOT NULL")
     fun getCategoryList(columnName: String): List<String>?
