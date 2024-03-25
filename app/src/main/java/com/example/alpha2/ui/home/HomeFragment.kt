@@ -1,6 +1,5 @@
 package com.example.alpha2.ui.home
 
-import android.R
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
@@ -12,6 +11,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.Product.ProductManager
 import com.example.alpha2.DBManager.User.UserManager
 import com.example.alpha2.databinding.FragmentHomeBinding
@@ -27,7 +27,10 @@ class HomeFragment : Fragment() {
     private lateinit var userDBManager: UserManager       //用戶Dao (用封裝的方式獲取Dao)
     private lateinit var productDBManager: ProductManager //商品Dao
 
-    private var productCategoryList: List<String>? = null
+    private var productCategoryList: MutableList<String> = mutableListOf("食物", "飲料")   //商品類別(只會顯示常用商品，或是沒有條碼的商品)
+
+    //List儲存商品篩選結果(依據文字搜尋或欄位搜尋結果)
+    private var filteredProductList: List<Product> = emptyList()
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -56,14 +59,16 @@ class HomeFragment : Fragment() {
             binding.textDashboard.text = "Null user access"
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            productCategoryList = productDBManager.getCategoryList("pType")
-            withContext(Dispatchers.Main) {
-                setupSpinner()
-            }
-        }
+//        將dao資料填寫進去list的方法
+//        lifecycleScope.launch(Dispatchers.IO) {
+//            productCategoryList = productDBManager.getCategoryList("pType")
+//            withContext(Dispatchers.Main) {
+//                setupSpinner()
+//            }
+//        }
 
-        //在這裡新增顯示邏輯
+        //主頁會顯示的商品類別，方便用戶選擇
+        setupSpinner()
 
         return root
     }

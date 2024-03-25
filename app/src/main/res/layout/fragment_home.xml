@@ -56,19 +56,27 @@
             android:textSize="20sp"/>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/bt_barcodeScanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/SearchBarLayout"
+        android:text="@string/txtBarcode"
+        android:textSize="20sp"/>
+
     <!-- 商品分類 -->
     <Spinner
         android:id="@+id/sp_productType"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_below="@+id/SearchBarLayout"
+        android:layout_below="@+id/bt_barcodeScanner"
         android:background="#8493EA"/>
 
     <!-- 欄位內容 -->
     <GridView
         android:id="@+id/gr_tableProduct"
         android:layout_width="match_parent"
-        android:layout_height="450dp"
+        android:layout_height="400dp"
         android:layout_below="@+id/sp_productType"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 

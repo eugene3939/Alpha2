@@ -146,12 +146,23 @@ class Login : AppCompatActivity() {
     }
 
     //一般商品資料庫
-    private fun insertMerchandisesDB(id: String, name: String, type: String, pluMagNo: String, fixPrc: Int, salePrc: Int,unitPrc: Int, number: Int,mamMethod:String = "0",pluType: String = "1",mmpBegDate: LocalDateTime? = null,mmpEndDate:LocalDateTime? = null) {
+    private fun insertMerchandisesDB(id: String,
+                                     name: String,
+                                     type: String,
+                                     pluMagNo: String,
+                                     fixPrc: Int,
+                                     salePrc: Int,
+                                     unitPrc: Int,
+                                     number: Int,
+                                     mamMethod:String = "0",
+                                     pluType: String = "1",
+                                     mmpBegDate: LocalDateTime? = null,
+                                     mmpEndDate:LocalDateTime? = null) {
         lifecycleScope.launch(Dispatchers.IO) {
             //確認用戶是否已經存在
             val existingMerchandise = productDBManager.getProductByID(id)
             if (existingMerchandise == null) {
-                val item = Product(pId = id, pName = name, pType = type, pluMagNo = pluMagNo, pNumber = number, fixPrc = fixPrc,salePrc = salePrc, unitPrc = unitPrc,mamMethod = mamMethod,pluType = pluType,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate,selectedQuantity = 0)
+                val item = Product(pId = id, pName = name, pType = type, pluMagNo = pluMagNo, pNumber = number, fixPrc = fixPrc,salePrc = salePrc, unitPrc = unitPrc,mamMethod = mamMethod, pluType = pluType,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate,selectedQuantity = 0)
                 productDBManager.insert(item)
                 Log.d("新增商品", "Merchandise added: $item")
             } else {    //確認是否為已知id

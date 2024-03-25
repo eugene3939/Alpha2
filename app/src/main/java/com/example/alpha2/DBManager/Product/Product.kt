@@ -12,7 +12,7 @@ data class Product (
   val pId: String,                 //商品編號
   val imageUrl: String = "0",      //商品圖片url (無圖片默認值為0)
   val pName: String,               //商品名稱
-  val pType: String,               //商品分類
+  val pType: String,               //商品分類 (特定類別，eg:生鮮會顯示簡易搜尋bar，或是沒有條碼的商品)
   val pluType: String,       //商品類別
 
   /*  0=原料 1=一般商品 2=生鮮商品 3=代收 4=代付 */
