@@ -17,4 +17,5 @@
     <string name="txtSumShopCart">小計</string>
     <string name="txtClerkName">收銀員</string>
     <string name="txtBarcode">條碼</string>
+    <string name="txtNowShowing">目前項目</string>
 </resources>

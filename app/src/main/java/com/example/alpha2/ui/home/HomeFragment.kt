@@ -1,7 +1,10 @@
 package com.example.alpha2.ui.home
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,15 +12,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.Product.ProductManager
 import com.example.alpha2.DBManager.User.UserManager
 import com.example.alpha2.databinding.FragmentHomeBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.google.zxing.integration.android.IntentIntegrator
 
 class HomeFragment : Fragment() {
 
@@ -27,10 +30,15 @@ class HomeFragment : Fragment() {
     private lateinit var userDBManager: UserManager       //用戶Dao (用封裝的方式獲取Dao)
     private lateinit var productDBManager: ProductManager //商品Dao
 
-    private var productCategoryList: MutableList<String> = mutableListOf("食物", "飲料")   //商品類別(只會顯示常用商品，或是沒有條碼的商品)
+    private var productCategoryList: MutableList<String> = mutableListOf("食物", "飲料")   //商品類別(只會顯示常用商品，或是沒有條碼可掃描的商品)
 
     //List儲存商品篩選結果(依據文字搜尋或欄位搜尋結果)
     private var filteredProductList: List<Product> = emptyList()
+
+    private val REQUEST_CODE_CAMERA = 1001
+    private val REQUEST_CODE_SCAN = 1002 // 新增這行，定義掃描請求碼
+
+    private var scanText: String? = null
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -70,16 +78,19 @@ class HomeFragment : Fragment() {
         //主頁會顯示的商品類別，方便用戶選擇
         setupSpinner()
 
+        //點按掃描按鈕，用Toast.makeText顯示掃描內容
+        binding.btBarcodeScanner.setOnClickListener {
+            startBarcodeScanner()
+        }
+
         return root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
+    //設定下拉式清單顯示類別
     private fun setupSpinner() {
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, productCategoryList!!)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item,
+            productCategoryList
+        )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spProductType.adapter = adapter
 
@@ -95,5 +106,36 @@ class HomeFragment : Fragment() {
                 Log.d("選中項目", "未選中向任何項目")
             }
         }
+    }
+
+    //辨識鏡頭掃描內容
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CODE_SCAN) {
+            val result = IntentIntegrator.parseActivityResult(resultCode, data)
+            if (result != null) {
+                if (result.contents == null) {
+                    Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(requireContext(), "掃描內容: ${result.contents}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    //開啟掃描鏡頭
+    private fun startBarcodeScanner() {
+        val integrator = IntentIntegrator.forSupportFragment(this)
+        integrator.setPrompt("請對準條碼進行掃描")
+        integrator.setBeepEnabled(true)
+        integrator.setOrientationLocked(false)
+        integrator.setRequestCode(REQUEST_CODE_SCAN)
+        integrator.initiateScan()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
