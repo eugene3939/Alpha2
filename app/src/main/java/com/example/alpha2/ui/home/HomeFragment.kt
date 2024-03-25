@@ -1,10 +1,7 @@
-package com.example.alpha2.ui.home
-
-import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,8 +10,8 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.Product.ProductManager
@@ -35,9 +32,10 @@ class HomeFragment : Fragment() {
     //List儲存商品篩選結果(依據文字搜尋或欄位搜尋結果)
     private var filteredProductList: List<Product> = emptyList()
 
-    private val REQUEST_CODE_CAMERA = 1001
-    private val REQUEST_CODE_SCAN = 1002 // 新增這行，定義掃描請求碼
+    //bar code launcher activity
+    private lateinit var barcodeScanner: ActivityResultLauncher<Intent>
 
+    //掃描文字
     private var scanText: String? = null
 
     @SuppressLint("SetTextI18n")
@@ -67,20 +65,15 @@ class HomeFragment : Fragment() {
             binding.textDashboard.text = "Null user access"
         }
 
-//        將dao資料填寫進去list的方法
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            productCategoryList = productDBManager.getCategoryList("pType")
-//            withContext(Dispatchers.Main) {
-//                setupSpinner()
-//            }
-//        }
+        //初始化掃描器
+        initBarcodeScanner()
 
         //主頁會顯示的商品類別，方便用戶選擇
         setupSpinner()
 
         //點按掃描按鈕，用Toast.makeText顯示掃描內容
         binding.btBarcodeScanner.setOnClickListener {
-            startBarcodeScanner()
+            startBarcodeScanner()       //讀取條碼的內容是no或是mgno
         }
 
         return root
@@ -109,16 +102,16 @@ class HomeFragment : Fragment() {
     }
 
     //辨識鏡頭掃描內容
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_CODE_SCAN) {
-            val result = IntentIntegrator.parseActivityResult(resultCode, data)
-            if (result != null) {
-                if (result.contents == null) {
-                    Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(requireContext(), "掃描內容: ${result.contents}", Toast.LENGTH_LONG).show()
+    private fun initBarcodeScanner() {
+        barcodeScanner = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val intentResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
+                if (intentResult != null) {
+                    if (intentResult.contents == null) {
+                        Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(requireContext(), "掃描內容: ${intentResult.contents}", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
@@ -130,7 +123,6 @@ class HomeFragment : Fragment() {
         integrator.setPrompt("請對準條碼進行掃描")
         integrator.setBeepEnabled(true)
         integrator.setOrientationLocked(false)
-        integrator.setRequestCode(REQUEST_CODE_SCAN)
         integrator.initiateScan()
     }
 
