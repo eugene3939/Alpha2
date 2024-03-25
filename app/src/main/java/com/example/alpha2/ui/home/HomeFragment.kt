@@ -1,5 +1,7 @@
+package com.example.alpha2.ui.home
+
 import android.annotation.SuppressLint
-import android.app.Activity.RESULT_OK
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -10,14 +12,13 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.Product.ProductManager
 import com.example.alpha2.DBManager.User.UserManager
 import com.example.alpha2.databinding.FragmentHomeBinding
 import com.google.zxing.integration.android.IntentIntegrator
+import androidx.activity.result.contract.ActivityResultContracts
 
 class HomeFragment : Fragment() {
 
@@ -32,11 +33,23 @@ class HomeFragment : Fragment() {
     //List儲存商品篩選結果(依據文字搜尋或欄位搜尋結果)
     private var filteredProductList: List<Product> = emptyList()
 
-    //bar code launcher activity
-    private lateinit var barcodeScanner: ActivityResultLauncher<Intent>
+    private val REQUEST_CODE_SCAN = 1002 // 新增這行，定義掃描請求碼
 
-    //掃描文字
     private var scanText: String? = null
+
+    private val barcodeScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            val scanResult = IntentIntegrator.parseActivityResult(result.resultCode, data)
+            if (scanResult != null) {
+                if (scanResult.contents == null) {
+                    Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(requireContext(), "掃描內容: ${scanResult.contents}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -65,16 +78,21 @@ class HomeFragment : Fragment() {
             binding.textDashboard.text = "Null user access"
         }
 
-        //初始化掃描器
-        initBarcodeScanner()
+//        將dao資料填寫進去list的方法
+//        lifecycleScope.launch(Dispatchers.IO) {
+//            productCategoryList = productDBManager.getCategoryList("pType")
+//            withContext(Dispatchers.Main) {
+//                setupSpinner()
+//            }
+//        }
+
+        //點擊開啟掃描器
+        binding.btBarcodeScanner.setOnClickListener {
+            startBarcodeScanner()
+        }
 
         //主頁會顯示的商品類別，方便用戶選擇
         setupSpinner()
-
-        //點按掃描按鈕，用Toast.makeText顯示掃描內容
-        binding.btBarcodeScanner.setOnClickListener {
-            startBarcodeScanner()       //讀取條碼的內容是no或是mgno
-        }
 
         return root
     }
@@ -101,29 +119,15 @@ class HomeFragment : Fragment() {
         }
     }
 
-    //辨識鏡頭掃描內容
-    private fun initBarcodeScanner() {
-        barcodeScanner = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val intentResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
-                if (intentResult != null) {
-                    if (intentResult.contents == null) {
-                        Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(requireContext(), "掃描內容: ${intentResult.contents}", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-        }
-    }
-
-    //開啟掃描鏡頭
     private fun startBarcodeScanner() {
         val integrator = IntentIntegrator.forSupportFragment(this)
         integrator.setPrompt("請對準條碼進行掃描")
         integrator.setBeepEnabled(true)
         integrator.setOrientationLocked(false)
-        integrator.initiateScan()
+        integrator.setRequestCode(REQUEST_CODE_SCAN)
+
+        // 替換成這行
+        barcodeScannerLauncher.launch(integrator.createScanIntent())
     }
 
     override fun onDestroyView() {
