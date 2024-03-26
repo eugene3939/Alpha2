@@ -6,7 +6,7 @@
 
     <LinearLayout
         android:id="@+id/fLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:orientation="horizontal">
@@ -17,26 +17,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="30dp"
+            android:layout_weight="7"
             android:text="@string/txtFname"
             android:textColor="#61409A"
-            android:textSize="25sp"
-            android:textStyle="bold" />
+            android:textSize="23sp"
+            android:textStyle="bold"
+            android:textAlignment="center"/>
 
         <!--商品點擊數量-->
         <TextView
             android:id="@+id/txt_product_buy_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:layout_marginStart="10dp"
             android:text="@string/txtFclickNum"
             android:textColor="#6E5A91"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textAlignment="center"/>
+
+        <Button
+            android:id="@+id/btn_cancelSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/txtCancelSelection"
+            android:textSize="15sp"
+            android:textStyle="bold"/>
 
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/fLayout"
         android:layout_alignStart="@id/fLayout"
@@ -46,34 +59,34 @@
             android:id="@+id/txt_productType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
             android:text="@string/txtFCategory"
             android:textColor="#6473C5"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:textAlignment="center"/>
 
         <!-- 商品價格 -->
         <TextView
             android:id="@+id/txt_productPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
             android:text="@string/txtUnitPrice"
             android:textColor="#6473C5"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textAlignment="center"/>
 
         <!-- 商品庫存 -->
         <TextView
             android:id="@+id/txt_productNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_weight="1"
             android:text="@string/txtFstock"
             android:textColor="#6473C5"
-            android:textSize="20sp" />
-
+            android:textSize="20sp"
+            android:textAlignment="center"/>
     </LinearLayout>
 
 </RelativeLayout>

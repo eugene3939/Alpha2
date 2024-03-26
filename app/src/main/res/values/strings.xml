@@ -23,4 +23,5 @@
     <string name="txtFclickNum">0 個</string>
     <string name="txtFstock">庫存</string>
     <string name="txtUnitPrice">價格</string>
+    <string name="txtCancelSelection">-</string>
 </resources>

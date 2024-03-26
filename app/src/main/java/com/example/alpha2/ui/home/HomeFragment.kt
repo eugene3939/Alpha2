@@ -77,6 +77,7 @@ class HomeFragment : Fragment() {
                             } else {
                                 errorHintCode = 1   //重複商品
                                 Log.d("商品已存在於清單中","exist product")
+                                existItemCheck = false
                             }
                         } else {
                             errorHintCode = 2   //不存在商品
@@ -102,6 +103,9 @@ class HomeFragment : Fragment() {
                                 }
                                 Log.d("商品清單", productNameList.toString())
                             }
+
+                            //處理完後重設掃描商品狀態
+                            existItemCheck = false
                         }
                     }
                 }
@@ -145,11 +149,7 @@ class HomeFragment : Fragment() {
 //        }
 
         //變更GridView顯示項目
-        // 如果是首次創建 Fragment，則從 ViewModel 中讀取資料
-        if (isFirstCreation) {
-            loadFilterProduct()
-            isFirstCreation = false
-        }
+        loadFilterProduct()
 
         //點擊開啟掃描器
         binding.btBarcodeScanner.setOnClickListener {
@@ -164,8 +164,8 @@ class HomeFragment : Fragment() {
 
     //螢幕旋轉或其他因素導致資料流失時會重新載入資料
     private fun loadFilterProduct() {
-        if (isFirstCreation){
-            Log.d("會空喔",filteredProductList.toString())
+        if (isFirstCreation) {
+            Log.d("會空喔", filteredProductList.toString())
             // 從 ViewModel 中讀取 filteredProductList
             val productList = viewModel.filteredProductList.value
             if (productList != null && productList.isNotEmpty()) {
