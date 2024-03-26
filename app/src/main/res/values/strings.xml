@@ -18,4 +18,9 @@
     <string name="txtClerkName">收銀員</string>
     <string name="txtBarcode">掃描條碼</string>
     <string name="txtNowShowing">目前項目</string>
+    <string name="txtFname">選擇商品名稱</string>
+    <string name="txtFCategory">分類</string>
+    <string name="txtFclickNum">0 個</string>
+    <string name="txtFstock">庫存</string>
+    <string name="txtUnitPrice">價格</string>
 </resources>

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Switch
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.alpha2.DBManager.Product.Product
@@ -21,12 +19,15 @@ import com.example.alpha2.DBManager.User.UserManager
 import com.example.alpha2.databinding.FragmentHomeBinding
 import com.google.zxing.integration.android.IntentIntegrator
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.alpha2.myAdapter.FilterProductAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
+    private val viewModel: HomeViewModel by viewModels()
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -43,7 +44,10 @@ class HomeFragment : Fragment() {
 
     private var existItemCheck = false      //檢查掃描商品是否存在於Dao
 
+    //activity首次創建(初次開啟或是螢幕旋轉)
+    private var isFirstCreation = true
 
+    //鏡頭開啟時處理條碼邏輯
     private val barcodeScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
@@ -83,19 +87,21 @@ class HomeFragment : Fragment() {
                         // 生成只包含 pName 的列表
                         val productNameList = filteredProductList.map { it.pName }
 
-                        // 確認是否成功新增
-                        if (existItemCheck) {
-                            Toast.makeText(requireContext(), "加入商品: ${filteredProductList.last().pName}", Toast.LENGTH_SHORT).show()
-                            Log.d("商品清單", productNameList.toString())
-                            existItemCheck = false
-                        } else {
-                            when(errorHintCode){        //錯誤代碼確認
-                                0-> Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_SHORT).show()
-                                1-> Toast.makeText(requireContext(), "商品已存在於清單中", Toast.LENGTH_SHORT).show()
-                                2-> Toast.makeText(requireContext(), "不存在此商品", Toast.LENGTH_SHORT).show()
-                            }
+                        withContext(Dispatchers.Main) {
+                            //變更GridView顯示項目
+                            loadFilterProduct()
 
-                            Log.d("商品清單", productNameList.toString())
+                            if (existItemCheck) {
+                                Toast.makeText(requireContext(), "加入商品: ${filteredProductList.last().pName}", Toast.LENGTH_SHORT).show()
+                                Log.d("商品清單", productNameList.toString())
+                            } else {
+                                when (errorHintCode) {
+                                    0 -> Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_SHORT).show()
+                                    1 -> Toast.makeText(requireContext(), "商品已存在於清單中", Toast.LENGTH_SHORT).show()
+                                    2 -> Toast.makeText(requireContext(), "不存在此商品", Toast.LENGTH_SHORT).show()
+                                }
+                                Log.d("商品清單", productNameList.toString())
+                            }
                         }
                     }
                 }
@@ -138,6 +144,13 @@ class HomeFragment : Fragment() {
 //            }
 //        }
 
+        //變更GridView顯示項目
+        // 如果是首次創建 Fragment，則從 ViewModel 中讀取資料
+        if (isFirstCreation) {
+            loadFilterProduct()
+            isFirstCreation = false
+        }
+
         //點擊開啟掃描器
         binding.btBarcodeScanner.setOnClickListener {
             startBarcodeScanner()
@@ -147,6 +160,29 @@ class HomeFragment : Fragment() {
         setupSpinner()
 
         return root
+    }
+
+    //螢幕旋轉或其他因素導致資料流失時會重新載入資料
+    private fun loadFilterProduct() {
+        if (isFirstCreation){
+            Log.d("會空喔",filteredProductList.toString())
+            // 從 ViewModel 中讀取 filteredProductList
+            val productList = viewModel.filteredProductList.value
+            if (productList != null && productList.isNotEmpty()) {
+                val adapter = FilterProductAdapter(productList)
+                binding.grTableProduct.adapter = adapter
+                binding.grTableProduct.numColumns = 1
+                adapter.notifyDataSetChanged()
+            }
+            isFirstCreation = false
+        }else{
+            Log.d("不空喔",filteredProductList.toString())
+            viewModel.filteredProductList.postValue(filteredProductList)    //更新到ViewModel
+            val adapter = FilterProductAdapter(filteredProductList)
+            binding.grTableProduct.adapter = adapter
+            binding.grTableProduct.numColumns = 1
+            adapter.notifyDataSetChanged()
+        }
     }
 
     //設定下拉式清單顯示類別
