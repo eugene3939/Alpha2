@@ -42,11 +42,6 @@ class FilterProductAdapter(private val dataList: List<Product>) : BaseAdapter() 
         return view!!
     }
 
-    // 取得該項商品的選擇數量
-    private fun getSelectNumber(product: Product?): Int {
-        return product?.selectedQuantity ?: 0
-    }
-
     class ViewHolder(itemView: View) {
         //請見selectitem.xml
         private val productName: TextView = itemView.findViewById(R.id.txt_productName)

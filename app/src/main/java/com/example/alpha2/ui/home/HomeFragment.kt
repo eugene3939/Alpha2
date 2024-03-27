@@ -21,6 +21,7 @@ import com.google.zxing.integration.android.IntentIntegrator
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.alpha2.DBManager.Product.ScanProduct
 import com.example.alpha2.myAdapter.FilterProductAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -94,6 +95,10 @@ class HomeFragment : Fragment() {
 
                             if (existItemCheck) {
                                 Toast.makeText(requireContext(), "加入商品: ${filteredProductList.last().pName}", Toast.LENGTH_SHORT).show()
+
+                                //加入掃描商品到Dao
+                                productDBManager.insertScan(ScanProduct(filteredProductList.last().pId,filteredProductList.last().pluMagNo,0))
+
                                 Log.d("商品清單", productNameList.toString())
                             } else {
                                 when (errorHintCode) {
@@ -165,11 +170,12 @@ class HomeFragment : Fragment() {
     //螢幕旋轉或其他因素導致資料流失時會重新載入資料
     private fun loadFilterProduct() {
         if (isFirstCreation) {
-            Log.d("會空喔", filteredProductList.toString())
             // 從 ViewModel 中讀取 filteredProductList
-            val productList = viewModel.filteredProductList.value
-            if (productList != null && productList.isNotEmpty()) {
-                val adapter = FilterProductAdapter(productList)
+            val filteredProductList = viewModel.filteredProductList.value
+            Log.d("會空喔", filteredProductList.toString())
+            if (!filteredProductList.isNullOrEmpty()) {
+                viewModel.filteredProductList.postValue(filteredProductList)    //更新到ViewModel
+                val adapter = FilterProductAdapter(filteredProductList)
                 binding.grTableProduct.adapter = adapter
                 binding.grTableProduct.numColumns = 1
                 adapter.notifyDataSetChanged()

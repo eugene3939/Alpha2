@@ -98,4 +98,26 @@ class ProductManager(context: Context) {
             productDao.getClusterByID(id)
         }
     }
+
+    //---------以下為掃描商品---------
+    //新增商品
+    fun insertScan(cm: ScanProduct) {
+        runBlocking {
+            productDao.insertScan(cm)
+        }
+    }
+
+    //刪除商品
+    fun deleteScan(id: String){
+        runBlocking {
+            productDao.deleteScan(id)
+        }
+    }
+
+    //尋找商品id
+    fun getScanByID(id: String): ScanProduct?{
+        return runBlocking {
+            productDao.getScanByID(id)
+        }
+    }
 }

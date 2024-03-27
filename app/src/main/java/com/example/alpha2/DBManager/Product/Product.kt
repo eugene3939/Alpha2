@@ -45,5 +45,4 @@ data class Product (
 
   val mmpBegDate: LocalDateTime? = null,            //促銷開始日期
   val mmpEndDate: LocalDateTime? = null,            //促銷結束日期 (不用考慮超過期限，價格更新於回價時處理)
-  var selectedQuantity: Int = 0,   //購物車選擇數量
  ): Serializable

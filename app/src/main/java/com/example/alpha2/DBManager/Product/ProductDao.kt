@@ -47,4 +47,14 @@ interface ProductDao {
 
     @Query("SELECT * FROM ClusterProducts WHERE pId = :id") //尋找符合項目的單一id
     fun getClusterByID(id: String): ClusterProduct?
+
+    //掃描商品
+    @Insert
+    suspend fun insertScan(cm: ScanProduct)
+
+    @Query("DELETE FROM ScanProducts WHERE pId = :id")
+    suspend fun deleteScan(id: String)
+
+    @Query("SELECT * FROM ScanProducts WHERE pId = :id") //尋找符合項目的單一id
+    fun getScanByID(id: String): ScanProduct?
 }
