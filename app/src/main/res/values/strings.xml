@@ -24,4 +24,6 @@
     <string name="txtFstock">庫存</string>
     <string name="txtUnitPrice">價格</string>
     <string name="txtCancelSelection">0</string>
+    <string name="txtPlus1">+1</string>
+    <string name="txtMinus1">-1</string>
 </resources>

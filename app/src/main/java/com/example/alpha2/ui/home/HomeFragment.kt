@@ -2,6 +2,7 @@ package com.example.alpha2.ui.home
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.alpha2.DBManager.Product.Product
@@ -21,7 +24,9 @@ import com.google.zxing.integration.android.IntentIntegrator
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.alpha2.R
 import com.example.alpha2.myAdapter.FilterProductAdapter
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -141,19 +146,44 @@ class HomeFragment : Fragment() {
             binding.textDashboard.text = "Null user access"
         }
 
-//        將dao資料填寫進去list的方法
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            productCategoryList = productDBManager.getCategoryList("pType")
-//            withContext(Dispatchers.Main) {
-//                setupSpinner()
-//            }
-//        }
-
         //變更GridView顯示項目
         // 如果是首次創建 Fragment，則從 ViewModel 中讀取資料
         if (isFirstCreation) {
             loadFilterProduct()
             isFirstCreation = false
+        }
+
+        // 創建一個 BottomSheetDialog
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        bottomSheetDialog.setContentView(R.layout.selectnum) // 將你的 變更數量的xml 設置為BottomView內容
+
+        // 找到 修改數量畫面的 +1按鈕
+        val btnPlus1 = bottomSheetDialog.findViewById<Button>(R.id.btnSelectPlus1)
+        // 找到 修改數量畫面的 -1按鈕
+        val btnMinus1 = bottomSheetDialog.findViewById<Button>(R.id.btnSelectMinus1)
+        // 找到 修改數量畫面的 確定按鈕
+        val btnConfirm = bottomSheetDialog.findViewById<Button>(R.id.btnScanNumConfirm)
+
+
+        //點擊gridView變更數量
+        binding.grTableProduct.setOnItemClickListener { _, _, position, _ ->
+            //Toast.makeText(requireContext(),"位置: $position",Toast.LENGTH_SHORT).show()
+
+            // 顯示 BottomView
+            bottomSheetDialog.show()
+
+            if (btnPlus1 != null && btnMinus1 != null && btnConfirm!=null) {
+                btnPlus1.setOnClickListener {
+                    Log.d("增加數量","+1")
+                }
+                btnMinus1.setOnClickListener {
+                    Log.d("減少數量","-1")
+                }
+                btnConfirm.setOnClickListener {
+                    Log.d("確定送出","${filteredProductList[position].salePrc}")
+                }
+            }
+
         }
 
         //點擊開啟掃描器
