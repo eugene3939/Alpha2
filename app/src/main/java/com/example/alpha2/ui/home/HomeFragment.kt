@@ -6,6 +6,8 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -55,6 +58,9 @@ class HomeFragment : Fragment() {
     //activity首次創建(初次開啟或是螢幕旋轉)
     private var isFirstCreation = true
 
+    // 定義一個映射來存儲商品和它們的選擇數量
+    var selectedQuantities = mutableMapOf<Product, Int>()
+
     //鏡頭開啟時處理條碼邏輯
     private val barcodeScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -79,6 +85,9 @@ class HomeFragment : Fragment() {
                                 filteredProductList.add(product)
 
                                 Log.d("加入商品", filteredProductList.last().pName)
+
+                                // 如果商品已經存在，數量指定為1
+                                selectedQuantities[product] = 1
 
                                 existItemCheck = true
 
@@ -163,7 +172,8 @@ class HomeFragment : Fragment() {
         val btnMinus1 = bottomSheetDialog.findViewById<Button>(R.id.btnSelectMinus1)
         // 找到 修改數量畫面的 確定按鈕
         val btnConfirm = bottomSheetDialog.findViewById<Button>(R.id.btnScanNumConfirm)
-
+        // 找到 目前數量的 輸入框
+        val edtNumber = bottomSheetDialog.findViewById<EditText>(R.id.edtScanNumber)
 
         //點擊gridView變更數量
         binding.grTableProduct.setOnItemClickListener { _, _, position, _ ->
@@ -173,17 +183,80 @@ class HomeFragment : Fragment() {
             bottomSheetDialog.show()
 
             if (btnPlus1 != null && btnMinus1 != null && btnConfirm!=null) {
+
+                //點擊商品的目前數量
+                val selectScanNumber = selectedQuantities[filteredProductList[position]]
+                //點擊數量
+                var changeAmount = selectScanNumber
+
+                //顯示點數量
+                if (edtNumber != null && changeAmount != null) {
+                    edtNumber.text = Editable.Factory.getInstance().newEditable(changeAmount.toString())
+                }
+
+                // 添加文字變更監聽器
+                if (edtNumber != null) {
+                    edtNumber.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                            // 不需要實現
+                        }
+
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                            // 當 EditText 的文字變更時，更新 changeAmount 的值
+                            if (!s.isNullOrEmpty()) {
+                                changeAmount = s.toString().toIntOrNull() ?: 0
+                            }
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            // 不需要實現
+                        }
+                    })
+                }
+
                 btnPlus1.setOnClickListener {
-                    Log.d("增加數量","+1")
+                    if (changeAmount!=null)
+                        changeAmount = changeAmount!! + 1       //點擊數量+1
+                    Log.d("數量","$changeAmount")
+
+                    //顯示點數量
+                    if (edtNumber != null && changeAmount != null) {
+                        edtNumber.text = Editable.Factory.getInstance().newEditable(changeAmount.toString())
+                    }
                 }
                 btnMinus1.setOnClickListener {
-                    Log.d("減少數量","-1")
+                    if (changeAmount!=null && changeAmount!! >=1)  //數量最少要是1
+                        changeAmount = changeAmount!! - 1       //點擊數量-1
+                    Log.d("數量","$changeAmount")
+
+                    //顯示點數量
+                    if (edtNumber != null && changeAmount != null) {
+                        edtNumber.text = Editable.Factory.getInstance().newEditable(changeAmount.toString())
+                    }
                 }
                 btnConfirm.setOnClickListener {
-                    Log.d("確定送出","${filteredProductList[position].salePrc}")
+                    //如果變更後的數量變成0就刪除選擇商品
+                    if (changeAmount == 0){
+                        //刪除掃描商品提示訊息(商品名稱)
+                        Toast.makeText(requireContext(),"刪除: ${filteredProductList[position].pName}",Toast.LENGTH_SHORT).show()
+
+                        selectedQuantities.remove(filteredProductList[position])
+                        filteredProductList.removeAt(position)
+
+                        //重新載入清單
+                        loadFilterProduct()
+                    }else{
+                        //更新成新數量
+                        if (changeAmount != null) {
+                            selectedQuantities[filteredProductList[position]] = changeAmount!!
+
+                            Log.d("商品數量","${selectedQuantities[filteredProductList[position]]}")
+                        }
+                    }
+
+                    bottomSheetDialog.dismiss()     //結束bottomView
                 }
             }
-
         }
 
         //點擊開啟掃描器
@@ -201,7 +274,7 @@ class HomeFragment : Fragment() {
 
             lifecycleScope.launch(Dispatchers.IO) {
                 //結果代碼
-                var resultCode: Int = 0
+                var resultCode = 0
 
                 Log.d("filterNameLists內容",filterNameList.toString())
                 Log.d("輸入內容",searchMgaNo)
