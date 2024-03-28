@@ -6,6 +6,5 @@ import androidx.lifecycle.ViewModel
 import com.example.alpha2.DBManager.Product.Product
 
 class HomeViewModel : ViewModel() {
-
     val filteredProductList = MutableLiveData<MutableList<Product>>()
 }

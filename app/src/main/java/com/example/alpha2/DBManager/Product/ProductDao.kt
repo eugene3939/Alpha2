@@ -57,4 +57,7 @@ interface ProductDao {
 
     @Query("SELECT * FROM ScanProducts WHERE pId = :id") //尋找符合項目的單一id
     fun getScanByID(id: String): ScanProduct?
+
+    @Query("SELECT * FROM ScanProducts")
+    fun getAllScan(): MutableList<ScanProduct>?     //找所有ScanProduct
 }

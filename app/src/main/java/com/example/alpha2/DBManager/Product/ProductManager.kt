@@ -120,4 +120,11 @@ class ProductManager(context: Context) {
             productDao.getScanByID(id)
         }
     }
+
+    //尋找全部id
+    fun getAllScan(): MutableList<ScanProduct>?{
+        return runBlocking {
+            productDao.getAllScan()
+        }
+    }
 }
