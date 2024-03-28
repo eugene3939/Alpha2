@@ -25,6 +25,7 @@ import com.example.alpha2.myAdapter.FilterProductAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 //不允許螢幕旋轉，螢幕旋轉容易導致資料流失
 
@@ -158,6 +159,67 @@ class HomeFragment : Fragment() {
         //點擊開啟掃描器
         binding.btBarcodeScanner.setOnClickListener {
             startBarcodeScanner()
+        }
+
+        //輸入貨號後新增商品
+        binding.btnSearch.setOnClickListener {
+            //搜尋文字
+            val searchMgaNo: String = binding.edtSearchRow.text.toString()
+
+            //掃描清單名稱列表
+            val filterNameList: List<String> = filteredProductList.map { it.pluMagNo }
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                //結果代碼
+                var resultCode: Int = 0
+
+                Log.d("filterNameLists內容",filterNameList.toString())
+                Log.d("輸入內容",searchMgaNo)
+
+                //輸入貨號不包含在清單，且存在於商品目錄，可新增
+                if (!filterNameList.contains(searchMgaNo) && productDBManager.getProductByMagNo(searchMgaNo)!=null){
+
+                    //和規的貨號，加入清單
+                    try {
+                        filteredProductList.add(productDBManager.getProductByMagNo(searchMgaNo)!!)
+                        Log.d("加入商品", productDBManager.getProductByMagNo(searchMgaNo)!!.pName)
+                        resultCode = 99
+
+                    }catch (e: Exception){
+                        println(e)
+                    }
+
+                }else{
+                    //已存在或是不合規定的訂單編號
+                    if (productDBManager.getProductByMagNo(searchMgaNo)==null){
+                        Log.d("貨號搜尋錯誤","不存在的貨號")
+                        resultCode = 1
+                    }else if (filterNameList.contains(searchMgaNo)){
+                        Log.d("貨號搜尋錯誤","已經加入這筆商品了")
+                        resultCode = 2
+                    }else{
+                        Log.d("貨號搜尋錯誤","其他錯誤")
+                    }
+                }
+
+                //顯示結果代碼
+                withContext(Dispatchers.Main) {
+                    when (resultCode){
+                        0 -> Toast.makeText(requireContext(),"其他錯誤",Toast.LENGTH_SHORT).show()
+                        1 -> Toast.makeText(requireContext(),"不存在的貨號",Toast.LENGTH_SHORT).show()
+                        2 -> Toast.makeText(requireContext(),"已經加入這筆商品了",Toast.LENGTH_SHORT).show()
+                        99 -> Toast.makeText(requireContext(),"新增成功",Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            //主程序外更新顯示內容
+            loadFilterProduct()
+        }
+
+        //按鈕清除輸入貨號
+        binding.btnClear.setOnClickListener {
+            binding.edtSearchRow.setText("")
         }
 
         //主頁會顯示的商品類別，方便用戶選擇

@@ -30,7 +30,7 @@
             android:layout_weight="0.75"
             android:autofillHints="empty"
             android:hint="@string/txtSearchBarHint"
-            android:inputType="text"
+            android:inputType="number"
             android:textSize="25sp"
             android:textColor="#5622B3"
             android:textColorHint="#21329F"
