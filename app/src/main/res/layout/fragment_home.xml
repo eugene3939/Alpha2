@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,93 +7,137 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/textDashboard"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="@string/txtClerkName"
-        android:textStyle="bold"
-        android:textSize="25sp"/>
-
-    <LinearLayout
-        android:id="@+id/SearchBarLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textDashboard"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/edt_searchRow"
+        <TextView
+            android:id="@+id/textDashboard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.75"
-            android:autofillHints="empty"
-            android:hint="@string/txtSearchBarHint"
-            android:inputType="number"
-            android:textSize="25sp"
-            android:textColor="#5622B3"
-            android:textColorHint="#21329F"
-            android:textColorLink="#E91E63" />
+            android:layout_centerHorizontal="true"
+            android:text="@string/txtClerkName"
+            android:textStyle="bold"
+            android:textSize="25sp"/>
+
+        <LinearLayout
+            android:id="@+id/SearchBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textDashboard"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/edt_searchRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:autofillHints="empty"
+                android:hint="@string/txtSearchBarHint"
+                android:inputType="number"
+                android:textSize="25sp"
+                android:textColor="#5622B3"
+                android:textColorHint="#21329F"
+                android:textColorLink="#E91E63" />
+
+            <Button
+                android:id="@+id/btn_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_weight="0.125"
+                android:selectAllOnFocus="false"
+                android:text="@string/txtConfirm"
+                android:textSize="20sp"/>
+
+            <Button
+                android:id="@+id/btn_clear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_weight="0.125"
+                android:text="@string/txtClearText"
+                android:textSize="20sp"/>
+        </LinearLayout>
 
         <Button
-            android:id="@+id/btn_search"
+            android:id="@+id/bt_barcodeScanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/SearchBarLayout"
+            android:text="@string/txtBarcode"
+            android:textSize="30sp"/>
+
+        <!-- 欄位內容 -->
+        <GridView
+            android:id="@+id/gr_tableProduct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/bt_barcodeScanner"
+            android:layout_above="@+id/btn_deal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <!-- 確認價格 -->
+        <Button
+            android:id="@+id/btn_deal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_weight="0.125"
-            android:selectAllOnFocus="false"
-            android:text="@string/txtConfirm"
-            android:textSize="20sp"/>
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="110dp"
+            android:text="@string/txtSumShopCart"
+            android:textSize="25sp"/>
+
+        <!--總小計-->
+        <TextView
+            android:id="@+id/txt_totalDollar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="60dp"
+            android:visibility="invisible"
+            android:text="@string/txtTotalPrice"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
 
         <Button
-            android:id="@+id/btn_clear"
+            android:id="@+id/btnUserFavor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_weight="0.125"
-            android:text="@string/txtClearText"
-            android:textSize="20sp"/>
-    </LinearLayout>
+            android:layout_alignParentEnd="true"
+            android:layout_above="@+id/txt_totalDollar"
+            android:text="@string/txtUserSettingButton"
+            android:textSize="25sp"/>
 
-    <Button
-        android:id="@+id/bt_barcodeScanner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/SearchBarLayout"
-        android:text="@string/txtBarcode"
-        android:textSize="30sp"/>
+        <!--折扣選項-->
+        <Spinner
+            android:id="@+id/spDiscountList"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignBottom="@+id/txt_totalDollar"
+            android:background="#8493EA"/>
 
-    <!-- 欄位內容 -->
-    <GridView
-        android:id="@+id/gr_tableProduct"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/bt_barcodeScanner"
-        android:layout_above="@+id/btn_deal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        <!--自訂按鈕2-->
+        <Spinner
+            android:id="@+id/spDiscountList2"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_toEndOf="@+id/spDiscountList"
+            android:layout_alignBottom="@+id/txt_totalDollar"
+            android:background="#8493EA"/>
 
-    <!-- 確認價格 -->
-    <Button
-        android:id="@+id/btn_deal"
+    </RelativeLayout>
+
+    <!--drawer table test-->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/my_navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="60dp"
-        android:layout_marginStart="20dp"
-        android:text="@string/txtSumShopCart"
-        android:textSize="25sp"/>
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="start"
+        app:menu="@menu/my_nav_menu" />
 
-    <!--總小計-->
-    <TextView
-        android:id="@+id/txt_totalDollar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/btn_deal"
-        android:layout_alignParentEnd="true"
-        android:visibility="invisible"
-        android:text="@string/txtTotalPrice"
-        android:textSize="30sp"
-        android:textStyle="bold"/>
-
-</RelativeLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

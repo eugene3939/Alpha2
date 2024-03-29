@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -224,8 +225,8 @@ class HomeFragment : Fragment() {
                     }
                 }
                 btnMinus1.setOnClickListener {
-                    if (changeAmount!=null && changeAmount!! >=1)  //數量最少要是1
-                        changeAmount = changeAmount!! - 1       //點擊數量-1
+                    if (changeAmount!=null && changeAmount!! >=1)   //數量最少要是1
+                        changeAmount = changeAmount!! - 1           //點擊數量-1
                     Log.d("數量","$changeAmount")
 
                     //顯示點擊數量
@@ -256,6 +257,24 @@ class HomeFragment : Fragment() {
                     bottomSheetDialog.dismiss()     //結束bottomView
                 }
             }
+        }
+
+        //顯示用戶自定義側滑式清單
+        binding.myNavigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_blue -> binding.textDashboard.setTextColor(Color.BLUE)
+                R.id.nav_green -> binding.textDashboard.setTextColor(Color.GREEN)
+                R.id.nav_yellow -> binding.textDashboard.setTextColor(Color.YELLOW)
+            }
+            true
+        }
+
+        //顯示用戶自定義的下拉式選單
+        binding.btnUserFavor.setOnClickListener {
+            val bottomSheetDialog2 = BottomSheetDialog(requireContext())
+            bottomSheetDialog2.setContentView(R.layout.myfavorite)
+
+            bottomSheetDialog2.show()
         }
 
         //點擊開啟掃描器
@@ -323,6 +342,27 @@ class HomeFragment : Fragment() {
             loadFilterProduct()
         }
 
+        // 定義下拉列表中的折扣選項
+        val items = arrayOf("不適用折扣","會員折扣", "折價券", "檔期促銷")
+        // 創建一個 ArrayAdapter 來設置 Spinner 的選項內容
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, items)
+        // 設置下拉列表的風格
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        // 將 Adapter 設置給 Spinner
+        binding.spDiscountList.adapter = adapter
+        // 處理用戶選擇的事件
+
+        // 定義下拉列表中的折扣選項
+        val items2 = arrayOf("生鮮商品","預購商品", "菸酒類商品", "贈品")
+        // 創建一個 ArrayAdapter 來設置 Spinner 的選項內容
+        val adapter2 = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, items2)
+        // 設置下拉列表的風格
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        // 將 Adapter 設置給 Spinner
+        binding.spDiscountList2.adapter = adapter2
+        // 處理用戶選擇的事件
+
+
         //按鈕清除輸入貨號
         binding.btnClear.setOnClickListener {
             binding.edtSearchRow.setText("")
@@ -381,6 +421,7 @@ class HomeFragment : Fragment() {
         }
     }
 
+    //開啟鏡頭掃描商品
     private fun startBarcodeScanner() {
         val integrator = IntentIntegrator.forSupportFragment(this)
         integrator.setPrompt("請對準條碼進行掃描")
@@ -394,6 +435,11 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
+        //離開頁面就清除 掃描清單、掃描個數
+        selectedQuantities.clear()
+        filteredProductList.clear()
+
         _binding = null
     }
 }
