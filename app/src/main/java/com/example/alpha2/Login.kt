@@ -46,12 +46,12 @@ class Login : AppCompatActivity() {
 
         //----DAO 方式建立預設商品資料庫 (建立商品資料)
         insertMerchandisesDB("1","Airwaves Super極酷薄荷無糖口香糖 - 極酷薄荷口味", "零食","4710716334875",50, 50, 50,100)
-        insertMerchandisesDB("2","零負擔Android程式設計之旅", "書籍","9786263336148", 100, 100,50,80,mamMethod = "H", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
-        insertMerchandisesDB("3","Android開發架構實戰", "書籍","9786263332577", 200,180,100, 60,mamMethod = "H", pluType = "4",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
+        insertMerchandisesDB("2","零負擔Android程式設計之旅", "書籍","9786263336148", 690, 650,600,80,mamMethod = "H", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
+        insertMerchandisesDB("3","Android開發架構實戰", "書籍","9786263332577", 600,550,550, 60,mamMethod = "H", pluType = "4",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
         insertMerchandisesDB("17","Android初學特訓班", "書籍","9789865023072", 500, 450,400,80,mamMethod = "1", pluType = "3",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
-        insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 230,200,150, 60,mamMethod = "B", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
-        insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 80, 80,80,25,mamMethod = "D")
-        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 300, 300,200,200,mamMethod = "E")
+        insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500,500,500, 60,mamMethod = "B", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
+        insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660, 650,650,25,mamMethod = "D")
+        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000, 2000,2000,200,mamMethod = "E")
 
         insertDiscountProductDB("1","蘋果9折", 0.1 , 0)  //折扣商品清單
         insertDiscountProductDB("2","單品折30", 0.0, 30)

@@ -64,21 +64,13 @@
         android:text="@string/txtBarcode"
         android:textSize="30sp"/>
 
-    <!-- 商品分類 -->
-    <Spinner
-        android:id="@+id/sp_productType"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_below="@+id/bt_barcodeScanner"
-        android:background="#8493EA"/>
-
     <!-- 欄位內容 -->
     <GridView
         android:id="@+id/gr_tableProduct"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/sp_productType"
-        android:layout_marginBottom="60dp"
+        android:layout_below="@+id/bt_barcodeScanner"
+        android:layout_above="@+id/btn_deal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <!-- 確認價格 -->
@@ -88,8 +80,20 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="60dp"
-        android:layout_marginEnd="30dp"
-        android:layout_centerHorizontal="true"
+        android:layout_marginStart="20dp"
         android:text="@string/txtSumShopCart"
         android:textSize="25sp"/>
+
+    <!--總小計-->
+    <TextView
+        android:id="@+id/txt_totalDollar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btn_deal"
+        android:layout_alignParentEnd="true"
+        android:visibility="invisible"
+        android:text="@string/txtTotalPrice"
+        android:textSize="30sp"
+        android:textStyle="bold"/>
+
 </RelativeLayout>

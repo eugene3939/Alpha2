@@ -21,7 +21,7 @@
     <string name="txtFname">商品名稱</string>
     <string name="txtFMagno">貨號</string>
     <string name="txtFclickNum">0 個</string>
-    <string name="txtFsum">小計</string>
+    <string name="txtFsum">付款</string>
     <string name="txtUnitPrice">價格</string>
     <string name="txtCancelSelection">0</string>
     <string name="txtPlus1">+1</string>

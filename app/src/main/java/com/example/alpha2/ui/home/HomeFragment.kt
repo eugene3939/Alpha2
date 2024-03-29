@@ -59,6 +59,9 @@ class HomeFragment : Fragment() {
     // 定義一個映射來存儲商品和它們的選擇數量
     private var selectedQuantities = mutableMapOf<Product, Int>()
 
+    //總小計金額
+    private var totalSumUnitPrice = 0
+
     //鏡頭開啟時處理條碼邏輯
     private val barcodeScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -325,14 +328,16 @@ class HomeFragment : Fragment() {
             binding.edtSearchRow.setText("")
         }
 
-        //主頁會顯示的商品類別，方便用戶選擇
-        setupSpinner()
-
         return root
     }
 
     //螢幕旋轉或其他因素導致資料流失時會重新載入資料
+    @SuppressLint("SetTextI18n")
     private fun loadFilterProduct() {
+
+        //先重製總價
+        totalSumUnitPrice = 0
+
         if (isFirstCreation){
             Log.d("會空喔",filteredProductList.toString())
 
@@ -356,27 +361,23 @@ class HomeFragment : Fragment() {
             binding.grTableProduct.numColumns = 1
             adapter.notifyDataSetChanged()
         }
-    }
 
-    //設定下拉式清單顯示類別
-    private fun setupSpinner() {
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item,
-            productCategoryList
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spProductType.adapter = adapter
+        //變更小計金額
+        for (product in filteredProductList) {
+            // 檢查商品是否在 selectNumberMap 中，如果沒有，預設選擇數量為 0
+            val selectNumber = selectedQuantities.getOrDefault(product, 0)
+            // 計算單一小計
+            val totalPrice = product.unitPrc * selectNumber
 
-        binding.spProductType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // 選中項目的邏輯
-                val selectedItem = parent?.getItemAtPosition(position).toString()
-                Log.d("選中項目", selectedItem)
-            }
+            totalSumUnitPrice += totalPrice
+        }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // 未選中項目的邏輯
-                Log.d("選中項目", "未選中向任何項目")
-            }
+        //當總小計大於0時，顯示總小計
+        if (totalSumUnitPrice>0){
+            binding.txtTotalDollar.visibility = View.VISIBLE
+            binding.txtTotalDollar.text = "總計: $totalSumUnitPrice 元"
+        }else{
+            binding.txtTotalDollar.visibility = View.INVISIBLE
         }
     }
 
