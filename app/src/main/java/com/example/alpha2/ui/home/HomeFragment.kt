@@ -59,7 +59,7 @@ class HomeFragment : Fragment() {
     private var isFirstCreation = true
 
     // 定義一個映射來存儲商品和它們的選擇數量
-    var selectedQuantities = mutableMapOf<Product, Int>()
+    private var selectedQuantities = mutableMapOf<Product, Int>()
 
     //鏡頭開啟時處理條碼邏輯
     private val barcodeScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -195,31 +195,29 @@ class HomeFragment : Fragment() {
                 }
 
                 // 添加文字變更監聽器
-                if (edtNumber != null) {
-                    edtNumber.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                            // 不需要實現
-                        }
+                edtNumber?.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        // 不需要實現
+                    }
 
-                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                            // 當 EditText 的文字變更時，更新 changeAmount 的值
-                            if (!s.isNullOrEmpty()) {
-                                changeAmount = s.toString().toIntOrNull() ?: 0
-                            }
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        // 當 EditText 的文字變更時，更新 changeAmount 的值
+                        if (!s.isNullOrEmpty()) {
+                            changeAmount = s.toString().toIntOrNull() ?: 0
                         }
+                    }
 
-                        override fun afterTextChanged(s: Editable?) {
-                            // 不需要實現
-                        }
-                    })
-                }
+                    override fun afterTextChanged(s: Editable?) {
+                        // 不需要實現
+                    }
+                })
 
                 btnPlus1.setOnClickListener {
                     if (changeAmount!=null)
                         changeAmount = changeAmount!! + 1       //點擊數量+1
                     Log.d("數量","$changeAmount")
 
-                    //顯示點數量
+                    //顯示點擊數量
                     if (edtNumber != null && changeAmount != null) {
                         edtNumber.text = Editable.Factory.getInstance().newEditable(changeAmount.toString())
                     }
@@ -229,7 +227,7 @@ class HomeFragment : Fragment() {
                         changeAmount = changeAmount!! - 1       //點擊數量-1
                     Log.d("數量","$changeAmount")
 
-                    //顯示點數量
+                    //顯示點擊數量
                     if (edtNumber != null && changeAmount != null) {
                         edtNumber.text = Editable.Factory.getInstance().newEditable(changeAmount.toString())
                     }
@@ -242,9 +240,6 @@ class HomeFragment : Fragment() {
 
                         selectedQuantities.remove(filteredProductList[position])
                         filteredProductList.removeAt(position)
-
-                        //重新載入清單
-                        loadFilterProduct()
                     }else{
                         //更新成新數量
                         if (changeAmount != null) {
@@ -253,6 +248,9 @@ class HomeFragment : Fragment() {
                             Log.d("商品數量","${selectedQuantities[filteredProductList[position]]}")
                         }
                     }
+
+                    //重新載入清單
+                    loadFilterProduct()
 
                     bottomSheetDialog.dismiss()     //結束bottomView
                 }
@@ -286,6 +284,10 @@ class HomeFragment : Fragment() {
                     try {
                         filteredProductList.add(productDBManager.getProductByMagNo(searchMgaNo)!!)
                         Log.d("加入商品", productDBManager.getProductByMagNo(searchMgaNo)!!.pName)
+
+                        // 如果商品已經存在，數量指定為1
+                        selectedQuantities[productDBManager.getProductByMagNo(searchMgaNo)!!] = 1
+
                         resultCode = 99
 
                     }catch (e: Exception){
@@ -335,19 +337,23 @@ class HomeFragment : Fragment() {
     private fun loadFilterProduct() {
         if (isFirstCreation){
             Log.d("會空喔",filteredProductList.toString())
+
+            //離開頁面就清除項目，不要紀錄
+            //以下是因應螢幕旋轉，以viewmodel紀錄內容，避免生命週期重建導致資料流失(保留、清空資料會較麻煩)
+
             // 從 ViewModel 中讀取 filteredProductList
-            val productList = viewModel.filteredProductList.value
-            if (!productList.isNullOrEmpty()) {
-                val adapter = FilterProductAdapter(productList)
-                binding.grTableProduct.adapter = adapter
-                binding.grTableProduct.numColumns = 1
-                adapter.notifyDataSetChanged()
-            }
-            isFirstCreation = false
+            //val productList = viewModel.filteredProductList.value
+//            if (!productList.isNullOrEmpty()) {
+//                val adapter = FilterProductAdapter(productList, selectedQuantities)
+//                binding.grTableProduct.adapter = adapter
+//                binding.grTableProduct.numColumns = 1
+//                adapter.notifyDataSetChanged()
+//            }
+//            isFirstCreation = false
         }else{
             Log.d("不空喔",filteredProductList.toString())
             viewModel.filteredProductList.postValue(filteredProductList)    //更新到ViewModel
-            val adapter = FilterProductAdapter(filteredProductList)
+            val adapter = FilterProductAdapter(filteredProductList, selectedQuantities)
             binding.grTableProduct.adapter = adapter
             binding.grTableProduct.numColumns = 1
             adapter.notifyDataSetChanged()

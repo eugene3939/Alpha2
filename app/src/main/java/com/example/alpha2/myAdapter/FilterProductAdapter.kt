@@ -9,7 +9,7 @@ import android.widget.TextView
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.R
 
-class FilterProductAdapter(private val dataList: List<Product>) : BaseAdapter() {
+class FilterProductAdapter(private val dataList: List<Product>,private val numberInf: MutableMap<Product, Int>) : BaseAdapter() {
     override fun getCount(): Int {
         return dataList.size
     }
@@ -28,30 +28,30 @@ class FilterProductAdapter(private val dataList: List<Product>) : BaseAdapter() 
 
         if (view == null) {
             view = LayoutInflater.from(parent?.context).inflate(R.layout.selectitem, parent, false)
-            holder = ViewHolder(view)
+            holder = ViewHolder(view, numberInf)
             view.tag = holder
         } else {
             holder = view.tag as ViewHolder
         }
 
         val product = dataList[position]
-        holder.bind(product)
+        holder.bind(product, numberInf)
 
         return view!!
     }
 
-    class ViewHolder(itemView: View) {
+    class ViewHolder(itemView: View, numberInf: MutableMap<Product, Int>) {
         //請見selectitem.xml
         private val productName: TextView = itemView.findViewById(R.id.txt_productName)
         private val productType: TextView = itemView.findViewById(R.id.txt_productType)
         private val productPrice: TextView = itemView.findViewById(R.id.txt_productPrice)
         private val productNumber: TextView = itemView.findViewById(R.id.txt_productNumber)
 
-        val shopNumber: TextView = itemView.findViewById(R.id.txt_product_buy_number)
+        private val shopNumber: TextView = itemView.findViewById(R.id.txt_product_buy_number)
         @SuppressLint("SetTextI18n")
-        fun bind(product: Product) {
+        fun bind(product: Product, numberInf: MutableMap<Product, Int>) {
             // 使用 Glide 或其他圖片載入庫載入商品圖片
-            shopNumber.text = "x 1"
+            shopNumber.text = "x ${numberInf[product]}"
 
             productName.text = truncateString(product.pName, 20)
             productType.text = product.pType
