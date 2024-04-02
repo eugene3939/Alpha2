@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:text="@string/txtCancelSelection"
-        android:textColor="#61409A"
+        android:textColor="@color/blue_500"
         android:textSize="25sp"
         android:textStyle="bold"/>
 
@@ -23,7 +23,7 @@
         android:layout_toEndOf="@+id/txt_productIndex"
         android:layout_marginEnd="30dp"
         android:text="@string/txtFname"
-        android:textColor="#61409A"
+        android:textColor="@color/blue_500"
         android:textSize="23sp"
         android:textStyle="bold"/>
 
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/txtUnitPrice"
-            android:textColor="#6473C5"
+            android:textColor="@color/blue_500"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textAlignment="textStart"/>
@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/txtFclickNum"
-            android:textColor="#6473C5"
+            android:textColor="@color/blue_800"
             android:textSize="20sp"/>
 
         <!-- 商品庫存 -->
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/txtFsum"
-            android:textColor="#6473C5"
+            android:textColor="@color/blue_800"
             android:textSize="20sp"/>
     </LinearLayout>
 

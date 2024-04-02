@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/txtSelfPriceSetting"
-        android:textColor="#7436E3"
+        android:textColor="@color/blue_500"
         android:textSize="25sp"/>
 
     <Button
@@ -22,7 +22,9 @@
         android:layout_marginEnd="20dp"
         android:text="@string/txtPlus1"
         android:textSize="20sp"
-        tools:ignore="RelativeOverlap" />
+        android:textColor="@color/blue_800"
+        tools:ignore="RelativeOverlap"
+        android:backgroundTint="@color/blue_200"/>
 
     <EditText
         android:id="@+id/edtScanNumber"
@@ -31,9 +33,11 @@
         android:layout_centerInParent="true"
         android:text="@string/txtCancelSelection"
         android:textSize="35sp"
+        android:textColor="@color/blue_800"
         android:inputType="number"
         android:importantForAutofill="no"
-        tools:ignore="LabelFor" />
+        tools:ignore="LabelFor"
+        android:backgroundTint="@color/blue_200"/>
 
     <Button
         android:id="@+id/btnSelectMinus1"
@@ -43,7 +47,9 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="20dp"
         android:text="@string/txtMinus1"
-        android:textSize="20sp"/>
+        android:textSize="20sp"
+        android:textColor="@color/blue_800"
+        android:backgroundTint="@color/blue_200"/>
 
     <Button
         android:id="@+id/btnScanNumConfirm"
@@ -53,6 +59,8 @@
         android:layout_below="@id/edtScanNumber"
         android:layout_marginTop="70dp"
         android:text="@string/txtConfirm"
-        android:textSize="25sp"/>
+        android:textSize="25sp"
+        android:textColor="@color/blue_800"
+        android:backgroundTint="@color/blue_200"/>
 
 </RelativeLayout>
