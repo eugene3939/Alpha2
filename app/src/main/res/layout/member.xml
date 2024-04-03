@@ -12,7 +12,7 @@
         android:orientation="horizontal">
 
         <EditText
-            android:id="@+id/favEdt"
+            android:id="@+id/memEdt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/txtMemberHint"
@@ -23,7 +23,7 @@
             android:autofillHints="no"/>
 
         <Button
-            android:id="@+id/favBtnClearTxt"
+            android:id="@+id/memBtnClearTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -33,7 +33,7 @@
             android:backgroundTint="@color/blue_200"/>
 
         <Button
-            android:id="@+id/favBtnConfirm"
+            android:id="@+id/memBtnConfirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -45,7 +45,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/favBtnScan"
+        android:id="@+id/memBtnScan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/txtBarcode"

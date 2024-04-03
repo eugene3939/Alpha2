@@ -28,6 +28,13 @@ class MemberManager(context: Context) {
             memberDao.getMemberById(mId)
         }
     }
+
+    //檢查是否有符合卡號的會員
+    fun getMemberByCardNo(cardNo: String): Member?{
+        return runBlocking {
+            memberDao.getMemberByCardNo(cardNo)
+        }
+    }
 }
 
 object Converters {

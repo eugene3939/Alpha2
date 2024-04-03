@@ -25,6 +25,7 @@ import com.google.zxing.integration.android.IntentIntegrator
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.alpha2.DBManager.Member.MemberManager
 import com.example.alpha2.R
 import com.example.alpha2.myAdapter.FilterProductAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -43,6 +44,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var userDBManager: UserManager       //用戶Dao (用封裝的方式獲取Dao)
     private lateinit var productDBManager: ProductManager //商品Dao
+    private lateinit var memberDBManager: MemberManager   //會員Dao
 
     private var productCategoryList: MutableList<String> = mutableListOf("食物", "飲料")   //商品類別(只會顯示常用商品，或是沒有條碼可掃描的商品)
 
@@ -141,6 +143,7 @@ class HomeFragment : Fragment() {
         //初始化Dao
         userDBManager = UserManager(requireContext())
         productDBManager = ProductManager(requireContext())
+        memberDBManager = MemberManager(requireContext())
 
         //shareReference讀取登入用戶ID
         val sharedPreferences = requireContext().getSharedPreferences("loginUser", Context.MODE_PRIVATE)
@@ -268,12 +271,58 @@ class HomeFragment : Fragment() {
             true
         }
 
-        //顯示用戶自定義的下拉式選單
+        //顯示會員輸入框的下拉式選單
         binding.btnUserFavor.setOnClickListener {
-            val bottomSheetDialog2 = BottomSheetDialog(requireContext())
-            bottomSheetDialog2.setContentView(R.layout.member)
+            val memberBottomDialog = BottomSheetDialog(requireContext())
+            memberBottomDialog.setContentView(R.layout.member)
 
-            bottomSheetDialog2.show()
+            // 找到 輸入會員卡號 editText
+            val edtMemberCardNumber = memberBottomDialog.findViewById<EditText>(R.id.memEdt)
+            // 找到 清除輸入的 確定按鈕
+            val btnClearMemberID = memberBottomDialog.findViewById<Button>(R.id.memBtnClearTxt)
+            // 找到 確定輸入的 確定按鈕
+            val btnConfirmMemberID = memberBottomDialog.findViewById<Button>(R.id.memBtnConfirm)
+            // 找到 掃描會員編號的 確定按鈕
+            val btnScanMemberID = memberBottomDialog.findViewById<Button>(R.id.memBtnScan)
+
+            memberBottomDialog.show()
+
+            //清除輸入文字 (換成空白)
+            btnClearMemberID?.setOnClickListener {
+                edtMemberCardNumber?.text = Editable.Factory.getInstance().newEditable("")
+            }
+
+            //確認輸入文字是否為會員
+            btnConfirmMemberID?.setOnClickListener {
+                if (edtMemberCardNumber != null){
+                    //輸入的會員卡號
+                    val nowLoginMember = edtMemberCardNumber.text.toString()
+                    //查詢結果(是否有此會員)
+                    var memberCheck = false
+
+                    //副執行續進行member Dao查詢
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val accessMember = memberDBManager.getMemberByCardNo(nowLoginMember)
+
+                        //確認是否為Dao的會員資訊
+                        if (accessMember!=null){
+                            Log.d("正確會員", nowLoginMember)
+                            //顯示到主畫面
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), "會員: $nowLoginMember", Toast.LENGTH_SHORT).show()
+                                memberBottomDialog.dismiss()
+                            }
+                        }else{
+                            Log.d("沒有此會員",nowLoginMember)
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), "沒有此會員: $nowLoginMember", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }else{
+                    Toast.makeText(requireContext(),"您沒有輸入卡號喔",Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         //點擊開啟掃描器
