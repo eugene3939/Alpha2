@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+<!--    會員頁面-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/favEdt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/txtMemberHint"
+            android:inputType="text"
+            android:layout_weight="8"
+            android:textSize="25sp"
+            android:textColor="@color/blue_800"
+            android:autofillHints="no"/>
+
+        <Button
+            android:id="@+id/favBtnClearTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/txtClearText"
+            android:textSize="25sp"
+            android:textColor="@color/blue_800"
+            android:backgroundTint="@color/blue_200"/>
+
+        <Button
+            android:id="@+id/favBtnConfirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/txtConfirm"
+            android:textSize="25sp"
+            android:textColor="@color/blue_800"
+            android:backgroundTint="@color/blue_200"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/favBtnScan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/txtBarcode"
+        android:textSize="25sp"
+        android:textColor="@color/blue_100"
+        android:backgroundTint="@color/blue_500"/>
+
+</LinearLayout>

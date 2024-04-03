@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
+import com.example.alpha2.DBManager.Member.Member
+import com.example.alpha2.DBManager.Member.MemberManager
 import com.example.alpha2.DBManager.Product.ClusterProduct
 import com.example.alpha2.DBManager.Product.DiscountProduct
 import com.example.alpha2.DBManager.Product.Product
@@ -27,6 +29,7 @@ class Login : AppCompatActivity() {
     private lateinit var userDBManager: UserManager       //用戶Dao (用封裝的方式獲取Dao)
     private lateinit var productDBManager: ProductManager //商品Dao
     private lateinit var systemDBManager: SystemManager  //設定檔Dao
+    private lateinit var memberDBManager: MemberManager  //會員Dao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +42,7 @@ class Login : AppCompatActivity() {
         userDBManager = UserManager(applicationContext)
         productDBManager = ProductManager(applicationContext)
         systemDBManager = SystemManager(applicationContext)
+        memberDBManager = MemberManager(applicationContext)
 
         //匯入整檔
         insertUserDB("1","Eugene", "1", "1")        //建立預設用戶
@@ -65,6 +69,9 @@ class Login : AppCompatActivity() {
 
         //Dao匯入系統設定檔 (預設)
         insertSystemSettingDB("store123","Nintendo","cashRegister123",30)
+
+        //Dao匯入預設會員檔案
+        insertMember("ABC12345","Joyce",LocalDateTime.of(2024, 8, 22, 10, 0),LocalDateTime.of(2024, 8, 22, 10, 0),0.9,"card123")
 
         // 登入按鈕
         binding.btnLogin.setOnClickListener {
@@ -93,6 +100,29 @@ class Login : AppCompatActivity() {
                 }else{
                     Log.d("登入失敗: ", "無此用戶")
                 }
+            }
+        }
+    }
+
+    //新增會員預設資料
+    private fun insertMember(mId: String, mName: String, startDate: LocalDateTime?, endDate: LocalDateTime?, discountRate: Double, cardId: String) {
+        lifecycleScope.launch(Dispatchers.IO){
+            val memberDBManager = MemberManager(applicationContext)
+
+            //確認收銀機是否已經存在
+            val existingCash = memberDBManager.getMemberById(mId)
+
+            if(existingCash == null){
+
+                if (startDate != null && endDate!=null) {
+                    val newMember =Member(id = mId, name = mName, issueDate = startDate, expireDate = endDate, discRate = discountRate, cardNo = cardId)
+                    memberDBManager.addMember(newMember)
+
+                    Log.d("新增會員預設檔", "Member mId added: $mId")
+                }
+
+            }else{
+                Log.d("既有收銀機狀態檔", "Member mId: $mId already exists")
             }
         }
     }

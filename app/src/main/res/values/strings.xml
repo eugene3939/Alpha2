@@ -27,11 +27,12 @@
     <string name="txtPlus1">+1</string>
     <string name="txtMinus1">-1</string>
     <string name="txtSelfPriceSetting">商品變價</string>
-    <string name="txtUserSettingButton">快速鍵</string>
+    <string name="txtUserSettingButton">會員</string>
 
     <string name="txtUserBtn1">按鈕</string>
     <string name="txtUserBtn2">按鈕</string>
     <string name="txtUserBtn3">按鈕</string>
     <string name="txtUserBtn4">按鈕</string>
     <string name="txtUserBtn5">按鈕</string>
+    <string name="txtMemberHint">請輸入會員</string>
 </resources>
