@@ -64,7 +64,46 @@ class HomeFragment : Fragment() {
     //總小計金額
     private var totalSumUnitPrice = 0
 
-    //鏡頭開啟時處理條碼邏輯
+    //鏡頭開啟時處理條碼邏輯 (加入會員)
+    @SuppressLint("SetTextI18n")
+    private val barcodeMemberScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            val scanResult = IntentIntegrator.parseActivityResult(result.resultCode, data)
+            if (scanResult != null) {
+
+                var stateHintCode = 1   //代碼 (0: 掃描成功,1: 不存在會員)
+                if (scanResult.contents == null) {
+                    Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_LONG).show()
+                } else {
+                    //確認Dao會員是否包含掃描項目
+                    lifecycleScope.launch {
+                        val scanMember = withContext(Dispatchers.IO) {
+                            memberDBManager.getMemberByCardNo(scanResult.contents)
+                        }
+                        if (scanMember != null) {
+                            Log.d("存在對應會員", scanMember.name)
+                            binding.txtMemberClass.text = "會員: ${scanMember.cardNo}"
+                            stateHintCode = 0
+                        } else {
+                            Log.d("不存在此會員", scanResult.contents)
+                        }
+
+                        withContext(Dispatchers.Main) {
+
+                            //確認掃描結果，並顯示於主畫面
+                            when (stateHintCode) {
+                                0 -> Toast.makeText(requireContext(), "會員: ${scanMember?.name}", Toast.LENGTH_SHORT).show()
+                                1 -> Toast.makeText(requireContext(), "不存在此會員: ${scanResult.contents}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //鏡頭開啟時處理條碼邏輯 (加入商品)
     private val barcodeScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
@@ -166,7 +205,7 @@ class HomeFragment : Fragment() {
             isFirstCreation = false
         }
 
-        // 創建一個 BottomSheetDialog
+        // BottomSheetDialog修改掃描商品數量
         val bottomSheetDialog = BottomSheetDialog(requireContext())
         bottomSheetDialog.setContentView(R.layout.selectnum) // 將你的 變更數量的xml 設置為BottomView內容
 
@@ -297,8 +336,6 @@ class HomeFragment : Fragment() {
                 if (edtMemberCardNumber != null){
                     //輸入的會員卡號
                     val nowLoginMember = edtMemberCardNumber.text.toString()
-                    //查詢結果(是否有此會員)
-                    var memberCheck = false
 
                     //副執行續進行member Dao查詢
                     lifecycleScope.launch(Dispatchers.IO) {
@@ -310,6 +347,8 @@ class HomeFragment : Fragment() {
                             //顯示到主畫面
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(requireContext(), "會員: $nowLoginMember", Toast.LENGTH_SHORT).show()
+                                //更新顯示會員名稱
+                                binding.txtMemberClass.text = "會員: $nowLoginMember"
                                 memberBottomDialog.dismiss()
                             }
                         }else{
@@ -322,6 +361,18 @@ class HomeFragment : Fragment() {
                 }else{
                     Toast.makeText(requireContext(),"您沒有輸入卡號喔",Toast.LENGTH_SHORT).show()
                 }
+            }
+
+            //開啟掃描器確認會員身分
+            btnScanMemberID?.setOnClickListener {
+                val integrator = IntentIntegrator.forSupportFragment(this)
+                integrator.setPrompt("請對準條碼進行掃描")
+                integrator.setBeepEnabled(true)
+                integrator.setOrientationLocked(false)
+                integrator.setRequestCode(REQUEST_CODE_SCAN)
+
+                //啟動掃描頁
+                barcodeMemberScannerLauncher.launch(integrator.createScanIntent())
             }
         }
 

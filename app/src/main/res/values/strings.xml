@@ -28,6 +28,7 @@
     <string name="txtMinus1">-1</string>
     <string name="txtSelfPriceSetting">商品變價</string>
     <string name="txtUserSettingButton">會員</string>
+    <string name="txtMemberClass">非會員</string>
 
     <string name="txtUserBtn1">按鈕</string>
     <string name="txtUserBtn2">按鈕</string>
