@@ -43,7 +43,7 @@
                 android:layout_weight="0.75"
                 android:autofillHints="empty"
                 android:hint="@string/txtSearchBarHint"
-                android:inputType="number"
+                android:inputType="text"
                 android:textSize="25sp"
                 android:textColor="@color/blue_500"
                 android:textColorHint="@color/blue_500"/>
@@ -115,6 +115,7 @@
             android:textSize="30sp"
             android:textStyle="bold"/>
 
+        <!--會員選項-->
         <Button
             android:id="@+id/btnUserFavor"
             android:layout_width="wrap_content"

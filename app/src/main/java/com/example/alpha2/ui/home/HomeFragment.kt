@@ -12,9 +12,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.GridView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.alpha2.DBManager.Product.Product
@@ -27,6 +30,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Member.MemberManager
 import com.example.alpha2.R
+import com.example.alpha2.myAdapter.CouponAdapter
 import com.example.alpha2.myAdapter.FilterProductAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.Dispatchers
@@ -450,6 +454,44 @@ class HomeFragment : Fragment() {
         // 將 Adapter 設置給 Spinner
         binding.spDiscountList.adapter = adapter
         // 處理用戶選擇的事件
+        binding.spDiscountList.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            //選中該項目的處理
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedItem = parent?.getItemAtPosition(position).toString()
+                Toast.makeText(requireContext(), "Selected item: $selectedItem", Toast.LENGTH_SHORT).show()
+
+                val simpleBottomDialog = BottomSheetDialog(requireContext())
+                simpleBottomDialog.setContentView(R.layout.couponlist)
+
+                //選擇折價券選項後開啟BottomView
+                if (selectedItem == "折價券"){
+                    // 找到 顯示折扣清單 gridView
+                    val grCouponList = simpleBottomDialog.findViewById<GridView>(R.id.grCouponList)
+
+                    //用lifecycleScope找尋對應的Dao資料
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val filterPluList = productDBManager.getProductByPluType("75")  //類別是折價券
+
+                        // 過濾想要的欄位
+                        val showUpList = filterPluList?.map { "${it.pId}, ${it.pName}, ${it.unitPrc}" }
+
+                        // 顯示篩選出的列印資訊
+                        showUpList?.forEach { Log.d("Product Info", it) }
+
+                        withContext(Dispatchers.Main){
+                            val couponAdapter = CouponAdapter(requireContext(), showUpList ?: emptyList())
+                            grCouponList?.adapter = couponAdapter
+
+                            simpleBottomDialog.show()
+                        }
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // 沒被選中的處理
+            }
+        }
 
         // 定義下拉列表中的折扣選項
         val items2 = arrayOf("生鮮商品","預購商品", "菸酒類商品", "贈品")

@@ -36,4 +36,7 @@
     <string name="txtUserBtn4">按鈕</string>
     <string name="txtUserBtn5">按鈕</string>
     <string name="txtMemberHint">請輸入會員</string>
+    <string name="txtCouponName">折價券名稱</string>
+    <string name="txtCouponID">折價券編號</string>
+    <string name="txtCouponPrice">折價券金額</string>
 </resources>

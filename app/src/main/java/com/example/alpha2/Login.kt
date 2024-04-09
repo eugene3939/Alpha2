@@ -56,6 +56,8 @@ class Login : AppCompatActivity() {
         insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500,500,500, 60,mamMethod = "B", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
         insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660, 650,650,25,mamMethod = "D")
         insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000, 2000,2000,200,mamMethod = "E")
+        insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",-30,-30,-30,100,"1","75")
+        insertMerchandisesDB("Coupon500","50元折價券","折價券","SS111111",-50,-50,-50,200,"1","75")
 
         insertDiscountProductDB("1","蘋果9折", 0.1 , 0)  //折扣商品清單
         insertDiscountProductDB("2","單品折30", 0.0, 30)

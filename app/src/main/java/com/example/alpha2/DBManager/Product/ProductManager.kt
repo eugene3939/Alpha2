@@ -41,6 +41,13 @@ class ProductManager(context: Context) {
         }
     }
 
+    //尋找符合商品類別(PluType)的Product
+    fun getProductByPluType(plu: String): MutableList<Product>?{
+        return runBlocking {
+            productDao.getProductByPluType(plu)
+        }
+    }
+
     //尋找該欄位不重複的所有內容
     fun getCategoryList(columName: String): List<String>?{
         return runBlocking {

@@ -28,7 +28,7 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
 
         if (view == null) {
             view = LayoutInflater.from(parent?.context).inflate(R.layout.selectitem, parent, false)
-            holder = ViewHolder(view, numberInf, position+1)
+            holder = ViewHolder(view)
             view.tag = holder
         } else {
             holder = view.tag as ViewHolder
@@ -40,7 +40,7 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
         return view!!
     }
 
-    class ViewHolder(itemView: View, numberInf: MutableMap<Product, Int>, productId: Int) {
+    class ViewHolder(itemView: View){
         //請見selectitem.xml
         private val productID: TextView = itemView.findViewById(R.id.txt_productIndex)
         private val productName: TextView = itemView.findViewById(R.id.txt_productName)

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/txtCouponID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/txtCouponID"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/txtCouponName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/txtCouponName"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/txtCouponPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/txtCouponPrice"
+        android:textSize="20sp"/>
+
+    <Button
+        android:id="@+id/btnCouponConfirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtConfirm"
+        android:textSize="20sp"/>
+
+</LinearLayout>

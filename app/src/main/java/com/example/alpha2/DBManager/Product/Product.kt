@@ -38,6 +38,7 @@ data class Product (
   /*P 同單價的不同商品任選 X1 個總價 Y1元、任選 X2 個總價 Y2元...任選 Xn 個總價 Yn 元*/
 
   val pluMagNo: String,            //商品條碼 (管理碼)
+  val pluDisc: String ?= "Y",      //是否可折扣 (Y/N)
   val pNumber: Int,                //商品數量
   val fixPrc: Int,                 //商品定價
   val salePrc: Int,                //商品售價
