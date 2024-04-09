@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
+import kotlin.math.log
 
 //不允許螢幕旋轉，螢幕旋轉容易導致資料流失
 
@@ -223,21 +224,29 @@ class HomeFragment : Fragment() {
         val edtNumber = bottomSheetDialog.findViewById<EditText>(R.id.edtScanNumber)
 
         //點擊gridView變更數量
-        binding.grTableProduct.setOnItemClickListener { _, _, position, _ ->
-            //Toast.makeText(requireContext(),"位置: $position",Toast.LENGTH_SHORT).show()
+        binding.grTableProduct.setOnItemClickListener { parent, _, position, _ ->
+            //Toast.makeText(requireContext(),"點按項目: ${parent.getItemAtPosition(position)}",Toast.LENGTH_SHORT).show()
+
+            //目前點按項目
+            val clickItem = parent.getItemAtPosition(position) as Product //進行強制轉型確認商品類別
 
             // 顯示 BottomView
             bottomSheetDialog.show()
 
             if (btnPlus1 != null && btnMinus1 != null && btnConfirm!=null) {
-
                 //點擊商品的目前數量
                 val selectScanNumber = selectedQuantities[filteredProductList[position]]
-                //點擊數量
-                var changeAmount = selectScanNumber
+                //點擊數量(如果是折價券就變成負金額)
+                var changeAmount= selectScanNumber
+                if (clickItem.pluType == "75"){
+                    if (changeAmount != null) {
+                        changeAmount = changeAmount * (-1)
+                    }
+                }
 
                 //顯示點數量
                 if (edtNumber != null && changeAmount != null) {
+                    //如果是折價券商品就變成負金額
                     edtNumber.text = Editable.Factory.getInstance().newEditable(changeAmount.toString())
                 }
 
@@ -272,6 +281,7 @@ class HomeFragment : Fragment() {
                 btnMinus1.setOnClickListener {
                     if (changeAmount!=null && changeAmount!! >=1)   //數量最少要是1
                         changeAmount = changeAmount!! - 1           //點擊數量-1
+
                     Log.d("數量","$changeAmount")
 
                     //顯示點擊數量
@@ -290,7 +300,12 @@ class HomeFragment : Fragment() {
                     }else{
                         //更新成新數量
                         if (changeAmount != null) {
-                            selectedQuantities[filteredProductList[position]] = changeAmount!!
+                            //如果商品類別是否為折價券
+                            if (clickItem.pluType == "75"){ //如果屬於折價券類別，就將數量變成負值
+                                selectedQuantities[filteredProductList[position]] = changeAmount!! * -1
+                            }else{
+                                selectedQuantities[filteredProductList[position]] = changeAmount!!
+                            }
 
                             Log.d("商品數量","${selectedQuantities[filteredProductList[position]]}")
                         }
@@ -408,8 +423,13 @@ class HomeFragment : Fragment() {
                         filteredProductList.add(productDBManager.getProductByMagNo(searchMgaNo)!!)
                         Log.d("加入商品", productDBManager.getProductByMagNo(searchMgaNo)!!.pName)
 
-                        // 如果商品已經存在，數量指定為1
-                        selectedQuantities[productDBManager.getProductByMagNo(searchMgaNo)!!] = 1
+                        //如果是折價券，數量指定為-1
+                        if (productDBManager.getProductByMagNo(searchMgaNo)!!.pluType == "75"){
+                            selectedQuantities[productDBManager.getProductByMagNo(searchMgaNo)!!] = -1
+                        }else{
+                            // 如果商品已經存在，數量指定為1
+                            selectedQuantities[productDBManager.getProductByMagNo(searchMgaNo)!!] = 1
+                        }
 
                         resultCode = 99
 
@@ -470,17 +490,62 @@ class HomeFragment : Fragment() {
 
                     //用lifecycleScope找尋對應的Dao資料
                     lifecycleScope.launch(Dispatchers.IO) {
+                        //折價券商品(全部欄位)
                         val filterPluList = productDBManager.getProductByPluType("75")  //類別是折價券
 
-                        // 過濾想要的欄位
+                        //折價券商品(顯示欄位)
                         val showUpList = filterPluList?.map { "${it.pId}, ${it.pName}, ${it.unitPrc}" }
 
                         // 顯示篩選出的列印資訊
                         showUpList?.forEach { Log.d("Product Info", it) }
 
+                        //確認是否送出
+                        var sentCouponItem: String? = null
+
                         withContext(Dispatchers.Main){
                             val couponAdapter = CouponAdapter(requireContext(), showUpList ?: emptyList())
                             grCouponList?.adapter = couponAdapter
+
+                            couponAdapter.setOnItemClickListener(object : CouponAdapter.OnItemClickListener {
+
+                                //取得按鈕點按位置
+                                override fun onButtonClicked(position: Int) {
+                                    Log.d("HomeFragment", "你選了第 $position 個折價券")
+
+                                    //顯示折價券貨號
+                                    val selectPluMagNo = filterPluList!![position].pluMagNo
+                                    Log.d("所選貨號", selectPluMagNo)
+
+                                    sentCouponItem = selectPluMagNo
+
+                                    Log.d("更新確認(內部)",sentCouponItem.toString())
+
+                                    // 送出折價券商品
+                                    if (sentCouponItem != null) {
+                                        // 將外部操作也放在協程內部
+                                        lifecycleScope.launch(Dispatchers.IO) {
+                                            // 在主線程中執行資料庫操作
+                                            val product = productDBManager.getProductByMagNo(sentCouponItem!!)
+
+                                            // 將商品加入購物車 (必須不包含在已知清單內)
+                                            if (product != null && !filteredProductList.contains(product)) {
+                                                withContext(Dispatchers.Main) {
+                                                    filteredProductList.add(product)
+                                                    // 如果商品已經存在，數量指定為1
+                                                    selectedQuantities[product] = -1
+
+                                                    //主程序外更新顯示內容
+                                                    loadFilterProduct()
+                                                }
+                                            }
+                                        }
+
+                                        Log.d("優惠券檢查", "已經更新")
+                                    } else {
+                                        Log.d("優惠券檢查", "尚未更新")
+                                    }
+                                }
+                            })
 
                             simpleBottomDialog.show()
                         }
