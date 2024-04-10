@@ -62,25 +62,25 @@ class ProductManager(context: Context) {
         }
     }
 
-    //----------以下為折扣商品------------
+    //----------以下為折價券 商品------------
     //新增商品
-    fun insertDiscount(dm: DiscountProduct) {
+    fun insertCouponMain(dm: CouponMain) {
         runBlocking {
-            productDao.insertDiscount(dm)
+            productDao.insertCouponMain(dm)
         }
     }
 
     //刪除商品
-    fun deleteDiscount(id: String){
+    fun deleteCouponMain(pluMagNo: String){
         runBlocking {
-            productDao.delete(id)
+            productDao.delete(pluMagNo)
         }
     }
 
     //尋找商品id
-    fun getDiscountByID(id: String): DiscountProduct?{
+    fun getCouponMainByPluMagNo(pluMagNo: String): CouponMain?{
         return runBlocking {
-            productDao.getDiscountByID(id)
+            productDao.getCouponMainByPluMagNo(pluMagNo)
         }
     }
 

@@ -9,7 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Member.MemberManager
 import com.example.alpha2.DBManager.Product.ClusterProduct
-import com.example.alpha2.DBManager.Product.DiscountProduct
+import com.example.alpha2.DBManager.Product.CouponMain
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.Product.ProductManager
 import com.example.alpha2.DBManager.System.CashSystem
@@ -59,10 +59,8 @@ class Login : AppCompatActivity() {
         insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,100,"1","75")
         insertMerchandisesDB("Coupon500","50元折價券","折價券","SS111111",50,50,50,200,"1","75")
 
-        insertDiscountProductDB("1","蘋果9折", 0.1 , 0)  //折扣商品清單
-        insertDiscountProductDB("2","單品折30", 0.0, 30)
-        insertDiscountProductDB("3","單品折10", 0.0, 10)
-        insertDiscountProductDB("20","組合商品折60", 0.0, 60)
+        insertCouponMainDB("SS123456","1")
+        insertCouponMainDB("SS111111","1")
 
         insertPairProduct("20","1,2,3","1,2,3",60)    //綑綁商品清單
 
@@ -203,17 +201,17 @@ class Login : AppCompatActivity() {
         }
     }
 
-    //折扣商品資料庫
-    private fun insertDiscountProductDB(pId: String, description: String, percentage: Double, chargeback: Int) {
+    //折價券 商品資料庫
+    private fun insertCouponMainDB(pluMagNo: String,discTYPE: String) {
         lifecycleScope.launch(Dispatchers.IO){
             //確認折扣商品是否已經存在
-            val existingDProduct = productDBManager.getDiscountByID(pId)
-            if (existingDProduct == null) {
-                val item = DiscountProduct(pId = pId, pDescription = description, pDiscount = percentage, pChargebacks = chargeback, selectedQuantity = 0)
-                productDBManager.insertDiscount(item)
-                Log.d("新增折扣商品", "DProduct added: $item")
+            val existCouponMain = productDBManager.getCouponMainByPluMagNo(pluMagNo)
+            if (existCouponMain == null) {
+                val item = CouponMain(disPluMagNo = pluMagNo,discTYPE = discTYPE)
+                productDBManager.insertCouponMain(item)
+                Log.d("新增折價券主檔", "DProduct added: $item")
             } else {    //確認是否為已知id
-                Log.d("既有折扣商品", "DProduct with ID $pId already exists")
+                Log.d("既有折價券主檔", "DProduct with ID $pluMagNo already exists")
             }
         }
     }

@@ -17,7 +17,6 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.GridView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.alpha2.DBManager.Product.Product
@@ -37,7 +36,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
-import kotlin.math.log
 
 //不允許螢幕旋轉，螢幕旋轉容易導致資料流失
 

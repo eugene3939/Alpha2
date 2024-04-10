@@ -32,15 +32,15 @@ interface ProductDao {
     @Query("DELETE FROM Products WHERE pId = :id")
     suspend fun delete(id: String)
 
-    //  折扣商品
+    //  折扣券 商品
     @Insert
-    suspend fun insertDiscount(dm: DiscountProduct)
+    suspend fun insertCouponMain(coupon: CouponMain)
 
-    @Query("DELETE FROM DiscountProducts WHERE pId = :id")
-    suspend fun deleteDiscount(id: String)
+    @Query("DELETE FROM CouponMains WHERE disPluMagNo = :pluMagNo")
+    suspend fun deleteCouponMain(pluMagNo: String)
 
-    @Query("SELECT * FROM DiscountProducts WHERE pId = :id") //尋找符合項目的單一id
-    fun getDiscountByID(id: String): DiscountProduct?
+    @Query("SELECT * FROM CouponMains WHERE disPluMagNo = :pluMagNo") //尋找符合項目的單一pluMagNo
+    fun getCouponMainByPluMagNo(pluMagNo: String): CouponMain?
 
     //    組合商品
     @Insert

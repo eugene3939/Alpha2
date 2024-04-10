@@ -7,7 +7,7 @@ import androidx.room.TypeConverters
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@Database(entities = [Product::class, ClusterProduct::class, DiscountProduct::class, ScanProduct::class], version = 1)
+@Database(entities = [Product::class, CouponMain::class, ClusterProduct::class, ScanProduct::class], version = 1)
 @TypeConverters(Converters::class)
 
 abstract class ProductDatabase : RoomDatabase(){
