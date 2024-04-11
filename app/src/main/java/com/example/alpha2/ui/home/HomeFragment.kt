@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -28,6 +29,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Member.MemberManager
+import com.example.alpha2.DBManager.Product.CouponMain
 import com.example.alpha2.R
 import com.example.alpha2.myAdapter.CouponAdapter
 import com.example.alpha2.myAdapter.FilterProductAdapter
@@ -126,15 +128,38 @@ class HomeFragment : Fragment() {
                             Log.d("存在對應商品", product.pName)
                             // 檢查是否存在相同商品
                             if (!filteredProductList.contains(product)) {
-                                //將掃描到的商品加入列表中
-                                filteredProductList.add(product)
 
-                                Log.d("加入商品", filteredProductList.last().pName)
+                                //確認是否為特殊條件才能加入的商品(像是折價券...)
+                                if (product.pluType == "75"){       //折價券商品
 
-                                // 如果商品已經存在，數量指定為1
-                                selectedQuantities[product] = 1
+                                    //確認是否可加入折價券商品
+                                    if (couponAddCheck(product)){       //確認折價券能否加入清單
+                                        //將掃描到的商品加入列表中
+                                        filteredProductList.add(product)
 
-                                existItemCheck = true
+                                        Log.d("加入商品", filteredProductList.last().pName)
+
+                                        // 如果商品已經存在，數量指定為1
+                                        selectedQuantities[product] = -1
+
+                                        existItemCheck = true
+                                    }else{
+                                        errorHintCode = 3   //未達折價券指定金額
+                                        Log.d("未達折價券指定金額","not enough total price for this coupon")
+                                        existItemCheck = false
+                                    }
+
+                                }else{
+                                    //將掃描到的商品加入列表中
+                                    filteredProductList.add(product)
+
+                                    Log.d("加入商品", filteredProductList.last().pName)
+
+                                    // 如果商品已經存在，數量指定為1
+                                    selectedQuantities[product] = 1
+
+                                    existItemCheck = true
+                                }
 
                             } else {
                                 errorHintCode = 1   //重複商品
@@ -163,6 +188,7 @@ class HomeFragment : Fragment() {
                                     0 -> Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_SHORT).show()
                                     1 -> Toast.makeText(requireContext(), "商品已存在於清單中", Toast.LENGTH_SHORT).show()
                                     2 -> Toast.makeText(requireContext(), "不存在此商品", Toast.LENGTH_SHORT).show()
+                                    3 -> Toast.makeText(requireContext(), "未達折價券指定金額", Toast.LENGTH_SHORT).show()
                                 }
                                 Log.d("商品清單", productNameList.toString())
                             }
@@ -413,23 +439,32 @@ class HomeFragment : Fragment() {
                 Log.d("filterNameLists內容",filterNameList.toString())
                 Log.d("輸入內容",searchMgaNo)
 
-                //輸入貨號不包含在清單，且存在於商品目錄，可新增
-                if (!filterNameList.contains(searchMgaNo) && productDBManager.getProductByMagNo(searchMgaNo)!=null){
+                val selectItem = productDBManager.getProductByMagNo(searchMgaNo)
 
+                //輸入貨號不包含在清單，且存在於商品目錄，可新增
+                if (!filterNameList.contains(searchMgaNo) && selectItem!=null){
                     //和規的貨號，加入清單
                     try {
-                        filteredProductList.add(productDBManager.getProductByMagNo(searchMgaNo)!!)
-                        Log.d("加入商品", productDBManager.getProductByMagNo(searchMgaNo)!!.pName)
+                        //檢查是否為折價券商品
+                        if (selectItem.pluType == "75"){
+                            //確認折價券能否加入
+                            val isCouponValid = couponAddCheck(selectItem)
 
-                        //如果是折價券，數量指定為-1
-                        if (productDBManager.getProductByMagNo(searchMgaNo)!!.pluType == "75"){
-                            selectedQuantities[productDBManager.getProductByMagNo(searchMgaNo)!!] = -1
+                            if (isCouponValid) {
+                                filteredProductList.add(selectItem)
+                                selectedQuantities[selectItem] = -1
+                                Log.d("加入商品", selectItem.pName)
+                                resultCode = 99
+                            } else {
+                                Log.d("不符合折價券規格", "未達折價券指定最低金額")
+                                resultCode = 3
+                            }
                         }else{
                             // 如果商品已經存在，數量指定為1
                             selectedQuantities[productDBManager.getProductByMagNo(searchMgaNo)!!] = 1
-                        }
 
-                        resultCode = 99
+                            resultCode = 99
+                        }
 
                     }catch (e: Exception){
                         println(e)
@@ -440,7 +475,7 @@ class HomeFragment : Fragment() {
                     if (productDBManager.getProductByMagNo(searchMgaNo)==null){
                         Log.d("貨號搜尋錯誤","不存在的貨號")
                         resultCode = 1
-                    }else if (filterNameList.contains(searchMgaNo)){
+                    } else if (filterNameList.contains(searchMgaNo)){
                         Log.d("貨號搜尋錯誤","已經加入這筆商品了")
                         resultCode = 2
                     }else{
@@ -454,6 +489,7 @@ class HomeFragment : Fragment() {
                         0 -> Toast.makeText(requireContext(),"其他錯誤",Toast.LENGTH_SHORT).show()
                         1 -> Toast.makeText(requireContext(),"不存在的貨號",Toast.LENGTH_SHORT).show()
                         2 -> Toast.makeText(requireContext(),"已經加入這筆商品了",Toast.LENGTH_SHORT).show()
+                        3 -> Toast.makeText(requireContext(),"未達折價券指定最低金額",Toast.LENGTH_SHORT).show()
                         99 -> Toast.makeText(requireContext(),"新增成功",Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -476,7 +512,6 @@ class HomeFragment : Fragment() {
             //選中該項目的處理
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedItem = parent?.getItemAtPosition(position).toString()
-                Toast.makeText(requireContext(), "Selected item: $selectedItem", Toast.LENGTH_SHORT).show()
 
                 val simpleBottomDialog = BottomSheetDialog(requireContext())
                 simpleBottomDialog.setContentView(R.layout.couponlist)
@@ -498,7 +533,7 @@ class HomeFragment : Fragment() {
                         showUpList?.forEach { Log.d("Product Info", it) }
 
                         //確認是否送出
-                        var sentCouponItem: String? = null
+                        var sentCouponItem: String?
 
                         withContext(Dispatchers.Main){
                             val couponAdapter = CouponAdapter(requireContext(), showUpList ?: emptyList())
@@ -508,11 +543,10 @@ class HomeFragment : Fragment() {
 
                                 //取得按鈕點按位置
                                 override fun onButtonClicked(position: Int) {
-                                    Log.d("HomeFragment", "你選了第 $position 個折價券")
 
                                     //顯示折價券貨號
                                     val selectPluMagNo = filterPluList!![position].pluMagNo
-                                    Log.d("所選貨號", selectPluMagNo)
+                                    //Log.d("所選貨號", selectPluMagNo)
 
                                     sentCouponItem = selectPluMagNo
 
@@ -528,10 +562,16 @@ class HomeFragment : Fragment() {
                                             // 將商品加入購物車 (必須不包含在已知清單內)
                                             if (product != null && !filteredProductList.contains(product)) {
                                                 withContext(Dispatchers.Main) {
-                                                    filteredProductList.add(product)
-                                                    // 如果商品已經存在，數量指定為1
-                                                    selectedQuantities[product] = -1
+                                                    //確認優惠券能否放入清單
+                                                    if(couponAddCheck(product)){
+                                                        filteredProductList.add(product)
+                                                        // 如果商品已經存在，數量指定為1
+                                                        selectedQuantities[product] = -1
 
+                                                        Toast.makeText(requireContext(),"新增折價券 ${product.pName}",Toast.LENGTH_SHORT).show()
+                                                    }else{
+                                                        Toast.makeText(requireContext(),"未超過折價券金額門檻",Toast.LENGTH_SHORT).show()
+                                                    }
                                                     //主程序外更新顯示內容
                                                     loadFilterProduct()
                                                 }
@@ -573,6 +613,26 @@ class HomeFragment : Fragment() {
         }
 
         return root
+    }
+
+    //確認優惠券能否放入清單(必須超過總價)
+    private suspend fun couponAddCheck(product: Product): Boolean {
+        val selectItem = withContext(Dispatchers.IO) {
+            productDBManager.getCouponMainByPluMagNo(product.pluMagNo) as CouponMain //確認所選項目是否為折價券
+        }
+
+        //已知 pluType='75' 類別
+
+        return if (selectItem.discTYPE == "1") { //類別為折價券
+            if (totalSumUnitPrice >= product.unitPrc) { //如果折價券金額小於總價則許可加入
+                true
+            } else {
+                false
+            }
+        }else {
+            //非折價券類型的商品可直接加入
+            true
+        }
     }
 
     //螢幕旋轉或其他因素導致資料流失時會重新載入資料

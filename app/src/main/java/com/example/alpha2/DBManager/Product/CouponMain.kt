@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 
-//折價券主檔案(原POS2087)
+//折價券主檔(原POS2087)
 @Entity(tableName = "CouponMains")
 data class CouponMain (
     @PrimaryKey
