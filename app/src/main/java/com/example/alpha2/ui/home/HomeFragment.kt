@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -28,6 +27,7 @@ import com.google.zxing.integration.android.IntentIntegrator
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Member.MemberManager
 import com.example.alpha2.DBManager.Product.CouponMain
 import com.example.alpha2.R
@@ -69,6 +69,9 @@ class HomeFragment : Fragment() {
     //總小計金額
     private var totalSumUnitPrice = 0
 
+    //目前會員
+    private var nowLoginMember: Member? = null
+
     //鏡頭開啟時處理條碼邏輯 (加入會員)
     @SuppressLint("SetTextI18n")
     private val barcodeMemberScannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -88,11 +91,17 @@ class HomeFragment : Fragment() {
                         }
                         if (scanMember != null) {
                             Log.d("存在對應會員", scanMember.name)
+                            nowLoginMember = scanMember //紀錄目前登入的用戶
                             binding.txtMemberClass.text = "會員: ${scanMember.cardNo}"
+
+                            Log.d("取得用戶資料",nowLoginMember.toString())
+
                             stateHintCode = 0
                         } else {
                             Log.d("不存在此會員", scanResult.contents)
                         }
+
+                        loadFilterProduct()     //重新載入清單
 
                         withContext(Dispatchers.Main) {
 
@@ -139,7 +148,7 @@ class HomeFragment : Fragment() {
 
                                         Log.d("加入商品", filteredProductList.last().pName)
 
-                                        // 如果商品已經存在，數量指定為1
+                                        // 如果商品已經存在，數量指定為-1
                                         selectedQuantities[product] = -1
 
                                         existItemCheck = true
@@ -264,7 +273,7 @@ class HomeFragment : Fragment() {
                 var changeAmount= selectScanNumber
                 if (clickItem.pluType == "75"){
                     if (changeAmount != null) {
-                        changeAmount = changeAmount * (-1)
+                        changeAmount *= (-1)
                     }
                 }
 
@@ -378,28 +387,33 @@ class HomeFragment : Fragment() {
             btnConfirmMemberID?.setOnClickListener {
                 if (edtMemberCardNumber != null){
                     //輸入的會員卡號
-                    val nowLoginMember = edtMemberCardNumber.text.toString()
+                    val memberCardNumber = edtMemberCardNumber.text.toString()
 
                     //副執行續進行member Dao查詢
                     lifecycleScope.launch(Dispatchers.IO) {
-                        val accessMember = memberDBManager.getMemberByCardNo(nowLoginMember)
+                        val accessMember = memberDBManager.getMemberByCardNo(memberCardNumber)
 
                         //確認是否為Dao的會員資訊
                         if (accessMember!=null){
-                            Log.d("正確會員", nowLoginMember)
+                            Log.d("正確會員", memberCardNumber)
                             //顯示到主畫面
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(requireContext(), "會員: $nowLoginMember", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), "會員: $memberCardNumber", Toast.LENGTH_SHORT).show()
+                                nowLoginMember = accessMember //紀錄目前登入的用戶
                                 //更新顯示會員名稱
-                                binding.txtMemberClass.text = "會員: $nowLoginMember"
+                                binding.txtMemberClass.text = "會員: $memberCardNumber"
+
+                                Log.d("取得用戶資料",nowLoginMember.toString())
                                 memberBottomDialog.dismiss()
                             }
                         }else{
-                            Log.d("沒有此會員",nowLoginMember)
+                            Log.d("沒有此會員",memberCardNumber)
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(requireContext(), "沒有此會員: $nowLoginMember", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), "沒有此會員: $memberCardNumber", Toast.LENGTH_SHORT).show()
                             }
                         }
+
+                        loadFilterProduct()     //重新載入清單
                     }
                 }else{
                     Toast.makeText(requireContext(),"您沒有輸入卡號喔",Toast.LENGTH_SHORT).show()
@@ -624,11 +638,8 @@ class HomeFragment : Fragment() {
         //已知 pluType='75' 類別
 
         return if (selectItem.discTYPE == "1") { //類別為折價券
-            if (totalSumUnitPrice >= product.unitPrc) { //如果折價券金額小於總價則許可加入
-                true
-            } else {
-                false
-            }
+            //如果折價券金額小於總價則許可加入
+            totalSumUnitPrice >= product.unitPrc
         }else {
             //非折價券類型的商品可直接加入
             true
@@ -645,7 +656,7 @@ class HomeFragment : Fragment() {
         if (isFirstCreation){
             Log.d("會空喔",filteredProductList.toString())
 
-            //離開頁面就清除項目，不要紀錄
+            //目前只要離開頁面就清除項目，不要紀錄
             //以下是因應螢幕旋轉，以viewmodel紀錄內容，避免生命週期重建導致資料流失(保留、清空資料會較麻煩)
 
             // 從 ViewModel 中讀取 filteredProductList
@@ -660,7 +671,13 @@ class HomeFragment : Fragment() {
         }else{
             Log.d("不空喔",filteredProductList.toString())
             viewModel.filteredProductList.postValue(filteredProductList)    //更新到ViewModel
-            val adapter = FilterProductAdapter(filteredProductList, selectedQuantities)
+
+            val adapter: FilterProductAdapter
+            if (nowLoginMember!=null){      //有會員登入
+                adapter = FilterProductAdapter(filteredProductList, selectedQuantities,true)
+            }else{
+                adapter = FilterProductAdapter(filteredProductList, selectedQuantities,false)
+            }
             binding.grTableProduct.adapter = adapter
             binding.grTableProduct.numColumns = 1
             adapter.notifyDataSetChanged()
@@ -670,18 +687,25 @@ class HomeFragment : Fragment() {
         for (product in filteredProductList) {
             // 檢查商品是否在 selectNumberMap 中，如果沒有，預設選擇數量為 0
             val selectNumber = selectedQuantities.getOrDefault(product, 0)
-            // 計算單一小計
-            val totalPrice = product.unitPrc * selectNumber
+
+            var totalPrice = 0
+
+            //計算單項小計
+            if (nowLoginMember != null){    //確認是否為會員
+                totalPrice = product.memPrc * selectNumber
+            }else{
+                totalPrice = product.unitPrc * selectNumber
+            }
 
             totalSumUnitPrice += totalPrice
         }
 
         //當總小計大於0時，顯示總小計
         if (totalSumUnitPrice>0){
-            binding.txtTotalDollar.visibility = View.VISIBLE
+            binding.txtTotalDollar.visibility = View.VISIBLE    //開啟可視化
             binding.txtTotalDollar.text = "總計: $totalSumUnitPrice 元"
         }else{
-            binding.txtTotalDollar.visibility = View.INVISIBLE
+            binding.txtTotalDollar.visibility = View.INVISIBLE   //金額小於0不可視
         }
     }
 

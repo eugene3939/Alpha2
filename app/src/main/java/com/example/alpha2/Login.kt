@@ -49,15 +49,15 @@ class Login : AppCompatActivity() {
         insertUserDB("2","Oscar", "3", "3")
 
         //----DAO 方式建立預設商品資料庫 (建立商品資料)
-        insertMerchandisesDB("1","Airwaves Super極酷薄荷無糖口香糖 - 極酷薄荷口味", "零食","4710716334875",50, 50, 50,100)
-        insertMerchandisesDB("2","零負擔Android程式設計之旅", "書籍","9786263336148", 690, 650,600,80,mamMethod = "H", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
-        insertMerchandisesDB("3","Android開發架構實戰", "書籍","9786263332577", 600,550,550, 60,mamMethod = "H", pluType = "4",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
-        insertMerchandisesDB("17","Android初學特訓班", "書籍","9789865023072", 500, 450,400,80,mamMethod = "1", pluType = "3",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
-        insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500,500,500, 60,mamMethod = "B", pluType = "2",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
-        insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660, 650,650,25,mamMethod = "D")
-        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000, 2000,2000,200,mamMethod = "E")
-        insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,100,"1","75")
-        insertMerchandisesDB("Coupon500","50元折價券","折價券","SS111111",50,50,50,200,"1","75")
+        insertMerchandisesDB("1","Airwaves Super極酷薄荷無糖口香糖 - 極酷薄荷口味", "零食","4710716334875",50, 50, 50,50,100, pluUnit = "包")
+        insertMerchandisesDB("2","零負擔Android程式設計之旅", "書籍","9786263336148", 690, 650,600,500,80,mamMethod = "H", pluType = "2", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
+        insertMerchandisesDB("3","Android開發架構實戰", "書籍","9786263332577", 600,550,550, 500,60,mamMethod = "H", pluType = "4", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
+        insertMerchandisesDB("17","Android初學特訓班", "書籍","9789865023072", 500, 450,400,400,80,mamMethod = "1", pluType = "3", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
+        insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500,500,500, 500,60,mamMethod = "B", pluType = "2", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
+        insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660, 650,650,650,25,mamMethod = "D","本")
+        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000, 2000,2000,1800,200,mamMethod = "E","分")
+        insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,30,100,"1","張","75")
+        insertMerchandisesDB("Coupon500","50元折價券","折價券","SS111111",50,50,50,50,200,"1","張","75")
 
         insertCouponMainDB("SS123456","1")
         insertCouponMainDB("SS111111","1")
@@ -183,8 +183,10 @@ class Login : AppCompatActivity() {
                                      fixPrc: Int,
                                      salePrc: Int,
                                      unitPrc: Int,
+                                     memPrc: Int,
                                      number: Int,
                                      mamMethod:String = "0",
+                                     pluUnit: String,                       //單位
                                      pluType: String = "1",
                                      mmpBegDate: LocalDateTime? = null,
                                      mmpEndDate:LocalDateTime? = null) {
@@ -192,7 +194,7 @@ class Login : AppCompatActivity() {
             //確認用戶是否已經存在
             val existingMerchandise = productDBManager.getProductByID(id)
             if (existingMerchandise == null) {
-                val item = Product(pId = id, pName = name, pType = type, pluMagNo = pluMagNo, pNumber = number, fixPrc = fixPrc,salePrc = salePrc, unitPrc = unitPrc,mamMethod = mamMethod, pluType = pluType,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate)
+                val item = Product(pId = id, pName = name, pType = type, pluMagNo = pluMagNo, pluType = pluType, pluUnit = pluUnit, pNumber = number, fixPrc = fixPrc,salePrc = salePrc, unitPrc = unitPrc, memPrc = memPrc, mamMethod = mamMethod,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate)
                 productDBManager.insert(item)
                 Log.d("新增商品", "Merchandise added: $item")
             } else {    //確認是否為已知id

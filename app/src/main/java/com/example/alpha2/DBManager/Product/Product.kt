@@ -13,7 +13,8 @@ data class Product (
   val imageUrl: String = "0",      //商品圖片url (無圖片默認值為0)
   val pName: String,               //商品名稱
   val pType: String,               //商品分類 (特定類別，eg:生鮮會顯示簡易搜尋bar，或是沒有條碼的商品)
-  val pluType: String,       //商品類別
+  val pluUnit: String,             //商品單位
+  val pluType: String,             //商品類別
 
   /*  0=原料 1=一般商品 2=生鮮商品 3=代收 4=代付 */
   /*  5=代售 6=組合商品 7=充值 8=專櫃/購買子會員 9=寄賣/記次消費 */
@@ -43,6 +44,7 @@ data class Product (
   val fixPrc: Int,                 //商品定價
   val salePrc: Int,                //商品售價
   val unitPrc: Int,                //促銷單價
+  val memPrc: Int,                 //會員價
 
   val mmpBegDate: LocalDateTime? = null,            //促銷開始日期
   val mmpEndDate: LocalDateTime? = null,            //促銷結束日期 (不用考慮超過期限，價格更新於回價時處理)

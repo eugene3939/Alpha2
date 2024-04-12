@@ -9,7 +9,7 @@ import android.widget.TextView
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.R
 
-class FilterProductAdapter(private val dataList: List<Product>,private val numberInf: MutableMap<Product, Int>) : BaseAdapter() {
+class FilterProductAdapter(private val dataList: List<Product>,private val numberInf: MutableMap<Product, Int>,private val memberCheck: Boolean) : BaseAdapter() {
     override fun getCount(): Int {
         return dataList.size
     }
@@ -35,7 +35,7 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
         }
 
         val product = dataList[position]
-        holder.bind(product, numberInf, position + 1)
+        holder.bind(product, numberInf,position + 1,memberCheck)
 
         return view!!
     }
@@ -49,14 +49,21 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
 
         private val shopNumber: TextView = itemView.findViewById(R.id.txt_product_buy_number)
         @SuppressLint("SetTextI18n")
-        fun bind(product: Product, numberInf: MutableMap<Product, Int>, ID: Int) {
+        fun bind(product: Product, numberInf: MutableMap<Product, Int>, ID: Int, memberCheck: Boolean) {
             productID.text = "$ID"
             // 使用 Glide 或其他圖片載入庫載入商品圖片
             shopNumber.text = "x ${numberInf[product]}"
 
             productName.text = truncateString(product.pName, 20)
-            productPrice.text = "售價: ${product.unitPrc} 元"
-            productSum.text = "小計: ${product.unitPrc * numberInf[product]!!} 元"     //單向小計
+
+            //如果是會員就顯示會員價，非會員unitPrice
+            if (memberCheck){
+                productPrice.text = "售價: ${product.memPrc} 元"
+                productSum.text = "小計: ${product.memPrc * numberInf[product]!!} 元"     //單向小計
+            }else{
+                productPrice.text = "售價: ${product.unitPrc} 元"
+                productSum.text = "小計: ${product.unitPrc * numberInf[product]!!} 元"     //單向小計
+            }
         }
 
         //限制字串長度
