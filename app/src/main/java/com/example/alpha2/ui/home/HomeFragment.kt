@@ -38,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
+import kotlin.math.sin
 
 //不允許螢幕旋轉，螢幕旋轉容易導致資料流失
 
@@ -592,7 +593,7 @@ class HomeFragment : Fragment() {
 
                                                         Toast.makeText(requireContext(),"新增折價券 ${product.pName}",Toast.LENGTH_SHORT).show()
                                                     }else{
-                                                        Toast.makeText(requireContext(),"未超過折價券金額門檻",Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(requireContext(),"未滿足折價券使用條件",Toast.LENGTH_SHORT).show()
                                                     }
                                                     //主程序外更新顯示內容
                                                     loadFilterProduct()
@@ -634,6 +635,15 @@ class HomeFragment : Fragment() {
             binding.edtSearchRow.setText("")
         }
 
+        //按下小計按鈕後送出
+        binding.btnDeal.setOnClickListener {
+            if (totalSumUnitPrice < 0){
+                Toast.makeText(requireContext(),"送出金額不可為負",Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(requireContext(),"送出金額 $totalSumUnitPrice",Toast.LENGTH_SHORT).show()
+            }
+        }
+
         return root
     }
 
@@ -643,14 +653,32 @@ class HomeFragment : Fragment() {
             productDBManager.getCouponMainByPluMagNo(product.pluMagNo) as CouponMain //確認所選項目是否為折價券
         }
 
-        //已知 pluType='75' 類別
+        var singlePrc = 0   //產品單價(較低的)
+        if (nowLoginMember != null){
+            if (product.memPrc < product.unitPrc){
+                singlePrc = product.memPrc
+            }else{
+                singlePrc = product.unitPrc
+            }
+        }else{
+            singlePrc = product.unitPrc
+        }
 
-        return if (selectItem.discTYPE == "1") { //類別為折價券
-            //如果折價券金額小於總價則許可加入
-            totalSumUnitPrice >= product.unitPrc
-        }else {
-            //非折價券類型的商品可直接加入
-            true
+
+        //已知 pluType='75' 類別
+        return when (selectItem.discTYPE) {
+            "0" -> { //折扣券
+                //如果折價券金額小於總價則許可加入
+                totalSumUnitPrice >= singlePrc
+            }
+            "1" -> {   //打折券
+                //如果折價券金額小於總價則許可加入
+                totalSumUnitPrice >= singlePrc
+            }
+            else -> {
+                //非折價券類型的商品可直接加入
+                true
+            }
         }
     }
 
