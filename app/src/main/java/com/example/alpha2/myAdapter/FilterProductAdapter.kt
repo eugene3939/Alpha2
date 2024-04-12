@@ -58,8 +58,14 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
 
             //如果是會員就顯示會員價，非會員unitPrice
             if (memberCheck){
-                productPrice.text = "售價: ${product.memPrc} 元"
-                productSum.text = "小計: ${product.memPrc * numberInf[product]!!} 元"     //單向小計
+                //防止會員價比折扣價還高的狀況 (適用較低價格)
+                if (product.memPrc > product.unitPrc){
+                    productPrice.text = "售價: ${product.unitPrc} 元"
+                    productSum.text = "小計: ${product.unitPrc * numberInf[product]!!} 元"     //單向小計
+                }else{
+                    productPrice.text = "售價: ${product.memPrc} 元"
+                    productSum.text = "小計: ${product.memPrc * numberInf[product]!!} 元"     //單向小計
+                }
             }else{
                 productPrice.text = "售價: ${product.unitPrc} 元"
                 productSum.text = "小計: ${product.unitPrc * numberInf[product]!!} 元"     //單向小計

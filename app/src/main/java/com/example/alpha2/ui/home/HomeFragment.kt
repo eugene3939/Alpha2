@@ -691,8 +691,14 @@ class HomeFragment : Fragment() {
             var totalPrice = 0
 
             //計算單項小計
-            if (nowLoginMember != null){    //確認是否為會員
-                totalPrice = product.memPrc * selectNumber
+            if(nowLoginMember != null){    //確認是否為會員
+
+                //防止會員價比折扣價還高的狀況
+                if (product.memPrc > product.unitPrc){
+                    totalPrice = product.unitPrc * selectNumber     //適用較低的價格
+                }else{
+                    totalPrice = product.memPrc * selectNumber
+                }
             }else{
                 totalPrice = product.unitPrc * selectNumber
             }
