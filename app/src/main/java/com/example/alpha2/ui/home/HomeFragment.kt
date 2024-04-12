@@ -98,6 +98,8 @@ class HomeFragment : Fragment() {
 
                             stateHintCode = 0
                         } else {
+                            nowLoginMember = null       //重置會員名稱
+                            binding.txtMemberClass.text = "非會員"
                             Log.d("不存在此會員", scanResult.contents)
                         }
 
@@ -408,8 +410,14 @@ class HomeFragment : Fragment() {
                             }
                         }else{
                             Log.d("沒有此會員",memberCardNumber)
+
+                            nowLoginMember = null //清除登錄會員紀錄
+
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(requireContext(), "沒有此會員: $memberCardNumber", Toast.LENGTH_SHORT).show()
+
+                                //重設會員提示文字
+                                binding.txtMemberClass.text = "非會員"
                             }
                         }
 
@@ -669,6 +677,7 @@ class HomeFragment : Fragment() {
 //            }
 //            isFirstCreation = false
         }else{
+
             Log.d("不空喔",filteredProductList.toString())
             viewModel.filteredProductList.postValue(filteredProductList)    //更新到ViewModel
 
@@ -678,40 +687,44 @@ class HomeFragment : Fragment() {
             }else{
                 adapter = FilterProductAdapter(filteredProductList, selectedQuantities,false)
             }
-            binding.grTableProduct.adapter = adapter
-            binding.grTableProduct.numColumns = 1
-            adapter.notifyDataSetChanged()
+
+            lifecycleScope.launch(Dispatchers.Main) {
+                binding.grTableProduct.adapter = adapter
+                binding.grTableProduct.numColumns = 1
+                adapter.notifyDataSetChanged()
+            }
         }
 
-        //變更小計金額
-        for (product in filteredProductList) {
-            // 檢查商品是否在 selectNumberMap 中，如果沒有，預設選擇數量為 0
-            val selectNumber = selectedQuantities.getOrDefault(product, 0)
+        lifecycleScope.launch(Dispatchers.Main) {
+            //變更小計金額
+            for (product in filteredProductList) {
+                // 檢查商品是否在 selectNumberMap 中，如果沒有，預設選擇數量為 0
+                val selectNumber = selectedQuantities.getOrDefault(product, 0)
 
-            var totalPrice = 0
+                var totalPrice = 0
 
-            //計算單項小計
-            if(nowLoginMember != null){    //確認是否為會員
-
-                //防止會員價比折扣價還高的狀況
-                if (product.memPrc > product.unitPrc){
-                    totalPrice = product.unitPrc * selectNumber     //適用較低的價格
+                //計算單項小計
+                if(nowLoginMember != null){    //確認是否為會員
+                    //防止會員價比折扣價還高的狀況
+                    if (product.memPrc > product.unitPrc){
+                        totalPrice = product.unitPrc * selectNumber     //適用較低的價格
+                    }else{
+                        totalPrice = product.memPrc * selectNumber
+                    }
                 }else{
-                    totalPrice = product.memPrc * selectNumber
+                    totalPrice = product.unitPrc * selectNumber
                 }
-            }else{
-                totalPrice = product.unitPrc * selectNumber
+
+                totalSumUnitPrice += totalPrice
             }
 
-            totalSumUnitPrice += totalPrice
-        }
-
-        //當總小計大於0時，顯示總小計
-        if (totalSumUnitPrice>0){
-            binding.txtTotalDollar.visibility = View.VISIBLE    //開啟可視化
-            binding.txtTotalDollar.text = "總計: $totalSumUnitPrice 元"
-        }else{
-            binding.txtTotalDollar.visibility = View.INVISIBLE   //金額小於0不可視
+            //當總小計大於0時，顯示總小計
+            if (totalSumUnitPrice>0){
+                binding.txtTotalDollar.visibility = View.VISIBLE    //開啟可視化
+                binding.txtTotalDollar.text = "總計: $totalSumUnitPrice 元"
+            }else{
+                binding.txtTotalDollar.visibility = View.INVISIBLE   //金額小於0不可視
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package com.example.alpha2.myAdapter
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,6 +68,8 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
                     productSum.text = "小計: ${product.memPrc * numberInf[product]!!} 元"     //單向小計
                 }
             }else{
+
+                Log.d("沒有會員","沒有沒有沒有通過")
                 productPrice.text = "售價: ${product.unitPrc} 元"
                 productSum.text = "小計: ${product.unitPrc * numberInf[product]!!} 元"     //單向小計
             }
