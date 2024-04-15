@@ -677,19 +677,7 @@ class HomeFragment : Fragment() {
                     if (detail != null){    //存在明細檔
                         //確認類別是否正確
                         if (selectItem.baseTYPE == "1"){        //符合指定類別 (0不用經過此檢查)
-                            Log.d("明細檔 指定序號", detail.SEQ_NO.toString())
-
-//                            if (detail.PLU_MagNo != null){  //確認是否存在貨號
-//                                if (filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
-//                                    Log.d("許可確認","包含相同貨號")
-//
-//                                    subCheck = true
-//                                }else{
-//                                    Log.d("許可確認","不包含相同貨號")
-//
-//                                    subCheck = false
-//                                }
-//                            }
+                            Log.d("明細檔 指定序號", detail.SEQ_NO.toString())     //序號沒有實際作用，僅作為索引(key)
 
                             subCheck = when {
                                 (detail.PLU_MagNo != null) -> { //確認貨號
