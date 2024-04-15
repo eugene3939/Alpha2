@@ -1,6 +1,7 @@
 package com.example.alpha2.DBManager.Product
 
 import android.content.Context
+import androidx.room.Query
 import androidx.room.Room
 import kotlinx.coroutines.runBlocking
 
@@ -38,6 +39,27 @@ class ProductManager(context: Context) {
     fun getProductByMagNo(magNo: String): Product?{
         return runBlocking {
             productDao.getProductByMagNo(magNo)
+        }
+    }
+
+    //尋找符合單一商品部門(DEP_No)的Product
+    fun getProductByDEPNo(dep: String): Product?{
+        return runBlocking {
+            productDao.getProductByDEPNo(dep)
+        }
+    }
+
+    //尋找符合單一商品分類(CAT_No)的Product
+    fun getProductByCATNo(dep: String): Product?{
+        return runBlocking {
+            productDao.getProductByCATNo(dep)
+        }
+    }
+
+    //尋找符合單一商品廠商(VEN_No)的Product
+    fun getProductByVENNo(dep: String): Product?{
+        return runBlocking {
+            productDao.getProductByVENNo(dep)
         }
     }
 

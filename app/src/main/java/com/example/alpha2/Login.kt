@@ -51,22 +51,26 @@ class Login : AppCompatActivity() {
 
         //----DAO 方式建立預設商品資料庫 (建立商品資料)
         insertMerchandisesDB("1","Airwaves Super極酷薄荷無糖口香糖 - 極酷薄荷口味", "零食","4710716334875",50, 50, 50,50,100, pluUnit = "包")
-        insertMerchandisesDB("2","零負擔Android程式設計之旅", "書籍","9786263336148", 690, 650,600,500,80,mamMethod = "H", pluType = "2", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
+        insertMerchandisesDB("2","零負擔Android程式設計之旅", "書籍","9786263336148", 690, 650,600,500,80,mamMethod = "H", pluType = "2", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
         insertMerchandisesDB("3","Android開發架構實戰", "書籍","9786263332577", 600,550,550, 500,60,mamMethod = "H", pluType = "4", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
         insertMerchandisesDB("17","Android初學特訓班", "書籍","9789865023072", 500, 450,400,400,80,mamMethod = "1", pluType = "3", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
         insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500,500,500, 500,60,mamMethod = "B", pluType = "2", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
-        insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660, 650,650,650,25,mamMethod = "D","本")
-        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000, 2000,2000,1800,200,mamMethod = "E","分")
+        insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660, 650,650,650,25,mamMethod = "D", pluUnit = "本")
+        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000, 2000,2000,1800,200,mamMethod = "E", pluUnit = "分")
 
-        insertMerchandisesDB("BookCoupon03","新書優惠禮","折扣券","SS555555",50,50,50,50,200,"1","張","75")
-        insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,30,100,"1","張","75")
-        insertMerchandisesDB("Coupon500","50元折價券","折價券","SS111111",50,50,50,50,200,"1","張","75")
+        insertMerchandisesDB("BookCoupon03","新書優惠禮","折扣券","SS555555",50,50,50,50,200,"1", pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon04","Android入門優惠","折扣券","SS666666",100,100,100,100,300,"1", CAT_No = "1", pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,30,100,"1", pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("Coupon500","50元折價券","折價券","SS111111",50,50,50,50,200,"1", pluUnit = "張", pluType = "75")
 
         insertCouponMainDB("SS555555","0","1")      //打折券(分類)
-        insertCouponMainDB("SS123456","1")                   //折價券(單價)
+        insertCouponMainDB("SS666666","0","1")
+        insertCouponMainDB("SS123456","1")                   //折價券(單價) //類別1會進行檢查
         insertCouponMainDB("SS111111","1")
 
         insertCouponDetailDB("SS555555",123,"9786263332577")
+        insertCouponDetailDB("SS666666",123, CAT_No = "1")
+
 
         insertPairProduct("20","1,2,3","1,2,3",60)    //綑綁商品清單
 
@@ -191,6 +195,12 @@ class Login : AppCompatActivity() {
                                      unitPrc: Int,
                                      memPrc: Int,
                                      number: Int,
+
+                                     //商品分類
+                                     DEP_No: String ?= null,    /*部門編號*/
+                                     CAT_No: String ?= null,    /*分類編號*/
+                                     VEN_No: String ?= null,    /*廠商編號*/
+
                                      mamMethod:String = "0",
                                      pluUnit: String,                       //單位
                                      pluType: String = "1",
@@ -200,7 +210,11 @@ class Login : AppCompatActivity() {
             //確認用戶是否已經存在
             val existingMerchandise = productDBManager.getProductByID(id)
             if (existingMerchandise == null) {
-                val item = Product(pId = id, pName = name, pType = type, pluMagNo = pluMagNo, pluType = pluType, pluUnit = pluUnit, pNumber = number, fixPrc = fixPrc,salePrc = salePrc, unitPrc = unitPrc, memPrc = memPrc, mamMethod = mamMethod,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate)
+                val item = Product(pId = id, pName = name, pType = type, pluMagNo = pluMagNo, pluType = pluType, pluUnit = pluUnit, pNumber = number,
+                                    fixPrc = fixPrc,salePrc = salePrc, unitPrc = unitPrc, memPrc = memPrc,
+                                    DEP_No = DEP_No,CAT_No = CAT_No, VEN_No = VEN_No,
+                                    mamMethod = mamMethod,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate)
+
                 productDBManager.insert(item)
                 Log.d("新增商品", "Merchandise added: $item")
             } else {    //確認是否為已知id
@@ -226,12 +240,16 @@ class Login : AppCompatActivity() {
 
 
     //折價券 商品明細檔
-    private fun insertCouponDetailDB(DISC_PLU_MagNo: String, SEQ_NO: Int,PLU_MagNo:String?= null) {
+    private fun insertCouponDetailDB(DISC_PLU_MagNo: String, SEQ_NO: Int,PLU_MagNo:String?= null,
+                                         //商品分類
+                                         DEP_No: String ?= null,    /*部門編號*/
+                                         CAT_No: String ?= null,    /*分類編號*/
+                                         VEN_No: String ?= null,    /*廠商編號*/) {
         lifecycleScope.launch(Dispatchers.IO){
             //確認折扣商品是否已經存在
             val existCouponDetail = productDBManager.getCouponDetailBypluMagNo(DISC_PLU_MagNo)
             if (existCouponDetail == null) {
-                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo,SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo)
+                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo,SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo,DEP_No = DEP_No, CAT_No = CAT_No, VEN_No = VEN_No)
                 productDBManager.insertCouponDetail(item)
                 Log.d("新增折價券明細檔", "DProduct added: $item")
             } else {    //確認是否為已知id

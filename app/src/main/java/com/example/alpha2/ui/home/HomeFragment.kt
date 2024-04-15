@@ -39,7 +39,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
-import kotlin.math.sin
 
 //不允許螢幕旋轉，螢幕旋轉容易導致資料流失
 
@@ -677,17 +676,37 @@ class HomeFragment : Fragment() {
 
                     if (detail != null){    //存在明細檔
                         //確認類別是否正確
-                        if (selectItem.baseTYPE == "1"){        //符合指定類別
+                        if (selectItem.baseTYPE == "1"){        //符合指定類別 (0不用經過此檢查)
                             Log.d("明細檔 指定序號", detail.SEQ_NO.toString())
 
-                            if (detail.PLU_MagNo != null){  //確認是否存在貨號
-                                subCheck = if (filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
-                                    Log.d("許可確認","包含相同貨號")
+//                            if (detail.PLU_MagNo != null){  //確認是否存在貨號
+//                                if (filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
+//                                    Log.d("許可確認","包含相同貨號")
+//
+//                                    subCheck = true
+//                                }else{
+//                                    Log.d("許可確認","不包含相同貨號")
+//
+//                                    subCheck = false
+//                                }
+//                            }
 
-                                    true
-                                }else{
-                                    Log.d("許可確認","不包含相同貨號")
-
+                            subCheck = when {
+                                (detail.PLU_MagNo != null) -> { //確認貨號
+                                    //相同貨號
+                                    filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))
+                                }
+                                (detail.DEP_No != null) -> {    //確認部門
+                                    filteredProductList.any { it.DEP_No == detail.DEP_No }
+                                }
+                                (detail.CAT_No != null) -> {    //確認分類
+                                    filteredProductList.any { it.CAT_No == detail.CAT_No }
+                                }
+                                (detail.VEN_No != null) -> {    //確認廠商
+                                    filteredProductList.any { it.VEN_No == detail.VEN_No }
+                                }
+                                else -> {
+                                    Log.d("測試B","cat")
                                     false
                                 }
                             }
@@ -759,7 +778,7 @@ class HomeFragment : Fragment() {
             }
         }
 
-        //確認優惠券條件是否能繼續使用 (還沒做這邊)
+        //確認優惠券條件是否能繼續使用
         lifecycleScope.launch {
             for (item in filteredProductList){
                 if(item.pluType == "75"){

@@ -18,6 +18,18 @@ interface ProductDao {
     @Query("SELECT * FROM Products WHERE pluMagNo = :magNo")
     fun getProductByMagNo(magNo: String): Product?
 
+    //尋找符合單一商品部門(DEP_No)的Product
+    @Query("SELECT * FROM Products WHERE DEP_No = :dep")
+    fun getProductByDEPNo(dep: String): Product?
+
+    //尋找符合單一商品分類(CAT_No)的Product
+    @Query("SELECT * FROM Products WHERE CAT_No = :cat")
+    fun getProductByCATNo(cat: String): Product?
+
+    //尋找符合單一商品廠商(VEN_No)的Product
+    @Query("SELECT * FROM Products WHERE VEN_No = :ven")
+    fun getProductByVENNo(ven: String):  Product?
+
     //尋找符合單一商品類別(pluType)的Product
     @Query("SELECT * FROM Products WHERE pluType = :plu")
     fun getProductByPluType(plu: String): MutableList<Product>?

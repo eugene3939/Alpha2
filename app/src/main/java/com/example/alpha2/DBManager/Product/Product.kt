@@ -25,6 +25,11 @@ data class Product (
   /*  75=折價券商品 77=溢收商品*/
   /*商品類別小於70為非商品銷售 */
 
+//  商品類別
+  val DEP_No :String ?= null,       /*部門編號*/
+  val CAT_No :String ?= null,       /*分類編號*/
+  val VEN_No :String ?= null,       /*廠商編號*/
+
   val mamMethod: String,           //促銷方式 (0表示沒有促銷)
 
   /*1 永久變價*/
