@@ -42,6 +42,16 @@ interface ProductDao {
     @Query("SELECT * FROM CouponMains WHERE disPluMagNo = :pluMagNo") //尋找符合項目的單一pluMagNo
     fun getCouponMainByPluMagNo(pluMagNo: String): CouponMain?
 
+    //  折扣券 明細檔
+    @Insert
+    suspend fun insertCouponDetail(coupon: CouponDetail)
+
+    @Query("DELETE FROM CouponDetails WHERE DISC_PLU_MagNo = :pluMagNo")
+    suspend fun deleteCouponDetail(pluMagNo: String)
+
+    @Query("SELECT * FROM CouponDetails WHERE DISC_PLU_MagNo = :pluMagNo") //尋找符合項目的單一pluMagNo
+    fun getCouponDetailByID(pluMagNo: String): CouponDetail?
+
     //    組合商品
     @Insert
     suspend fun insertCluster(cm: ClusterProduct)

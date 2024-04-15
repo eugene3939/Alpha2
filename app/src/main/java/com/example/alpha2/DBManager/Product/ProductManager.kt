@@ -84,6 +84,28 @@ class ProductManager(context: Context) {
         }
     }
 
+    //---------以下為折價券明細檔---------
+    //新增商品
+    fun insertCouponDetail(cd: CouponDetail) {
+        runBlocking {
+            productDao.insertCouponDetail(cd)
+        }
+    }
+
+    //刪除商品
+    fun deleteCouponDetail(id: String){
+        runBlocking {
+            productDao.deleteCouponDetail(id)
+        }
+    }
+
+    //尋找商品id
+    fun getCouponDetailByID(id: String): CouponDetail?{
+        return runBlocking {
+            productDao.getCouponDetailByID(id)
+        }
+    }
+
     //---------以下為配對商品---------
     //新增商品
     fun insertCluster(cm: ClusterProduct) {

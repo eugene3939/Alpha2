@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Member.MemberManager
 import com.example.alpha2.DBManager.Product.ClusterProduct
+import com.example.alpha2.DBManager.Product.CouponDetail
 import com.example.alpha2.DBManager.Product.CouponMain
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.Product.ProductManager
@@ -64,6 +65,8 @@ class Login : AppCompatActivity() {
         insertCouponMainDB("SS555555","0","1")      //打折券(分類)
         insertCouponMainDB("SS123456","1")                   //折價券(單價)
         insertCouponMainDB("SS111111","1")
+
+        insertCouponDetailDB("SS555555",123)
 
         insertPairProduct("20","1,2,3","1,2,3",60)    //綑綁商品清單
 
@@ -217,6 +220,22 @@ class Login : AppCompatActivity() {
                 Log.d("新增折價券主檔", "DProduct added: $item")
             } else {    //確認是否為已知id
                 Log.d("既有折價券主檔", "DProduct with ID $pluMagNo already exists")
+            }
+        }
+    }
+
+
+    //折價券 商品明細檔
+    private fun insertCouponDetailDB(DISC_PLU_MagNo: String, SEQ_NO: Int) {
+        lifecycleScope.launch(Dispatchers.IO){
+            //確認折扣商品是否已經存在
+            val existCouponDetail = productDBManager.getCouponDetailByID(DISC_PLU_MagNo)
+            if (existCouponDetail == null) {
+                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo,SEQ_NO = SEQ_NO)
+                productDBManager.insertCouponDetail(item)
+                Log.d("新增折價券明細檔", "DProduct added: $item")
+            } else {    //確認是否為已知id
+                Log.d("既有折價券明細檔", "DProduct with ID $DISC_PLU_MagNo already exists")
             }
         }
     }
