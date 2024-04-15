@@ -58,7 +58,7 @@ class Login : AppCompatActivity() {
         insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660, 650,650,650,25,mamMethod = "D","本")
         insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000, 2000,2000,1800,200,mamMethod = "E","分")
 
-        insertMerchandisesDB("BookCoupon03","書本折扣券","折扣券","SS555555",50,50,50,50,200,"1","張","75")
+        insertMerchandisesDB("BookCoupon03","新書優惠禮","折扣券","SS555555",50,50,50,50,200,"1","張","75")
         insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,30,100,"1","張","75")
         insertMerchandisesDB("Coupon500","50元折價券","折價券","SS111111",50,50,50,50,200,"1","張","75")
 
@@ -66,7 +66,7 @@ class Login : AppCompatActivity() {
         insertCouponMainDB("SS123456","1")                   //折價券(單價)
         insertCouponMainDB("SS111111","1")
 
-        insertCouponDetailDB("SS555555",123)
+        insertCouponDetailDB("SS555555",123,"9786263332577")
 
         insertPairProduct("20","1,2,3","1,2,3",60)    //綑綁商品清單
 
@@ -226,12 +226,12 @@ class Login : AppCompatActivity() {
 
 
     //折價券 商品明細檔
-    private fun insertCouponDetailDB(DISC_PLU_MagNo: String, SEQ_NO: Int) {
+    private fun insertCouponDetailDB(DISC_PLU_MagNo: String, SEQ_NO: Int,PLU_MagNo:String?= null) {
         lifecycleScope.launch(Dispatchers.IO){
             //確認折扣商品是否已經存在
             val existCouponDetail = productDBManager.getCouponDetailBypluMagNo(DISC_PLU_MagNo)
             if (existCouponDetail == null) {
-                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo,SEQ_NO = SEQ_NO)
+                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo,SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo)
                 productDBManager.insertCouponDetail(item)
                 Log.d("新增折價券明細檔", "DProduct added: $item")
             } else {    //確認是否為已知id

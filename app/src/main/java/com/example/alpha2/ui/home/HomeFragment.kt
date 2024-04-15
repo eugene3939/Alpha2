@@ -670,8 +670,6 @@ class HomeFragment : Fragment() {
         return when (selectItem.discTYPE) {
             "0" -> { //折扣券
                 //看是否有 明細檔 (正確分類)
-                Log.d("折扣券檢查","類別檢查")
-
                 var subCheck = false
 
                 val result = lifecycleScope.async(Dispatchers.IO) {
@@ -683,14 +681,14 @@ class HomeFragment : Fragment() {
                             Log.d("明細檔 指定序號", detail.SEQ_NO.toString())
 
                             if (detail.PLU_MagNo != null){  //確認是否存在貨號
-                                if (filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
+                                subCheck = if (filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
                                     Log.d("許可確認","包含相同貨號")
 
-                                    subCheck = true
+                                    true
                                 }else{
                                     Log.d("許可確認","不包含相同貨號")
 
-                                    subCheck = false
+                                    false
                                 }
                             }
                         }
@@ -758,6 +756,21 @@ class HomeFragment : Fragment() {
                 binding.grTableProduct.adapter = adapter
                 binding.grTableProduct.numColumns = 1
                 adapter.notifyDataSetChanged()
+            }
+        }
+
+        //確認優惠券條件是否能繼續使用 (還沒做這邊)
+        lifecycleScope.launch {
+            for (item in filteredProductList){
+                if(item.pluType == "75"){
+                    Log.d("清單檢查","折扣券")
+
+                    if (!couponAddCheck(item)){     //不滿足折扣券使用條件
+                         filteredProductList.remove(item)   //刪除該項目，並且重新導入清單
+
+                        loadFilterProduct()
+                    }
+                }
             }
         }
 
