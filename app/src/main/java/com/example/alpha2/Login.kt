@@ -229,7 +229,7 @@ class Login : AppCompatActivity() {
     private fun insertCouponDetailDB(DISC_PLU_MagNo: String, SEQ_NO: Int) {
         lifecycleScope.launch(Dispatchers.IO){
             //確認折扣商品是否已經存在
-            val existCouponDetail = productDBManager.getCouponDetailByID(DISC_PLU_MagNo)
+            val existCouponDetail = productDBManager.getCouponDetailBypluMagNo(DISC_PLU_MagNo)
             if (existCouponDetail == null) {
                 val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo,SEQ_NO = SEQ_NO)
                 productDBManager.insertCouponDetail(item)

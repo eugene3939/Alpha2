@@ -68,8 +68,6 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
                     productSum.text = "小計: ${product.memPrc * numberInf[product]!!} 元"     //單向小計
                 }
             }else{
-
-                Log.d("沒有會員","沒有沒有沒有通過")
                 productPrice.text = "售價: ${product.unitPrc} 元"
                 productSum.text = "小計: ${product.unitPrc * numberInf[product]!!} 元"     //單向小計
             }

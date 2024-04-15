@@ -50,7 +50,7 @@ interface ProductDao {
     suspend fun deleteCouponDetail(pluMagNo: String)
 
     @Query("SELECT * FROM CouponDetails WHERE DISC_PLU_MagNo = :pluMagNo") //尋找符合項目的單一pluMagNo
-    fun getCouponDetailByID(pluMagNo: String): CouponDetail?
+    fun getCouponDetailBypluMagNo(pluMagNo: String): CouponDetail?
 
     //    組合商品
     @Insert

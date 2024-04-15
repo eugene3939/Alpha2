@@ -100,9 +100,9 @@ class ProductManager(context: Context) {
     }
 
     //尋找商品id
-    fun getCouponDetailByID(id: String): CouponDetail?{
+    fun getCouponDetailBypluMagNo(id: String): CouponDetail?{
         return runBlocking {
-            productDao.getCouponDetailByID(id)
+            productDao.getCouponDetailBypluMagNo(id)
         }
     }
 

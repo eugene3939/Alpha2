@@ -35,6 +35,7 @@ import com.example.alpha2.myAdapter.CouponAdapter
 import com.example.alpha2.myAdapter.FilterProductAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
@@ -668,8 +669,45 @@ class HomeFragment : Fragment() {
         //已知 pluType='75' 類別
         return when (selectItem.discTYPE) {
             "0" -> { //折扣券
-                //如果折價券金額小於總價則許可加入
-                totalSumUnitPrice >= singlePrc
+                //看是否有 明細檔 (正確分類)
+                Log.d("折扣券檢查","類別檢查")
+
+                var subCheck = false
+
+                val result = lifecycleScope.async(Dispatchers.IO) {
+                    val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.disPluMagNo)
+
+                    if (detail != null){    //存在明細檔
+                        //確認類別是否正確
+                        if (selectItem.baseTYPE == "1"){        //符合指定類別
+                            Log.d("明細檔 指定序號", detail.SEQ_NO.toString())
+
+                            if (detail.PLU_MagNo != null){  //確認是否存在貨號
+                                if (filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
+                                    Log.d("許可確認","包含相同貨號")
+
+                                    subCheck = true
+                                }else{
+                                    Log.d("許可確認","不包含相同貨號")
+
+                                    subCheck = false
+                                }
+                            }
+                        }
+                    }
+
+                    // 將等待協程結果返回
+                    subCheck
+                }
+
+                // 等待協程結果
+                if (result.await()) {
+                    Log.d("結果","許可")
+                    totalSumUnitPrice >= singlePrc
+                } else {
+                    Log.d("結果","不許可")
+                    false
+                }
             }
             "1" -> {   //打折券
                 //如果折價券金額小於總價則許可加入
