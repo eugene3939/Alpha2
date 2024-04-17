@@ -39,6 +39,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
+import java.time.LocalDateTime
 
 //不允許螢幕旋轉，螢幕旋轉容易導致資料流失
 
@@ -606,7 +607,7 @@ class HomeFragment : Fragment() {
 
                                     sentCouponItem = selectPluMagNo
 
-                                    Log.d("更新確認(內部)",sentCouponItem.toString())
+                                    Log.d("折扣券號",sentCouponItem.toString())
 
                                     // 送出折價券商品
                                     if (sentCouponItem != null) {
@@ -626,7 +627,8 @@ class HomeFragment : Fragment() {
 
                                                         Toast.makeText(requireContext(),"新增折價券 ${product.pName}",Toast.LENGTH_SHORT).show()
                                                     }else{
-                                                        Toast.makeText(requireContext(),"未滿足折價券使用條件",Toast.LENGTH_SHORT).show()
+                                                        //錯誤回報在couponAddCheck就會跳出提示，這邊用Log說明新增出現異常即可
+                                                        Log.d("折價券新增狀況","未滿足折價券使用條件")
                                                     }
                                                     //主程序外更新顯示內容
                                                     loadFilterProduct()
@@ -662,7 +664,6 @@ class HomeFragment : Fragment() {
         binding.spDiscountList2.adapter = adapter2
         // 處理用戶選擇的事件
 
-
         //按鈕清除輸入貨號
         binding.btnClear.setOnClickListener {
             binding.edtSearchRow.setText("")
@@ -687,14 +688,14 @@ class HomeFragment : Fragment() {
         }
 
         var singlePrc = 0   //產品單價(較低的)
-        if (nowLoginMember != null){
+        singlePrc = if (nowLoginMember != null){
             if (product.memPrc < product.unitPrc){
-                singlePrc = product.memPrc
+                product.memPrc
             }else{
-                singlePrc = product.unitPrc
+                product.unitPrc
             }
         }else{
-            singlePrc = product.unitPrc
+            product.unitPrc
         }
 
 
@@ -702,37 +703,112 @@ class HomeFragment : Fragment() {
         return when (selectItem.DISC_TYPE) {
             "0" -> { //折扣券
                 //看是否有 明細檔 (正確分類)
-                var subCheck = false
+                var subCheck = 0 //折扣券檢核碼 (99:許可)
 
                 val result = lifecycleScope.async(Dispatchers.IO) {
                     val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.DISC_PLU_MagNo)
 
                     if (detail != null){    //存在明細檔
-                        //確認類別是否正確
-                        if (selectItem.BASE_TYPE == "1"){        //符合指定類別 (0不用經過此檢查)
-                            Log.d("明細檔 指定序號", detail.SEQ_NO.toString())     //序號沒有實際作用，僅作為索引(key)
+                        //確認折價券是否在期限內
+                        if (!isCouponValid(selectItem)){
+                            Log.d("折價券適用間檢查","超過折價券期間")
+                            subCheck = 6
+                        }else{
+                            //符合期限後進行更詳細的檢查
 
-                            subCheck = when {
-                                (detail.PLU_MagNo != null) -> { //確認貨號
-                                    //相同貨號
-                                    filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))
+                            //確認類別是否正確
+                            if (selectItem.BASE_TYPE == "1"){        //指定類別 (0不用經過此檢查)
+                                Log.d("折扣明細 指定序號", detail.SEQ_NO.toString())
+
+                                subCheck = when {
+                                    (detail.PLU_MagNo != null) -> { //確認貨號
+                                        Log.d("折扣明細","相同貨號")
+                                        //相同貨號
+                                        if(filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
+                                            99
+                                        }else{
+                                            1   //不存在相同貨號
+                                        }
+                                    }
+                                    (detail.DEP_No != null) -> {    //確認部門
+                                        Log.d("折扣明細","相同部門")
+                                        //相同部門
+                                        if(filteredProductList.any { it.DEP_No == detail.DEP_No }){
+                                            99
+                                        }else{
+                                            2   //不存在相同部門
+                                        }
+                                    }
+                                    (detail.CAT_No != null) -> {    //確認分類
+                                        Log.d("折扣明細","相同分類")
+                                        //相同分類
+                                        if (filteredProductList.any { it.CAT_No == detail.CAT_No }){
+                                            99
+                                        }else{
+                                            3   //不存在相同分類
+                                        }
+                                    }
+                                    (detail.VEN_No != null) -> {    //確認廠商
+                                        Log.d("折扣明細","相同廠商")
+                                        //相同廠商
+                                        if (filteredProductList.any { it.VEN_No == detail.VEN_No }){
+                                            99
+                                        }else{
+                                            4  //不存在相同廠商
+                                        }
+                                    }
+                                    else -> {
+                                        Log.d("折扣明細","不符合折扣券規則")
+                                        5  //其他錯誤
+                                    }
                                 }
-                                (detail.DEP_No != null) -> {    //確認部門
-                                    //相同部門
-                                    filteredProductList.any { it.DEP_No == detail.DEP_No }
+                            }else if(selectItem.BASE_TYPE == "2"){  //排除指定類別
+                                Log.d("折扣明細","排除指定類別")
+
+                                subCheck = when {
+                                    (detail.PLU_MagNo != null) -> { //確認貨號
+                                        Log.d("折扣明細","相同貨號")
+                                        //相同貨號
+                                        if(filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
+                                            1
+                                        }else{
+                                            99   //不存在相同貨號
+                                        }
+                                    }
+                                    (detail.DEP_No != null) -> {    //確認部門
+                                        Log.d("折扣明細","相同部門")
+                                        //相同部門
+                                        if(filteredProductList.any { it.DEP_No == detail.DEP_No }){
+                                            2
+                                        }else{
+                                            99   //不存在相同部門
+                                        }
+                                    }
+                                    (detail.CAT_No != null) -> {    //確認分類
+                                        Log.d("折扣明細","相同分類")
+                                        //相同分類
+                                        if (filteredProductList.any { it.CAT_No == detail.CAT_No }){
+                                            3
+                                        }else{
+                                            99   //不存在相同分類
+                                        }
+                                    }
+                                    (detail.VEN_No != null) -> {    //確認廠商
+                                        Log.d("折扣明細","相同廠商")
+                                        //相同廠商
+                                        if (filteredProductList.any { it.VEN_No == detail.VEN_No }){
+                                            4
+                                        }else{
+                                            99  //不存在相同廠商
+                                        }
+                                    }
+                                    else -> {
+                                        Log.d("折扣明細","不符合折扣券規則")
+                                        5  //其他錯誤
+                                    }
                                 }
-                                (detail.CAT_No != null) -> {    //確認分類
-                                    //相同分類
-                                    filteredProductList.any { it.CAT_No == detail.CAT_No }
-                                }
-                                (detail.VEN_No != null) -> {    //確認廠商
-                                    //相同廠商
-                                    filteredProductList.any { it.VEN_No == detail.VEN_No }
-                                }
-                                else -> {
-                                    Log.d("測試B","不符合折扣券規則")
-                                    false
-                                }
+                            }else{      //0不用經過此鍵查
+                                subCheck = 99
                             }
                         }
                     }
@@ -742,11 +818,34 @@ class HomeFragment : Fragment() {
                 }
 
                 // 等待協程結果
-                if (result.await()) {
+                if (result.await() == 99) {
                     Log.d("結果","許可")
                     totalSumUnitPrice >= singlePrc
                 } else {
                     Log.d("結果","不許可")
+                    //若不許可依照檢核碼回報錯誤原因
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        when(result.await()){
+                            1->{
+                                Toast.makeText(requireContext(),"不滿足適用貨號",Toast.LENGTH_SHORT).show()
+                            }
+                            2->{
+                                Toast.makeText(requireContext(),"不滿足適用部門",Toast.LENGTH_SHORT).show()
+                            }
+                            3->{
+                                Toast.makeText(requireContext(),"不滿足適用分類",Toast.LENGTH_SHORT).show()
+                            }
+                            4->{
+                                Toast.makeText(requireContext(),"不滿足適用廠商",Toast.LENGTH_SHORT).show()
+                            }
+                            5->{
+                                Toast.makeText(requireContext(),"不符合折扣券規則",Toast.LENGTH_SHORT).show()
+                            }6->{
+                                Toast.makeText(requireContext(),"超過折價券期間",Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+
                     false
                 }
             }
@@ -761,78 +860,10 @@ class HomeFragment : Fragment() {
         }
     }
 
-    //確認優惠券能否移出清單
-    private suspend fun couponDeleteCheck(product: Product, copyFilter: MutableList<Product>): Boolean {
-        //只檢查折價券
-        val selectItem = productDBManager.getCouponMainByPluMagNo(product.pluMagNo) as CouponMain //確認所選項目是否為折價券
-
-        return when (selectItem.DISC_TYPE) {
-            "0" -> {    //折扣券
-                val result = lifecycleScope.async(Dispatchers.IO) {
-                    val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.DISC_PLU_MagNo)
-
-                    //看是否有 明細檔 (正確分類)
-                    var subCheck = false
-
-                    if (detail != null){    //存在明細檔
-                        //確認類別是否正確
-                        if (selectItem.BASE_TYPE == "1"){        //符合指定類別 (0不用經過此檢查)
-                            Log.d("明細檔 指定序號", detail.SEQ_NO.toString())     //序號沒有實際作用，僅作為索引(key)
-
-                            subCheck = when {
-                                (detail.PLU_MagNo != null) -> { //確認貨號
-                                    Log.d("測試A","相同貨號")
-                                    //相同貨號
-                                    copyFilter.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))
-                                }
-                                (detail.DEP_No != null) -> {    //確認部門
-                                    //相同部門
-                                    copyFilter.any { it.DEP_No == detail.DEP_No }
-                                }
-                                (detail.CAT_No != null) -> {    //確認分類
-                                    Log.d("測試A","相同分類")
-
-                                    //比對對象就是折扣券自己直接挑過
-                                    if (selectItem.DISC_PLU_MagNo == product.pluMagNo){
-                                        Log.d("比對對象","自己")
-                                        false
-                                    }else{
-                                        //相同分類
-                                        Log.d("比對對象","別人")
-                                        copyFilter.any { it.CAT_No == detail.CAT_No }
-                                    }
-                                }
-                                (detail.VEN_No != null) -> {    //確認廠商
-                                    //相同廠商
-                                    copyFilter.any { it.VEN_No == detail.VEN_No }
-                                }
-                                else -> {
-                                    Log.d("測試B","不符合折扣券規則")
-                                    false
-                                }
-                            }
-                        }
-                    }
-
-                    // 將等待協程結果返回
-                    subCheck
-                }
-
-                // 等待協程結果
-                if (result.await()) {
-                    Log.d("結果","許可")
-                    true
-                } else {
-                    Log.d("結果","不許可")
-                    false
-                }
-            }
-            "1" -> {    //打折券可直接移除(金額)
-                true
-            }else ->{   //其他商品可直接移除
-                true
-            }
-        }
+    // 檢查現在的時間是否在折價券適用期間內
+    fun isCouponValid(coupon: CouponMain): Boolean {
+        val now = LocalDateTime.now()
+        return now.isAfter(coupon.FROM_DATE) && now.isBefore(coupon.TO_DATE)
     }
 
     //螢幕旋轉或其他因素導致資料流失時會重新載入資料

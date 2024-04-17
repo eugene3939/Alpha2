@@ -7,33 +7,36 @@
 
     <TextView
         android:id="@+id/txtCouponID"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:layout_margin="5dp"
         android:text="@string/txtCouponID"
-        android:textSize="20sp"/>
+        android:textSize="15sp"/>
 
     <TextView
         android:id="@+id/txtCouponName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:layout_margin="5dp"
         android:text="@string/txtCouponName"
-        android:textSize="20sp"/>
+        android:textSize="15sp"/>
 
     <TextView
         android:id="@+id/txtCouponPrice"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:layout_margin="5dp"
         android:text="@string/txtCouponPrice"
-        android:textSize="20sp"/>
+        android:textSize="15sp"/>
 
     <Button
         android:id="@+id/btnCouponConfirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/txtConfirm"
-        android:textSize="20sp"/>
+        android:textSize="15sp"/>
 
 </LinearLayout>

@@ -54,22 +54,25 @@ class Login : AppCompatActivity() {
         insertMerchandisesDB("2","零負擔Android程式設計之旅", "書籍","9786263336148", 690, 650,600,500,80,mamMethod = "H", pluType = "2", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
         insertMerchandisesDB("3","Android開發架構實戰", "書籍","9786263332577", 600,550,550, 500,60,mamMethod = "H", pluType = "4", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
         insertMerchandisesDB("17","Android初學特訓班", "書籍","9789865023072", 500, 450,400,400,80,mamMethod = "1", pluType = "3", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
-        insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500,500,500, 500,60,mamMethod = "B", pluType = "2", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
+        insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500,500,500, 500,60,mamMethod = "B", pluType = "2", DEP_No = "1", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
         insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660, 650,650,650,25,mamMethod = "D", pluUnit = "本")
         insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000, 2000,2000,1800,200,mamMethod = "E", pluUnit = "分")
 
         insertMerchandisesDB("BookCoupon03","新書優惠禮","折扣券","SS555555",50,50,50,50,200,"1", pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon04","Android入門優惠","折扣券","SS666666",100,100,100,100,300,"1", CAT_No = "1", pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon05","排除型折價券","折扣券","SS777777",100,100,100,100,300,"1","1", pluUnit = "張", pluType = "75")
         insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,30,100,"1", pluUnit = "張", pluType = "75")
         insertMerchandisesDB("Coupon500","50元折價券","折價券","SS111111",50,50,50,50,200,"1", pluUnit = "張", pluType = "75")
 
         insertCouponMainDB(pluMagNo = "SS555555", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"0","1")      //打折券(分類)
         insertCouponMainDB(pluMagNo = "SS666666", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"0","1")
-        insertCouponMainDB(pluMagNo = "SS123456", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"1")                   //折價券(單價) //類別1會進行檢查
+        insertCouponMainDB(pluMagNo = "SS777777", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"0","2")
+        insertCouponMainDB(pluMagNo = "SS123456", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"1")                   //折價券(單價) baseType = 0 就不用檢查明細檔，直接適用
         insertCouponMainDB(pluMagNo = "SS111111", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"1")
 
         insertCouponDetailDB("SS555555", FROM_DATE = LocalDateTime.of(2024, 1, 20, 20, 20), TO_DATE = LocalDateTime.of(2024, 10, 10, 10, 10),111, PLU_MagNo = "9786263332577")
         insertCouponDetailDB("SS666666", FROM_DATE = LocalDateTime.of(2024, 1, 20, 20, 20), TO_DATE = LocalDateTime.of(2024, 10, 10, 10, 10),121, CAT_No = "1")
+        insertCouponDetailDB("SS777777", FROM_DATE = LocalDateTime.of(2024, 1, 20, 20, 20), TO_DATE = LocalDateTime.of(2024, 10, 10, 10, 10),121, DEP_No = "1")
 
         insertPairProduct("20","1,2,3","1,2,3",60)    //綑綁商品清單
 
