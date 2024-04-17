@@ -727,7 +727,17 @@ class HomeFragment : Fragment() {
                                     Log.d("檢查結果","條件A $matchPLU,條件A $matchDEP,條件A $matchCAT,條件A $matchVEN,")
                                     99
                                 }else{
-                                    1
+                                    if (!matchPLU){
+                                        1
+                                    }else if (!matchDEP){
+                                        2
+                                    }else if (!matchCAT){
+                                        3
+                                    }else if (!matchVEN){
+                                        4
+                                    }else{
+                                        5
+                                    }
                                 }
                             } else if (selectItem.BASE_TYPE == "2") { // 排除指定類別
                                 val excludePLU = detail.PLU_MagNo == null || !filteredProductList.any { it.pluMagNo == detail.PLU_MagNo }
@@ -739,7 +749,17 @@ class HomeFragment : Fragment() {
                                     Log.d("檢查結果","條件A $excludePLU,條件A $excludeDEP,條件A $excludeCAT,條件A $excludeVEN,")
                                     99
                                 }else{
-                                    1
+                                    if (!excludePLU){
+                                        1
+                                    }else if (!excludeDEP){
+                                        2
+                                    }else if (!excludeCAT){
+                                        3
+                                    }else if (!excludeVEN){
+                                        4
+                                    }else{
+                                        5
+                                    }
                                 }
                             }else{
                                 //類別為0 ，直接返回true
@@ -755,6 +775,7 @@ class HomeFragment : Fragment() {
                 // 等待協程結果
                 if (result.await() == 99) {
                     Log.d("結果","許可")
+                    //大於等於總金額即可加入
                     totalSumUnitPrice >= singlePrc
                 } else {
                     Log.d("結果","不許可")
@@ -762,9 +783,16 @@ class HomeFragment : Fragment() {
                     lifecycleScope.launch(Dispatchers.Main) {
                         when(result.await()){
                             1->{
-                                Toast.makeText(requireContext(),"不符合折扣券規則",Toast.LENGTH_SHORT).show()
-                            }
-                            6->{
+                                Toast.makeText(requireContext(),"不滿足指定貨號",Toast.LENGTH_SHORT).show()
+                            }2->{
+                                Toast.makeText(requireContext(),"不滿足指定部門",Toast.LENGTH_SHORT).show()
+                            }3->{
+                                Toast.makeText(requireContext(),"不滿足指定類別",Toast.LENGTH_SHORT).show()
+                            }4->{
+                                Toast.makeText(requireContext(),"不滿足指定廠商",Toast.LENGTH_SHORT).show()
+                            }5->{
+                                Toast.makeText(requireContext(),"其他錯誤",Toast.LENGTH_SHORT).show()
+                            }6->{
                                 Toast.makeText(requireContext(),"超過折價券期間",Toast.LENGTH_SHORT).show()
                             }
                         }

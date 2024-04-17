@@ -9,7 +9,7 @@
         android:id="@+id/txtCouponID"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:layout_margin="5dp"
         android:text="@string/txtCouponID"
         android:textSize="15sp"/>
@@ -18,7 +18,7 @@
         android:id="@+id/txtCouponName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:layout_margin="5dp"
         android:text="@string/txtCouponName"
         android:textSize="15sp"/>
