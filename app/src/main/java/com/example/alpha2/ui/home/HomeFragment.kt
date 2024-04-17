@@ -717,97 +717,32 @@ class HomeFragment : Fragment() {
                             //符合期限後進行更詳細的檢查
 
                             //確認類別是否正確
-                            if (selectItem.BASE_TYPE == "1"){        //指定類別 (0不用經過此檢查)
-                                Log.d("折扣明細 指定序號", detail.SEQ_NO.toString())
+                            if (selectItem.BASE_TYPE == "1") { // 指定類別
+                                val matchPLU = detail.PLU_MagNo == null || filteredProductList.any { it.pluMagNo == detail.PLU_MagNo }
+                                val matchDEP = detail.DEP_No == null || filteredProductList.any { it.DEP_No == detail.DEP_No }
+                                val matchCAT = detail.CAT_No == null || filteredProductList.any { it.CAT_No == detail.CAT_No }
+                                val matchVEN = detail.VEN_No == null || filteredProductList.any { it.VEN_No == detail.VEN_No }
 
-                                subCheck = when {
-                                    (detail.PLU_MagNo != null) -> { //確認貨號
-                                        Log.d("折扣明細","相同貨號")
-                                        //相同貨號
-                                        if(filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
-                                            99
-                                        }else{
-                                            1   //不存在相同貨號
-                                        }
-                                    }
-                                    (detail.DEP_No != null) -> {    //確認部門
-                                        Log.d("折扣明細","相同部門")
-                                        //相同部門
-                                        if(filteredProductList.any { it.DEP_No == detail.DEP_No }){
-                                            99
-                                        }else{
-                                            2   //不存在相同部門
-                                        }
-                                    }
-                                    (detail.CAT_No != null) -> {    //確認分類
-                                        Log.d("折扣明細","相同分類")
-                                        //相同分類
-                                        if (filteredProductList.any { it.CAT_No == detail.CAT_No }){
-                                            99
-                                        }else{
-                                            3   //不存在相同分類
-                                        }
-                                    }
-                                    (detail.VEN_No != null) -> {    //確認廠商
-                                        Log.d("折扣明細","相同廠商")
-                                        //相同廠商
-                                        if (filteredProductList.any { it.VEN_No == detail.VEN_No }){
-                                            99
-                                        }else{
-                                            4  //不存在相同廠商
-                                        }
-                                    }
-                                    else -> {
-                                        Log.d("折扣明細","不符合折扣券規則")
-                                        5  //其他錯誤
-                                    }
+                                subCheck = if (matchPLU && matchDEP && matchCAT && matchVEN){
+                                    Log.d("檢查結果","條件A $matchPLU,條件A $matchDEP,條件A $matchCAT,條件A $matchVEN,")
+                                    99
+                                }else{
+                                    1
                                 }
-                            }else if(selectItem.BASE_TYPE == "2"){  //排除指定類別
-                                Log.d("折扣明細","排除指定類別")
+                            } else if (selectItem.BASE_TYPE == "2") { // 排除指定類別
+                                val excludePLU = detail.PLU_MagNo == null || !filteredProductList.any { it.pluMagNo == detail.PLU_MagNo }
+                                val excludeDEP = detail.DEP_No == null || !filteredProductList.any { it.DEP_No == detail.DEP_No }
+                                val excludeCAT = detail.CAT_No == null || !filteredProductList.any { it.CAT_No == detail.CAT_No }
+                                val excludeVEN = detail.VEN_No == null || !filteredProductList.any { it.VEN_No == detail.VEN_No }
 
-                                subCheck = when {
-                                    (detail.PLU_MagNo != null) -> { //確認貨號
-                                        Log.d("折扣明細","相同貨號")
-                                        //相同貨號
-                                        if(filteredProductList.contains(productDBManager.getProductByMagNo(detail.PLU_MagNo))){
-                                            1
-                                        }else{
-                                            99   //不存在相同貨號
-                                        }
-                                    }
-                                    (detail.DEP_No != null) -> {    //確認部門
-                                        Log.d("折扣明細","相同部門")
-                                        //相同部門
-                                        if(filteredProductList.any { it.DEP_No == detail.DEP_No }){
-                                            2
-                                        }else{
-                                            99   //不存在相同部門
-                                        }
-                                    }
-                                    (detail.CAT_No != null) -> {    //確認分類
-                                        Log.d("折扣明細","相同分類")
-                                        //相同分類
-                                        if (filteredProductList.any { it.CAT_No == detail.CAT_No }){
-                                            3
-                                        }else{
-                                            99   //不存在相同分類
-                                        }
-                                    }
-                                    (detail.VEN_No != null) -> {    //確認廠商
-                                        Log.d("折扣明細","相同廠商")
-                                        //相同廠商
-                                        if (filteredProductList.any { it.VEN_No == detail.VEN_No }){
-                                            4
-                                        }else{
-                                            99  //不存在相同廠商
-                                        }
-                                    }
-                                    else -> {
-                                        Log.d("折扣明細","不符合折扣券規則")
-                                        5  //其他錯誤
-                                    }
+                                subCheck = if (excludePLU && excludeDEP && excludeCAT && excludeVEN) {
+                                    Log.d("檢查結果","條件A $excludePLU,條件A $excludeDEP,條件A $excludeCAT,條件A $excludeVEN,")
+                                    99
+                                }else{
+                                    1
                                 }
-                            }else{      //0不用經過此鍵查
+                            }else{
+                                //類別為0 ，直接返回true
                                 subCheck = 99
                             }
                         }
@@ -827,20 +762,9 @@ class HomeFragment : Fragment() {
                     lifecycleScope.launch(Dispatchers.Main) {
                         when(result.await()){
                             1->{
-                                Toast.makeText(requireContext(),"不滿足適用貨號",Toast.LENGTH_SHORT).show()
-                            }
-                            2->{
-                                Toast.makeText(requireContext(),"不滿足適用部門",Toast.LENGTH_SHORT).show()
-                            }
-                            3->{
-                                Toast.makeText(requireContext(),"不滿足適用分類",Toast.LENGTH_SHORT).show()
-                            }
-                            4->{
-                                Toast.makeText(requireContext(),"不滿足適用廠商",Toast.LENGTH_SHORT).show()
-                            }
-                            5->{
                                 Toast.makeText(requireContext(),"不符合折扣券規則",Toast.LENGTH_SHORT).show()
-                            }6->{
+                            }
+                            6->{
                                 Toast.makeText(requireContext(),"超過折價券期間",Toast.LENGTH_SHORT).show()
                             }
                         }
