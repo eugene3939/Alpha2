@@ -5,13 +5,15 @@ import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 
 //折價券明細檔(原POS2088)
-@Entity(tableName = "CouponDetails")
+@Entity(tableName = "CouponDetails", primaryKeys = ["DISC_PLU_MagNo","FROM_DATE","TO_DATE","SEQ_NO"])   //Coupon Main 主鍵 + SEQ_NO
 data class CouponDetail(
-    @PrimaryKey
+    //主鍵
     val DISC_PLU_MagNo: String,                         /*折價券貨號*/
-    val FROM_DATE: LocalDateTime ?= null,               /*開始日期*/
-    val TO_DATE: LocalDateTime ?= null,                 /*結束日期*/
-    val SEQ_NO: Int,                                    /*序號-------------------------*/
+    val FROM_DATE: LocalDateTime,                       /*開始日期*/
+    val TO_DATE: LocalDateTime,                         /*結束日期*/
+    val SEQ_NO: Int,                                   /*序號-------------------------*/
+
+    //次要鍵
     val SDEP_No: String ?= null,                        /*適用次部門*/
     val CAT_No: String ?= null,                         /*適用主分類*/
     val SCAT_No: String ?= null,                        /*適用次分類*/
