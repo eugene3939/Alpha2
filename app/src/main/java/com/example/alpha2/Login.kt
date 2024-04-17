@@ -69,7 +69,7 @@ class Login : AppCompatActivity() {
         insertCouponMainDB("SS111111","1")
 
         insertCouponDetailDB("SS555555",123,"9786263332577")
-        insertCouponDetailDB("SS666666",123, CAT_No = "1")
+        insertCouponDetailDB("SS666666",456, CAT_No = "1")
 
 
         insertPairProduct("20","1,2,3","1,2,3",60)    //綑綁商品清單
@@ -229,7 +229,7 @@ class Login : AppCompatActivity() {
             //確認折扣商品是否已經存在
             val existCouponMain = productDBManager.getCouponMainByPluMagNo(pluMagNo)
             if (existCouponMain == null) {
-                val item = CouponMain(disPluMagNo = pluMagNo,discTYPE = discTYPE,baseTYPE = baseTYPE)
+                val item = CouponMain(DISC_PLU_MagNo = pluMagNo, DISC_TYPE = discTYPE, BASE_TYPE = baseTYPE)
                 productDBManager.insertCouponMain(item)
                 Log.d("新增折價券主檔", "DProduct added: $item")
             } else {    //確認是否為已知id

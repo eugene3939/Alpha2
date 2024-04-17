@@ -334,33 +334,38 @@ class HomeFragment : Fragment() {
                         val copyFilter: MutableList<Product> = ArrayList(filteredProductList) // 使用複製的清單進行檢查
                         copyFilter.removeAt(position)
 
-                        // 創建一個新的協程，並在其中執行異步操作
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            // 依次檢查每個項目
-                            for (item in copyFilter) {
-                                if (item.pluType == "75") { // 遇到折價券商品檢查是否滿足條件
-                                    if (!couponDeleteCheck(item,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
-                                        Log.d("警告", "刪除商品 ${clickItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
-                                        safeDeleteCheck = false
-                                        break // 發現一個折價券關聯破壞就退出迴圈
-                                    }
-                                }
-                            }
+//                        // 創建一個新的協程，並在其中執行異步操作
+//                        lifecycleScope.launch(Dispatchers.IO) {
+//                            // 依次檢查每個項目
+//                            for (item in copyFilter) {
+//                                if (item.pluType == "75") { // 遇到折價券商品檢查是否滿足條件
+//                                    if (!couponDeleteCheck(item,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
+//                                        Log.d("警告", "刪除商品 ${clickItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
+//                                        safeDeleteCheck = false
+//                                        break // 發現一個折價券關聯破壞就退出迴圈
+//                                    }
+//                                }
+//                            }
 
-                            // 如果所有檢查都通過，執行刪除操作
-                            if (safeDeleteCheck) {
-                                // 使用主執行緒進行UI操作
-                                withContext(Dispatchers.Main) {
-                                    // 刪除掃描商品提示訊息(商品名稱)
-                                    Toast.makeText(requireContext(), "刪除: ${filteredProductList[position].pName}", Toast.LENGTH_SHORT).show()
-                                    selectedQuantities.remove(filteredProductList[position])
-                                    filteredProductList.removeAt(position)
+//                            // 如果所有檢查都通過，執行刪除操作
+//                            if (safeDeleteCheck) {
+//                                // 使用主執行緒進行UI操作
+//                                withContext(Dispatchers.Main) {
+//                                    // 刪除掃描商品提示訊息(商品名稱)
+//                                    Toast.makeText(requireContext(), "刪除: ${filteredProductList[position].pName}", Toast.LENGTH_SHORT).show()
+//                                    selectedQuantities.remove(filteredProductList[position])
+//                                    filteredProductList.removeAt(position)
+//
+//                                    //重新載入清單
+//                                    loadFilterProduct()
+//                                }
+//                            }
 
-                                    //重新載入清單
-                                    loadFilterProduct()
-                                }
-                            }
-                        }
+                            // 刪除掃描商品提示訊息(商品名稱)
+                            Toast.makeText(requireContext(), "刪除: ${filteredProductList[position].pName}", Toast.LENGTH_SHORT).show()
+                            selectedQuantities.remove(filteredProductList[position])
+                            filteredProductList.removeAt(position)
+//                        }
                     }else{
                         //更新成新數量
                         if (changeAmount != null) {
@@ -528,7 +533,7 @@ class HomeFragment : Fragment() {
                         resultCode = 1
                     } else if (filterNameList.contains(searchMgaNo)){
                         Log.d("貨號搜尋錯誤","已經加入這筆商品了")
-                        resultCode = 2
+                      resultCode = 2
                     }else{
                         Log.d("貨號搜尋錯誤","其他錯誤")
                     }
@@ -694,17 +699,17 @@ class HomeFragment : Fragment() {
 
 
         //已知 pluType='75' 類別
-        return when (selectItem.discTYPE) {
+        return when (selectItem.DISC_TYPE) {
             "0" -> { //折扣券
                 //看是否有 明細檔 (正確分類)
                 var subCheck = false
 
                 val result = lifecycleScope.async(Dispatchers.IO) {
-                    val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.disPluMagNo)
+                    val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.DISC_PLU_MagNo)
 
                     if (detail != null){    //存在明細檔
                         //確認類別是否正確
-                        if (selectItem.baseTYPE == "1"){        //符合指定類別 (0不用經過此檢查)
+                        if (selectItem.BASE_TYPE == "1"){        //符合指定類別 (0不用經過此檢查)
                             Log.d("明細檔 指定序號", detail.SEQ_NO.toString())     //序號沒有實際作用，僅作為索引(key)
 
                             subCheck = when {
@@ -761,17 +766,17 @@ class HomeFragment : Fragment() {
         //只檢查折價券
         val selectItem = productDBManager.getCouponMainByPluMagNo(product.pluMagNo) as CouponMain //確認所選項目是否為折價券
 
-        return when (selectItem.discTYPE) {
+        return when (selectItem.DISC_TYPE) {
             "0" -> {    //折扣券
                 val result = lifecycleScope.async(Dispatchers.IO) {
-                    val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.disPluMagNo)
+                    val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.DISC_PLU_MagNo)
 
                     //看是否有 明細檔 (正確分類)
                     var subCheck = false
 
                     if (detail != null){    //存在明細檔
                         //確認類別是否正確
-                        if (selectItem.baseTYPE == "1"){        //符合指定類別 (0不用經過此檢查)
+                        if (selectItem.BASE_TYPE == "1"){        //符合指定類別 (0不用經過此檢查)
                             Log.d("明細檔 指定序號", detail.SEQ_NO.toString())     //序號沒有實際作用，僅作為索引(key)
 
                             subCheck = when {
@@ -788,7 +793,7 @@ class HomeFragment : Fragment() {
                                     Log.d("測試A","相同分類")
 
                                     //比對對象就是折扣券自己直接挑過
-                                    if (selectItem.disPluMagNo == product.pluMagNo){
+                                    if (selectItem.DISC_PLU_MagNo == product.pluMagNo){
                                         Log.d("比對對象","自己")
                                         false
                                     }else{

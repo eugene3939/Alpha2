@@ -48,10 +48,10 @@ interface ProductDao {
     @Insert
     suspend fun insertCouponMain(coupon: CouponMain)
 
-    @Query("DELETE FROM CouponMains WHERE disPluMagNo = :pluMagNo")
+    @Query("DELETE FROM CouponMains WHERE DISC_PLU_MagNo = :pluMagNo")
     suspend fun deleteCouponMain(pluMagNo: String)
 
-    @Query("SELECT * FROM CouponMains WHERE disPluMagNo = :pluMagNo") //尋找符合項目的單一pluMagNo
+    @Query("SELECT * FROM CouponMains WHERE DISC_PLU_MagNo = :pluMagNo") //尋找符合項目的單一pluMagNo
     fun getCouponMainByPluMagNo(pluMagNo: String): CouponMain?
 
     //  折扣券 明細檔
