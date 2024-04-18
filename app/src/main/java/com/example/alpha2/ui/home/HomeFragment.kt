@@ -336,38 +336,29 @@ class HomeFragment : Fragment() {
                         val copyFilter: MutableList<Product> = ArrayList(filteredProductList) // 使用複製的清單進行檢查
                         copyFilter.removeAt(position)
 
-//                        // 創建一個新的協程，並在其中執行異步操作
-//                        lifecycleScope.launch(Dispatchers.IO) {
-//                            // 依次檢查每個項目
-//                            for (item in copyFilter) {
-//                                if (item.pluType == "75") { // 遇到折價券商品檢查是否滿足條件
-//                                    if (!couponDeleteCheck(item,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
-//                                        Log.d("警告", "刪除商品 ${clickItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
-//                                        safeDeleteCheck = false
-//                                        break // 發現一個折價券關聯破壞就退出迴圈
-//                                    }
-//                                }
-//                            }
+                        // 創建一個新的協程，並在其中執行異步操作
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            // 確認點案的項目是否會影響 折價券關係
+                            if (!couponDeleteCheck(clickItem,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
+                                Log.d("警告", "刪除商品 ${clickItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
+                                safeDeleteCheck = false
+                            }
 
-//                            // 如果所有檢查都通過，執行刪除操作
-//                            if (safeDeleteCheck) {
-//                                // 使用主執行緒進行UI操作
-//                                withContext(Dispatchers.Main) {
-//                                    // 刪除掃描商品提示訊息(商品名稱)
-//                                    Toast.makeText(requireContext(), "刪除: ${filteredProductList[position].pName}", Toast.LENGTH_SHORT).show()
-//                                    selectedQuantities.remove(filteredProductList[position])
-//                                    filteredProductList.removeAt(position)
-//
-//                                    //重新載入清單
-//                                    loadFilterProduct()
-//                                }
-//                            }
+                            // 如果所有檢查都通過，執行刪除操作
+                            if (safeDeleteCheck) {
+                                // 使用主執行緒進行UI操作
+                                withContext(Dispatchers.Main) {
+                                    // 刪除掃描商品提示訊息(商品名稱)
+                                    Log.d("刪除前提示","開始刪除")
+                                    Toast.makeText(requireContext(), "刪除: ${filteredProductList[position].pName}", Toast.LENGTH_SHORT).show()
+                                    selectedQuantities.remove(filteredProductList[position])
+                                    filteredProductList.removeAt(position)
 
-                            // 刪除掃描商品提示訊息(商品名稱)
-                            Toast.makeText(requireContext(), "刪除: ${filteredProductList[position].pName}", Toast.LENGTH_SHORT).show()
-                            selectedQuantities.remove(filteredProductList[position])
-                            filteredProductList.removeAt(position)
-//                        }
+                                    //重新載入清單
+                                    loadFilterProduct()
+                                }
+                            }
+                        }
                     }else{
                         //更新成新數量
                         if (changeAmount != null) {
@@ -682,6 +673,34 @@ class HomeFragment : Fragment() {
         return root
     }
 
+    //確認商品能否移出清單(必須新移除對應的優惠券)
+    private fun couponDeleteCheck(deleteItem: Product, copyFilter: MutableList<Product>): Boolean { //deleteItem:刪除的項目，copyFilter:刪除後的清單
+        //先確認 copyFilter裡面有沒有折價券，如果有價跳出訊息提示
+
+        return if (deleteItem.pluType == "75"){ //刪除項目為 折價券 直接許可
+            Log.d("類型","折價券打油")
+            true
+        }else{                                  //確認商品如果 沒有違反折扣券規則即可刪除
+            Log.d("類型","一般商品打油")
+            //確認是否包含折價券商品
+            if (!copyFilter.any{it.pluType == "75"}){   //不包含折價券商品可以直接刪除
+                true
+            }else{
+                false
+            }
+
+//            for (i in copyFilter){
+//                if (i.pluType == "75"){         //存在折扣券商品
+//                    //確認折價券規則
+//                    val detail = productDBManager.getCouponDetailBypluMagNo(i.pluMagNo)
+//
+//                    //確認是否會違反折價券規則
+//                }
+//            }
+//            false
+        }
+    }
+
     //確認優惠券能否放入清單(必須超過總價)
     private suspend fun couponAddCheck(product: Product): Boolean {
         val selectItem = withContext(Dispatchers.IO) {
@@ -776,68 +795,6 @@ class HomeFragment : Fragment() {
 
                         }
                     }
-
-//                    if (detail != null){    //存在明細檔
-//                        //確認折價券是否在期限內
-//                        if (!isCouponValid(selectItem)){
-//                            Log.d("折價券適用間檢查","超過折價券期間")
-//                            subCheck = 6
-//                        }else{
-//                            //符合期限後進行更詳細的檢查
-//
-//                            //確認類別是否正確
-//                            if (selectItem.BASE_TYPE == "1") { // 指定類別
-//                                val matchPLU = detail.PLU_MagNo == null || filteredProductList.any { it.pluMagNo == detail.PLU_MagNo }
-//                                val matchDEP = detail.DEP_No == null || filteredProductList.any { it.DEP_No == detail.DEP_No }
-//                                val matchCAT = detail.CAT_No == null || filteredProductList.any { it.CAT_No == detail.CAT_No }
-//                                val matchVEN = detail.VEN_No == null || filteredProductList.any { it.VEN_No == detail.VEN_No }
-//
-//                                subCheck = if (matchPLU && matchDEP && matchCAT && matchVEN){
-//                                    Log.d("檢查結果","條件A $matchPLU,條件A $matchDEP,條件A $matchCAT,條件A $matchVEN,")
-//                                    99
-//                                }else{
-//                                    if (!matchPLU){
-//                                        1
-//                                    }else if (!matchDEP){
-//                                        2
-//                                    }else if (!matchCAT){
-//                                        3
-//                                    }else if (!matchVEN){
-//                                        4
-//                                    }else{
-//                                        5
-//                                    }
-//                                }
-//                            } else if (selectItem.BASE_TYPE == "2") { // 排除指定類別
-//                                val excludePLU = detail.PLU_MagNo == null || detail.PLU_MagNo.all { pluMagNo ->
-//                                    !filteredProductList.any { it.pluMagNo == pluMagNo.toString() }
-//                                }
-//                                val excludeDEP = detail.DEP_No == null || !filteredProductList.any { it.DEP_No == detail.DEP_No }
-//                                val excludeCAT = detail.CAT_No == null || !filteredProductList.any { it.CAT_No == detail.CAT_No }
-//                                val excludeVEN = detail.VEN_No == null || !filteredProductList.any { it.VEN_No == detail.VEN_No }
-//
-//                                subCheck = if (excludePLU && excludeDEP && excludeCAT && excludeVEN) {
-//                                    Log.d("檢查結果","條件B $excludePLU,條件B $excludeDEP,條件B $excludeCAT,條件B $excludeVEN,")
-//                                    99
-//                                }else{
-//                                    if (!excludePLU){
-//                                        1
-//                                    }else if (!excludeDEP){
-//                                        2
-//                                    }else if (!excludeCAT){
-//                                        3
-//                                    }else if (!excludeVEN){
-//                                        4
-//                                    }else{
-//                                        5
-//                                    }
-//                                }
-//                            }else{
-//                                //類別為0 ，直接返回true
-//                                subCheck = 99
-//                            }
-//                        }
-//                    }
 
                     // 將等待協程結果返回
                     subCheck
