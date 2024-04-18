@@ -674,32 +674,57 @@ class HomeFragment : Fragment() {
     }
 
     //確認商品能否移出清單(必須新移除對應的優惠券)
-    private fun couponDeleteCheck(deleteItem: Product, copyFilter: MutableList<Product>): Boolean { //deleteItem:刪除的項目，copyFilter:刪除後的清單
-        //先確認 copyFilter裡面有沒有折價券，如果有價跳出訊息提示
-
-        return if (deleteItem.pluType == "75"){ //刪除項目為 折價券 直接許可
-            Log.d("類型","折價券打油")
-            true
-        }else{                                  //確認商品如果 沒有違反折扣券規則即可刪除
-            Log.d("類型","一般商品打油")
-            //確認是否包含折價券商品
-            if (!copyFilter.any{it.pluType == "75"}){   //不包含折價券商品可以直接刪除
-                true
-            }else{
-                false
-            }
-
-//            for (i in copyFilter){
-//                if (i.pluType == "75"){         //存在折扣券商品
-//                    //確認折價券規則
-//                    val detail = productDBManager.getCouponDetailBypluMagNo(i.pluMagNo)
-//
-//                    //確認是否會違反折價券規則
-//                }
-//            }
-//            false
+    private suspend fun couponDeleteCheck(deleteItem: Product, copyFilter: MutableList<Product>): Boolean {
+        // 檢查刪除項目是否為折價券，如果是直接返回 true
+        if (deleteItem.pluType == "75") {
+            Log.d("類型", "折價券")
+            return true
         }
+
+        // 遍歷 copyFilter，確保在刪除 A 商品之前不刪除符合 A' 折價券條件的商品
+        for (pList in copyFilter) {
+            if (pList.pluType == "75") { // 檢查 copyFilter 中的折價券商品
+                val couponMainItem = productDBManager.getCouponMainByPluMagNo(pList.pluMagNo)
+                val couponDetail = productDBManager.getCouponDetailBypluMagNo(pList.pluMagNo)
+
+                // 確保折價券主檔和明細檔都存在
+                if (couponMainItem != null && couponDetail != null) {
+                    // 檢查折價券的指定比對邏輯
+                    if (couponMainItem.BASE_TYPE == "1") { // 完全符合條件
+                        // 逐一檢查折價券明細條件
+                        for (detail in couponDetail) {
+                            // 如果 A 商品符合 A' 折價券的條件，則返回 false，表示不能刪除 A 商品
+                            if ((deleteItem.pluMagNo == detail.PLU_MagNo || detail.PLU_MagNo == null) &&
+                                (deleteItem.DEP_No == detail.DEP_No || detail.DEP_No == null) &&
+                                (deleteItem.CAT_No == detail.CAT_No || detail.CAT_No == null) &&
+                                (deleteItem.VEN_No == detail.VEN_No || detail.VEN_No == null)
+                            ) {
+                                Log.d("刪除前警示","請先刪除對應的折價券商品")
+                                return false
+                            }
+                        }
+                    } else if (couponMainItem.BASE_TYPE == "2") { // 必須互斥
+                        // 逐一檢查折價券明細條件
+                        for (detail in couponDetail) {
+                            // 如果 A 商品與 A' 折價券的條件有任一符合，則返回 false，表示不能刪除 A 商品
+                            if ((deleteItem.pluMagNo == detail.PLU_MagNo || detail.PLU_MagNo == null) ||
+                                (deleteItem.DEP_No == detail.DEP_No || detail.DEP_No == null) ||
+                                (deleteItem.CAT_No == detail.CAT_No || detail.CAT_No == null) ||
+                                (deleteItem.VEN_No == detail.VEN_No || detail.VEN_No == null)
+                            ) {
+                                Log.d("刪除前警示","請先刪除對應的折價券商品")
+                                return false
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 如果迴圈運行完畢仍未找到符合條件的情況，則返回 true，表示可以刪除 A 商品
+        return true
     }
+
 
     //確認優惠券能否放入清單(必須超過總價)
     private suspend fun couponAddCheck(product: Product): Boolean {
