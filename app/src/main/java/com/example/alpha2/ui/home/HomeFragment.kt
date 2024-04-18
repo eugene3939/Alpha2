@@ -29,6 +29,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Member.MemberManager
+import com.example.alpha2.DBManager.Product.CouponDetail
 import com.example.alpha2.DBManager.Product.CouponMain
 import com.example.alpha2.R
 import com.example.alpha2.myAdapter.CouponAdapter
@@ -698,6 +699,7 @@ class HomeFragment : Fragment() {
             product.unitPrc
         }
 
+        //這邊改成抓coupon Main對應的所有coupon Detail 商品項目去跟 filterList 比對(多筆的SEQ_NO都放入清單)
 
         //已知 pluType='75' 類別
         return when (selectItem.DISC_TYPE) {
@@ -706,67 +708,136 @@ class HomeFragment : Fragment() {
                 var subCheck = 0 //折扣券檢核碼 (99:許可)
 
                 val result = lifecycleScope.async(Dispatchers.IO) {
-                    val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.DISC_PLU_MagNo)
+                    val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.DISC_PLU_MagNo)  //多筆明細檔
 
-                    if (detail != null){    //存在明細檔
-                        //確認折價券是否在期限內
-                        if (!isCouponValid(selectItem)){
-                            Log.d("折價券適用間檢查","超過折價券期間")
-                            subCheck = 6
-                        }else{
-                            //符合期限後進行更詳細的檢查
-
-                            //確認類別是否正確
-                            if (selectItem.BASE_TYPE == "1") { // 指定類別
-                                val matchPLU = detail.PLU_MagNo == null || filteredProductList.any { it.pluMagNo == detail.PLU_MagNo }
-                                val matchDEP = detail.DEP_No == null || filteredProductList.any { it.DEP_No == detail.DEP_No }
-                                val matchCAT = detail.CAT_No == null || filteredProductList.any { it.CAT_No == detail.CAT_No }
-                                val matchVEN = detail.VEN_No == null || filteredProductList.any { it.VEN_No == detail.VEN_No }
-
-                                subCheck = if (matchPLU && matchDEP && matchCAT && matchVEN){
-                                    Log.d("檢查結果","條件A $matchPLU,條件A $matchDEP,條件A $matchCAT,條件A $matchVEN,")
-                                    99
-                                }else{
-                                    if (!matchPLU){
-                                        1
-                                    }else if (!matchDEP){
-                                        2
-                                    }else if (!matchCAT){
-                                        3
-                                    }else if (!matchVEN){
-                                        4
-                                    }else{
-                                        5
-                                    }
-                                }
-                            } else if (selectItem.BASE_TYPE == "2") { // 排除指定類別
-                                val excludePLU = detail.PLU_MagNo == null || !filteredProductList.any { it.pluMagNo == detail.PLU_MagNo }
-                                val excludeDEP = detail.DEP_No == null || !filteredProductList.any { it.DEP_No == detail.DEP_No }
-                                val excludeCAT = detail.CAT_No == null || !filteredProductList.any { it.CAT_No == detail.CAT_No }
-                                val excludeVEN = detail.VEN_No == null || !filteredProductList.any { it.VEN_No == detail.VEN_No }
-
-                                subCheck = if (excludePLU && excludeDEP && excludeCAT && excludeVEN) {
-                                    Log.d("檢查結果","條件A $excludePLU,條件A $excludeDEP,條件A $excludeCAT,條件A $excludeVEN,")
-                                    99
-                                }else{
-                                    if (!excludePLU){
-                                        1
-                                    }else if (!excludeDEP){
-                                        2
-                                    }else if (!excludeCAT){
-                                        3
-                                    }else if (!excludeVEN){
-                                        4
-                                    }else{
-                                        5
-                                    }
-                                }
+                    if (detail != null) {
+                        for (detailItem in detail){  //逐一確認明細檔(所有項目都符合才會許可)
+                            //確認折價券是否在期限內
+                            if (!isCouponValid(detailItem)){
+                                Log.d("折價券適用間檢查","超過折價券期間")
+                                subCheck = 6
                             }else{
-                                //類別為0 ，直接返回true
-                                subCheck = 99
+                                //符合期限後進行更詳細的檢查
+
+                                //確認類別是否正確
+                                if (selectItem.BASE_TYPE == "1") { //折價券主檔類別為1 指定類別
+                                    val matchPLU = detailItem.PLU_MagNo == null || filteredProductList.any { it.pluMagNo == detailItem.PLU_MagNo }  //檢查明細檔
+                                    val matchDEP = detailItem.DEP_No == null || filteredProductList.any { it.DEP_No == detailItem.DEP_No }
+                                    val matchCAT = detailItem.CAT_No == null || filteredProductList.any { it.CAT_No == detailItem.CAT_No }
+                                    val matchVEN = detailItem.VEN_No == null || filteredProductList.any { it.VEN_No == detailItem.VEN_No }
+
+                                    subCheck = if (matchPLU && matchDEP && matchCAT && matchVEN){
+                                        Log.d("檢查結果","條件A $matchPLU,條件A $matchDEP,條件A $matchCAT,條件A $matchVEN,")
+                                        99
+                                    }else{
+                                        if (!matchPLU){
+                                            1
+                                        }else if (!matchDEP){
+                                            2
+                                        }else if (!matchCAT){
+                                            3
+                                        }else if (!matchVEN){
+                                            4
+                                        }else{
+                                            5
+                                        }
+                                    }
+                                } else if (selectItem.BASE_TYPE == "2") { // 排除指定類別
+                                    val excludePLU = detailItem.PLU_MagNo == null || !filteredProductList.any { it.pluMagNo == detailItem.PLU_MagNo }  //檢查明細檔
+                                    val excludeDEP = detailItem.DEP_No == null || !filteredProductList.any { it.DEP_No == detailItem.DEP_No }
+                                    val excludeCAT = detailItem.CAT_No == null || !filteredProductList.any { it.CAT_No == detailItem.CAT_No }
+                                    val excludeVEN = detailItem.VEN_No == null || !filteredProductList.any { it.VEN_No == detailItem.VEN_No }
+
+                                    subCheck = if (excludePLU && excludeDEP && excludeCAT && excludeVEN) {
+                                        Log.d("檢查結果","條件B $excludePLU,條件B $excludeDEP,條件B $excludeCAT,條件B $excludeVEN,")
+                                        99
+                                    }else{
+                                        if (!excludePLU){
+                                            1
+                                        }else if (!excludeDEP){
+                                            2
+                                        }else if (!excludeCAT){
+                                            3
+                                        }else if (!excludeVEN){
+                                            4
+                                        }else{
+                                            5
+                                        }
+                                    }
+                                }else{
+                                    //類別為0 ，直接返回true
+                                    subCheck = 99
+                                }
+
+                                if (subCheck != 99){    //不滿足情況時直接跳出迴圈
+                                    break
+                                }
                             }
+
                         }
                     }
+
+//                    if (detail != null){    //存在明細檔
+//                        //確認折價券是否在期限內
+//                        if (!isCouponValid(selectItem)){
+//                            Log.d("折價券適用間檢查","超過折價券期間")
+//                            subCheck = 6
+//                        }else{
+//                            //符合期限後進行更詳細的檢查
+//
+//                            //確認類別是否正確
+//                            if (selectItem.BASE_TYPE == "1") { // 指定類別
+//                                val matchPLU = detail.PLU_MagNo == null || filteredProductList.any { it.pluMagNo == detail.PLU_MagNo }
+//                                val matchDEP = detail.DEP_No == null || filteredProductList.any { it.DEP_No == detail.DEP_No }
+//                                val matchCAT = detail.CAT_No == null || filteredProductList.any { it.CAT_No == detail.CAT_No }
+//                                val matchVEN = detail.VEN_No == null || filteredProductList.any { it.VEN_No == detail.VEN_No }
+//
+//                                subCheck = if (matchPLU && matchDEP && matchCAT && matchVEN){
+//                                    Log.d("檢查結果","條件A $matchPLU,條件A $matchDEP,條件A $matchCAT,條件A $matchVEN,")
+//                                    99
+//                                }else{
+//                                    if (!matchPLU){
+//                                        1
+//                                    }else if (!matchDEP){
+//                                        2
+//                                    }else if (!matchCAT){
+//                                        3
+//                                    }else if (!matchVEN){
+//                                        4
+//                                    }else{
+//                                        5
+//                                    }
+//                                }
+//                            } else if (selectItem.BASE_TYPE == "2") { // 排除指定類別
+//                                val excludePLU = detail.PLU_MagNo == null || detail.PLU_MagNo.all { pluMagNo ->
+//                                    !filteredProductList.any { it.pluMagNo == pluMagNo.toString() }
+//                                }
+//                                val excludeDEP = detail.DEP_No == null || !filteredProductList.any { it.DEP_No == detail.DEP_No }
+//                                val excludeCAT = detail.CAT_No == null || !filteredProductList.any { it.CAT_No == detail.CAT_No }
+//                                val excludeVEN = detail.VEN_No == null || !filteredProductList.any { it.VEN_No == detail.VEN_No }
+//
+//                                subCheck = if (excludePLU && excludeDEP && excludeCAT && excludeVEN) {
+//                                    Log.d("檢查結果","條件B $excludePLU,條件B $excludeDEP,條件B $excludeCAT,條件B $excludeVEN,")
+//                                    99
+//                                }else{
+//                                    if (!excludePLU){
+//                                        1
+//                                    }else if (!excludeDEP){
+//                                        2
+//                                    }else if (!excludeCAT){
+//                                        3
+//                                    }else if (!excludeVEN){
+//                                        4
+//                                    }else{
+//                                        5
+//                                    }
+//                                }
+//                            }else{
+//                                //類別為0 ，直接返回true
+//                                subCheck = 99
+//                            }
+//                        }
+//                    }
 
                     // 將等待協程結果返回
                     subCheck
@@ -813,7 +884,7 @@ class HomeFragment : Fragment() {
     }
 
     // 檢查現在的時間是否在折價券適用期間內
-    fun isCouponValid(coupon: CouponMain): Boolean {
+    fun isCouponValid(coupon: CouponDetail): Boolean {
         val now = LocalDateTime.now()
         return now.isAfter(coupon.FROM_DATE) && now.isBefore(coupon.TO_DATE)
     }

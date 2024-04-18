@@ -122,7 +122,7 @@ class ProductManager(context: Context) {
     }
 
     //尋找商品id
-    fun getCouponDetailBypluMagNo(id: String): CouponDetail?{
+    fun getCouponDetailBypluMagNo(id: String): MutableList<CouponDetail>?{
         return runBlocking {
             productDao.getCouponDetailBypluMagNo(id)
         }
