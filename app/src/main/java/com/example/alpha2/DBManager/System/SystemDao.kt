@@ -39,4 +39,16 @@ interface SystemDao {
 
     @Delete
     suspend fun delete(cashStates: CashState)
+
+    //付款方式檔
+
+    //尋找是否有對應的付款方式
+    @Query("SELECT * FROM PaymentMethods WHERE PAY_No = :payNo")
+    suspend fun getPaymentMethodById(payNo: String): PaymentMethod?
+
+    @Insert
+    suspend fun insert(paymentMethod: PaymentMethod)
+
+    @Delete
+    suspend fun delete(paymentMethod: PaymentMethod)
 }

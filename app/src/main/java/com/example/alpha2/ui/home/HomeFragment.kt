@@ -489,6 +489,7 @@ class HomeFragment : Fragment() {
                 Log.d("filterNameLists內容",filterNameList.toString())
                 Log.d("輸入內容",searchMgaNo)
 
+                //輸入貨號查詢的商品
                 val selectItem = productDBManager.getProductByMagNo(searchMgaNo)
 
                 //輸入貨號不包含在清單，且存在於商品目錄，可新增
@@ -754,7 +755,7 @@ class HomeFragment : Fragment() {
                                 exclusiveList.toSet()
                             )
 
-                            //去除掉折價券類型的商品
+                            //去除掉折價券類型的商品(去除其他折價券的干擾項)
                             copyFilterMinus = copyFilterMinus.filter { it.pluType != "75" }.toSet()
 
                             //檢查是否只有排除項目

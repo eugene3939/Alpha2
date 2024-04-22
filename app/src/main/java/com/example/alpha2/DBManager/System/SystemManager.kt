@@ -59,4 +59,20 @@ class SystemManager(context: Context) {
             systemDao.insert(cashSystem)
         }
     }
+
+    //---以下為付款方式檔---
+
+    //檢查是否有收銀機號id的資料
+    fun getPaymentMethodById(payNo: String): PaymentMethod? {
+        return runBlocking {
+            systemDao.getPaymentMethodById(payNo)
+        }
+    }
+
+    //新增狀態檔
+    fun addPaymentMethod(paymentMethod: PaymentMethod) {
+        runBlocking {
+            systemDao.insert(paymentMethod)
+        }
+    }
 }

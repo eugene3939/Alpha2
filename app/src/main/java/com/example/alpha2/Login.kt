@@ -14,6 +14,7 @@ import com.example.alpha2.DBManager.Product.CouponMain
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.Product.ProductManager
 import com.example.alpha2.DBManager.System.CashSystem
+import com.example.alpha2.DBManager.System.PaymentMethod
 import com.example.alpha2.DBManager.System.SystemManager
 import com.example.alpha2.DBManager.System.SystemSetting
 import com.example.alpha2.DBManager.User.User
@@ -91,6 +92,9 @@ class Login : AppCompatActivity() {
 
         //Dao匯入系統設定檔 (預設)
         insertSystemSettingDB("store123","Nintendo","cashRegister123",30)
+
+        //Dao匯入付款方式檔 (預設)
+        insertPaymentMethodDB("PAY_No","PAY_Name","PAY_TaxType","PAY_Type","PAY_Ref","PAY_OpenBox",)
 
         //Dao匯入預設會員檔案
         insertMember("ABC12345","Joyce",LocalDateTime.of(2024, 8, 22, 10, 0),LocalDateTime.of(2024, 8, 22, 10, 0),0.9,"card123")
@@ -182,7 +186,22 @@ class Login : AppCompatActivity() {
         }
     }
 
-    //新增user dao Table
+    //新增付款方式檔
+    private fun insertPaymentMethodDB(payNo: String, payName: String, payTaxType: String, payType: String, payRef: String, payOpenBox: String) {
+        lifecycleScope.launch(Dispatchers.IO){
+            //確認用戶是否已經存在
+            val existingPaymentMethod = systemDBManager.getPaymentMethodById(payNo)
+            if (existingPaymentMethod == null) {
+                val payment = PaymentMethod(PAY_No = payNo, PAY_Name = payName,PAY_TaxType = payTaxType, PAY_Type = payType, PAY_Ref = payRef, PAY_OpenBox = payOpenBox)
+                systemDBManager.addPaymentMethod(payment)
+                Log.d("新增付款方式", "Payment method added: $payment")
+            } else {    //確認是否為已知id
+                Log.d("既有付款方式", "Payment with ID $payName already exists")
+            }
+        }
+    }
+
+    //新增會員檔
     private fun insertUserDB(id: String,name: String,account: String,password: String) {
         lifecycleScope.launch(Dispatchers.IO){
             //確認用戶是否已經存在
