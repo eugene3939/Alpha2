@@ -757,7 +757,7 @@ class HomeFragment : Fragment() {
 
                     if (detail != null) {
                         val detailLength = detail.size  //幾個 明細檔
-                        var cycleCheckMutableList = mutableListOf<Int>()  //排除型折價券檢核碼(99:只有自己的類別)
+                        var cycleCheckMutableList = mutableListOf<Product>()  //排除型折價券檢核碼(99:只有自己的類別)
                         Log.d("折價券","有 ${detailLength}個規則分支")   //確認明細數量，要每張都確認曾能回報
 
                         if (selectItem.BASE_TYPE == "1"){   //計算其中一項符合的情況
@@ -803,53 +803,38 @@ class HomeFragment : Fragment() {
                         }else if(selectItem.BASE_TYPE == "2"){
                             //先將所有折價券的明細檔合併為一個集合
 
-                            for (detailItem in detail){     //逐一確認明細檔(所有項目都符合才會許可 重點是有幾張券，每張都要符合)
-                                Log.d("折價券細項","序列號: ${detailItem.SEQ_NO}")
-                                //確認折價券是否在期限內
-                                if (!isCouponValid(detailItem)){
-                                    Log.d("折價券適用間檢查","超過折價券期間")
-                                    subCheck = 6
-                                    break
-                                }else{
-                                    //符合期限後進行更詳細的檢查
-                                    val matchPLU = detailItem.PLU_MagNo == null || filteredProductList.any { it.pluMagNo == detailItem.PLU_MagNo }  //檢查明細檔
-                                    val matchDEP = detailItem.DEP_No == null || filteredProductList.any { it.DEP_No == detailItem.DEP_No }
-                                    val matchCAT = detailItem.CAT_No == null || filteredProductList.any { it.CAT_No == detailItem.CAT_No }
-                                    val matchVEN = detailItem.VEN_No == null || filteredProductList.any { it.VEN_No == detailItem.VEN_No }
+                            val allProductList  = productDBManager.getAllProductTable()
 
-                                    // 確認一般檢核碼
-                                    val checkResult = if (matchPLU && matchDEP && matchCAT && matchVEN) {
-                                        Log.d("檢查結果", "條件A $matchPLU,條件A $matchDEP,條件A $matchCAT,條件A $matchVEN,")
-                                        99
-                                    } else {
-                                        if (!matchPLU) {
-                                            1
-                                        } else if (!matchDEP) {
-                                            2
-                                        } else if (!matchCAT) {
-                                            3
-                                        } else if (!matchVEN) {
-                                            4
-                                        } else {
-                                            5
-                                        }
+                            for (detailItem in detail){
+                                Log.d("折價券細項","序列號: ${detailItem.SEQ_NO}")
+
+                                if (allProductList!=null){
+                                    val matchedProducts = allProductList.filter { product ->
+                                        val matchPLU = detailItem.PLU_MagNo == null || product.pluMagNo == detailItem.PLU_MagNo
+                                        val matchDEP = detailItem.DEP_No == null || product.DEP_No == detailItem.DEP_No
+                                        val matchCAT = detailItem.CAT_No == null || product.CAT_No == detailItem.CAT_No
+                                        val matchVEN = detailItem.VEN_No == null || product.VEN_No == detailItem.VEN_No
+
+                                        matchPLU && matchDEP && matchCAT && matchVEN
                                     }
 
-                                    // 將檢核碼的結果添加到 MutableList 中
-                                    cycleCheckMutableList.add(checkResult)
+                                    Log.d("折價券品項","品項: $matchedProducts")
+
+                                    // 將檢查結果的結果添加到 MutableList 中
+                                    for (i in matchedProducts){
+                                        cycleCheckMutableList.add(i)
+                                    }
                                 }
                             }
 
-                            Log.d("訪問結果",cycleCheckMutableList.toString())
-
-
-                            // 確認是否包含除 99 以外的其他元素
-                            val filteredList = cycleCheckMutableList.filter { it != 99 }.toMutableList()
-
                             //未超過折價券試用期間
                             if (subCheck != 6){
+                                val exclusiveList = filteredProductList.subtract(
+                                    cycleCheckMutableList.toSet()
+                                )
+
                                 //檢查是否只有排除項目
-                                if (filteredList.isEmpty()) {
+                                if (exclusiveList.isEmpty()) {
                                     subCheck = 7
                                     println("列表中只有排除項項目存在")
                                 } else {
