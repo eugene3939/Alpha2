@@ -121,6 +121,13 @@ class ProductManager(context: Context) {
         }
     }
 
+    //刪除整個table
+    fun deleteAllDetail(){
+        runBlocking {
+            productDao.deleteAllDetail()
+        }
+    }
+
     //尋找商品id
     fun getCouponDetailBypluMagNo(id: String): MutableList<CouponDetail>?{
         return runBlocking {

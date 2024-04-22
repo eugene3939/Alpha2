@@ -61,6 +61,9 @@ interface ProductDao {
     @Query("DELETE FROM CouponDetails WHERE DISC_PLU_MagNo = :pluMagNo")
     suspend fun deleteCouponDetail(pluMagNo: String)
 
+    @Query("DELETE FROM CouponDetails")
+    suspend fun deleteAllDetail()
+
     @Query("SELECT * FROM CouponDetails WHERE DISC_PLU_MagNo = :pluMagNo") //尋找符合項目的單一pluMagNo
     fun getCouponDetailBypluMagNo(pluMagNo: String): MutableList<CouponDetail>?
 

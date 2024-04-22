@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.ImageFormat
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -674,7 +675,7 @@ class HomeFragment : Fragment() {
     }
 
     //確認商品能否移出清單(必須新移除對應的優惠券)
-    private suspend fun couponDeleteCheck(deleteItem: Product, copyFilter: MutableList<Product>): Boolean {
+    private fun couponDeleteCheck(deleteItem: Product, copyFilter: MutableList<Product>): Boolean {
         // 檢查刪除項目是否為折價券，如果是直接返回 true
         if (deleteItem.pluType == "75") {
             Log.d("類型", "折價券")
@@ -703,14 +704,14 @@ class HomeFragment : Fragment() {
                                 return false
                             }
                         }
-                    } else if (couponMainItem.BASE_TYPE == "2") { // 必須互斥
+                    }else if (couponMainItem.BASE_TYPE == "2") { // 必須互斥
                         // 逐一檢查折價券明細條件
                         for (detail in couponDetail) {
                             // 如果 A 商品與 A' 折價券的條件有任一符合，則返回 false，表示不能刪除 A 商品
-                            if ((deleteItem.pluMagNo == detail.PLU_MagNo || detail.PLU_MagNo == null) ||
-                                (deleteItem.DEP_No == detail.DEP_No || detail.DEP_No == null) ||
-                                (deleteItem.CAT_No == detail.CAT_No || detail.CAT_No == null) ||
-                                (deleteItem.VEN_No == detail.VEN_No || detail.VEN_No == null)
+                            if (!((deleteItem.pluMagNo == detail.PLU_MagNo || detail.PLU_MagNo == null) &&
+                                (deleteItem.DEP_No == detail.DEP_No || detail.DEP_No == null) &&
+                                (deleteItem.CAT_No == detail.CAT_No || detail.CAT_No == null) &&
+                                (deleteItem.VEN_No == detail.VEN_No || detail.VEN_No == null))
                             ) {
                                 Log.d("刪除前警示","請先刪除對應的折價券商品")
                                 return false
@@ -726,7 +727,7 @@ class HomeFragment : Fragment() {
     }
 
 
-    //確認優惠券能否放入清單(必須超過總價)
+    //確認優惠券能否放入清單(必須超過總價)       //input: 折價券
     private suspend fun couponAddCheck(product: Product): Boolean {
         val selectItem = withContext(Dispatchers.IO) {
             productDBManager.getCouponMainByPluMagNo(product.pluMagNo) as CouponMain //確認所選項目是否為折價券
@@ -743,37 +744,43 @@ class HomeFragment : Fragment() {
             product.unitPrc
         }
 
-        //這邊改成抓coupon Main對應的所有coupon Detail 商品項目去跟 filterList 比對(多筆的SEQ_NO都放入清單)
+        //這邊改成抓coupon Main對應的所有coupon Detail 商品項目去跟 filterList 比對(多筆的SEQ_NO都放入清單: 不同的where 條件)
 
         //已知 pluType='75' 類別
         return when (selectItem.DISC_TYPE) {
             "0" -> { //折扣券
                 //看是否有 明細檔 (正確分類)
-                var subCheck = 0 //折扣券檢核碼 (99:許可)
+                var subCheck = 0    //折扣券檢核碼 (99:許可)
 
                 val result = lifecycleScope.async(Dispatchers.IO) {
                     val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.DISC_PLU_MagNo)  //多筆明細檔
 
                     if (detail != null) {
-                        for (detailItem in detail){  //逐一確認明細檔(所有項目都符合才會許可)
-                            //確認折價券是否在期限內
-                            if (!isCouponValid(detailItem)){
-                                Log.d("折價券適用間檢查","超過折價券期間")
-                                subCheck = 6
-                            }else{
-                                //符合期限後進行更詳細的檢查
+                        val detailLength = detail.size  //幾個 明細檔
+                        var cycleCheckMutableList = mutableListOf<Int>()  //排除型折價券檢核碼(99:只有自己的類別)
+                        Log.d("折價券","有 ${detailLength}個規則分支")   //確認明細數量，要每張都確認曾能回報
 
-                                //確認類別是否正確
-                                if (selectItem.BASE_TYPE == "1") { //折價券主檔類別為1 指定類別
+                        if (selectItem.BASE_TYPE == "1"){   //計算其中一項符合的情況
+                            for (detailItem in detail){     //逐一確認明細檔(所有項目都符合才會許可 重點是有幾張券，每張都要符合)
+                                Log.d("折價券細項","序列號: ${detailItem.SEQ_NO}")
+                                //確認折價券是否在期限內
+                                if (!isCouponValid(detailItem)){
+                                    Log.d("折價券適用間檢查","超過折價券期間")
+                                    subCheck = 6
+                                    break
+                                }else{
+                                    //符合期限後進行更詳細的檢查
                                     val matchPLU = detailItem.PLU_MagNo == null || filteredProductList.any { it.pluMagNo == detailItem.PLU_MagNo }  //檢查明細檔
                                     val matchDEP = detailItem.DEP_No == null || filteredProductList.any { it.DEP_No == detailItem.DEP_No }
                                     val matchCAT = detailItem.CAT_No == null || filteredProductList.any { it.CAT_No == detailItem.CAT_No }
                                     val matchVEN = detailItem.VEN_No == null || filteredProductList.any { it.VEN_No == detailItem.VEN_No }
 
-                                    subCheck = if (matchPLU && matchDEP && matchCAT && matchVEN){
+                                    //確認一般檢核碼
+                                    subCheck = if (matchPLU && matchDEP && matchCAT && matchVEN){   //與折價券明細黨完全一致的情況
                                         Log.d("檢查結果","條件A $matchPLU,條件A $matchDEP,條件A $matchCAT,條件A $matchVEN,")
                                         99
-                                    }else{
+                                    }else{      //每個商品沒有比對的狀況都不同 (類別、廠牌...，這邊會記錄)
+
                                         if (!matchPLU){
                                             1
                                         }else if (!matchDEP){
@@ -786,38 +793,70 @@ class HomeFragment : Fragment() {
                                             5
                                         }
                                     }
-                                } else if (selectItem.BASE_TYPE == "2") { // 排除指定類別
-                                    val excludePLU = detailItem.PLU_MagNo == null || !filteredProductList.any { it.pluMagNo == detailItem.PLU_MagNo }  //檢查明細檔
-                                    val excludeDEP = detailItem.DEP_No == null || !filteredProductList.any { it.DEP_No == detailItem.DEP_No }
-                                    val excludeCAT = detailItem.CAT_No == null || !filteredProductList.any { it.CAT_No == detailItem.CAT_No }
-                                    val excludeVEN = detailItem.VEN_No == null || !filteredProductList.any { it.VEN_No == detailItem.VEN_No }
-
-                                    subCheck = if (excludePLU && excludeDEP && excludeCAT && excludeVEN) {
-                                        Log.d("檢查結果","條件B $excludePLU,條件B $excludeDEP,條件B $excludeCAT,條件B $excludeVEN,")
-                                        99
-                                    }else{
-                                        if (!excludePLU){
-                                            1
-                                        }else if (!excludeDEP){
-                                            2
-                                        }else if (!excludeCAT){
-                                            3
-                                        }else if (!excludeVEN){
-                                            4
-                                        }else{
-                                            5
-                                        }
-                                    }
-                                }else{
-                                    //類別為0 ，直接返回true
-                                    subCheck = 99
                                 }
 
-                                if (subCheck != 99){    //不滿足情況時直接跳出迴圈
+                                //找到符合的就break (A) ，選擇的券號 其中一項 明細檔符合 就停止比對
+                                if (subCheck == 99){
                                     break
                                 }
                             }
+                        }else if(selectItem.BASE_TYPE == "2"){
+                            //先將所有折價券的明細檔合併為一個集合
 
+                            for (detailItem in detail){     //逐一確認明細檔(所有項目都符合才會許可 重點是有幾張券，每張都要符合)
+                                Log.d("折價券細項","序列號: ${detailItem.SEQ_NO}")
+                                //確認折價券是否在期限內
+                                if (!isCouponValid(detailItem)){
+                                    Log.d("折價券適用間檢查","超過折價券期間")
+                                    subCheck = 6
+                                    break
+                                }else{
+                                    //符合期限後進行更詳細的檢查
+                                    val matchPLU = detailItem.PLU_MagNo == null || filteredProductList.any { it.pluMagNo == detailItem.PLU_MagNo }  //檢查明細檔
+                                    val matchDEP = detailItem.DEP_No == null || filteredProductList.any { it.DEP_No == detailItem.DEP_No }
+                                    val matchCAT = detailItem.CAT_No == null || filteredProductList.any { it.CAT_No == detailItem.CAT_No }
+                                    val matchVEN = detailItem.VEN_No == null || filteredProductList.any { it.VEN_No == detailItem.VEN_No }
+
+                                    // 確認一般檢核碼
+                                    val checkResult = if (matchPLU && matchDEP && matchCAT && matchVEN) {
+                                        Log.d("檢查結果", "條件A $matchPLU,條件A $matchDEP,條件A $matchCAT,條件A $matchVEN,")
+                                        99
+                                    } else {
+                                        if (!matchPLU) {
+                                            1
+                                        } else if (!matchDEP) {
+                                            2
+                                        } else if (!matchCAT) {
+                                            3
+                                        } else if (!matchVEN) {
+                                            4
+                                        } else {
+                                            5
+                                        }
+                                    }
+
+                                    // 將檢核碼的結果添加到 MutableList 中
+                                    cycleCheckMutableList.add(checkResult)
+                                }
+                            }
+
+                            Log.d("訪問結果",cycleCheckMutableList.toString())
+
+
+                            // 確認是否包含除 99 以外的其他元素
+                            val filteredList = cycleCheckMutableList.filter { it != 99 }.toMutableList()
+
+                            //未超過折價券試用期間
+                            if (subCheck != 6){
+                                //檢查是否只有排除項目
+                                if (filteredList.isEmpty()) {
+                                    subCheck = 7
+                                    println("列表中只有排除項項目存在")
+                                } else {
+                                    subCheck = 99
+                                    println("列表中有排除項以外的項目")
+                                }
+                            }
                         }
                     }
 
@@ -825,33 +864,51 @@ class HomeFragment : Fragment() {
                     subCheck
                 }
 
-                // 等待協程結果
-                if (result.await() == 99) {
-                    Log.d("結果","許可")
-                    //大於等於總金額即可加入
-                    totalSumUnitPrice >= singlePrc
-                } else {
-                    Log.d("結果","不許可")
-                    //若不許可依照檢核碼回報錯誤原因
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        when(result.await()){
-                            1->{
-                                Toast.makeText(requireContext(),"不滿足指定貨號",Toast.LENGTH_SHORT).show()
-                            }2->{
-                                Toast.makeText(requireContext(),"不滿足指定部門",Toast.LENGTH_SHORT).show()
-                            }3->{
-                                Toast.makeText(requireContext(),"不滿足指定類別",Toast.LENGTH_SHORT).show()
-                            }4->{
-                                Toast.makeText(requireContext(),"不滿足指定廠商",Toast.LENGTH_SHORT).show()
-                            }5->{
-                                Toast.makeText(requireContext(),"其他錯誤",Toast.LENGTH_SHORT).show()
-                            }6->{
-                                Toast.makeText(requireContext(),"超過折價券期間",Toast.LENGTH_SHORT).show()
-                            }
+                //回報檢核碼
+                withContext(Dispatchers.Main){
+                    //回傳檢核碼
+                    when (result.await()){
+                        1 -> {
+                            Toast.makeText(requireContext(),"不符合折價券需求的貨號",Toast.LENGTH_SHORT).show()
+                        }2 ->{
+                            Toast.makeText(requireContext(),"不符合折價券需求的部門",Toast.LENGTH_SHORT).show()
+                        }3 ->{
+                            Toast.makeText(requireContext(),"不符合折價券需求的分類",Toast.LENGTH_SHORT).show()
+                        }4 ->{
+                            Toast.makeText(requireContext(),"不符合折價券需求的廠商",Toast.LENGTH_SHORT).show()
+                        }5 ->{
+                            Toast.makeText(requireContext(),"折價券需求的異常",Toast.LENGTH_SHORT).show()
+                        }6 ->{
+                            Toast.makeText(requireContext(),"超過折價券期限",Toast.LENGTH_SHORT).show()
+                        }7 -> {
+                            Toast.makeText(requireContext(),"不符合折價券使用規範(僅有排除類商品)",Toast.LENGTH_SHORT).show()
+                        }99 -> {
+                            Toast.makeText(requireContext(),"成功新增折價券",Toast.LENGTH_SHORT).show()
+                        }else ->{
+                                Toast.makeText(requireContext(),"不合規的檢核碼(A)",Toast.LENGTH_SHORT).show()
                         }
                     }
 
-                    false
+                    // 等待協程結果( 依照類別或是排除決定
+                    when (selectItem.BASE_TYPE) {
+                        "1" -> {        //折價券主檔類別為1 其中一項符合即可 (出現一個就可以)
+                            if (result.await() == 99){
+                                true
+                            }else{
+                                false
+                            }
+                        }
+                        "2" -> {        //折價券主檔類別為2 必須所有都不符合 (出現條件外的就可以用)
+                            if (result.await() == 99){
+                                true
+                            }else{
+                                false
+                            }
+                        }
+                        else -> {
+                            true
+                        }
+                    }
                 }
             }
             "1" -> {   //打折券
