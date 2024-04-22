@@ -682,69 +682,129 @@ class HomeFragment : Fragment() {
             return true
         }
 
-        // 遍歷 copyFilter，確保在刪除 A 商品之前不刪除符合 A' 折價券條件的商品
-        for (pList in copyFilter) {
-            if (pList.pluType == "75") { // 檢查 copyFilter 中的折價券商品
-                val couponMainItem = productDBManager.getCouponMainByPluMagNo(pList.pluMagNo)
-                val couponDetail = productDBManager.getCouponDetailBypluMagNo(pList.pluMagNo)
+        //折價券比較狀況
+        val cycleCheckMutableList = mutableListOf<Boolean>()  //比對的折價券是否符合狀況
 
-                // 確保折價券主檔和明細檔都存在
-                if (couponMainItem != null && couponDetail != null) {
-                    // 檢查折價券的指定比對邏輯
-                    if (couponMainItem.BASE_TYPE == "1") { // 完全符合條件
-                        // 逐一檢查折價券明細條件
-                        for (detail in couponDetail) {
-                            // 如果 A 商品符合 A' 折價券的條件，則返回 false，表示不能刪除 A 商品
-                            if ((deleteItem.pluMagNo == detail.PLU_MagNo || detail.PLU_MagNo == null) &&
-                                (deleteItem.DEP_No == detail.DEP_No || detail.DEP_No == null) &&
-                                (deleteItem.CAT_No == detail.CAT_No || detail.CAT_No == null) &&
-                                (deleteItem.VEN_No == detail.VEN_No || detail.VEN_No == null)
-                            ) {
-                                Log.d("刪除前警示","請先刪除對應的折價券商品")
-                                return false
+        //輪流檢查每一個折價券是否有對應的項目(是否有不滿足條件的折價券)
+        for (item in filteredProductList){      //走訪商品項次清單
+            if (item.pluType == "75"){          //折價券商品
+                //確認該折價券的主檔和明細檔
+                val couponMain = productDBManager.getCouponMainByPluMagNo(item.pluMagNo)
+                val couponDetail = productDBManager.getCouponDetailBypluMagNo(item.pluMagNo)
+
+                //確保折價券主檔和明細檔都存在
+                //確認是正向還是負向表列
+                if (couponMain != null && couponDetail != null) {
+                    when(couponMain.BASE_TYPE){
+                        "1" ->{
+                            //冰淇淋折價券 對不到 冰淇淋/null 就會跳出警告
+                            var detailCheck = false
+                            //逐一檢查每一個折價券明細
+                            for (detail in couponDetail){
+                                //確認刪除商品後 是否會造成不滿足折價券的狀況
+                                // 正向表列只要其中一項符合即可
+
+                                //符合期限後進行更詳細的檢查
+                                val matchPLU = detail.PLU_MagNo == null || copyFilter.any { it.pluMagNo == detail.PLU_MagNo }  //檢查明細檔
+                                val matchDEP = detail.DEP_No == null || copyFilter.any { it.DEP_No == detail.DEP_No }
+                                val matchCAT = detail.CAT_No == null || copyFilter.any { it.CAT_No == detail.CAT_No }
+                                val matchVEN = detail.VEN_No == null || copyFilter.any { it.VEN_No == detail.VEN_No }
+
+                                //對應到符合的商品項目
+                                if (matchPLU && matchDEP && matchCAT && matchVEN){   //與折價券明細黨完全一致的情況
+                                    cycleCheckMutableList.add(true)                  //其中一項符合即可 (該折價券主檔檢查完畢)
+                                    detailCheck = true
+                                }
+                            }
+
+                            //檢查完都沒有符合的項目
+                            if (!detailCheck){
+                                cycleCheckMutableList.add(false)    //指定為不許可 (沒有對應的折價券)
                             }
                         }
-                    }else if (couponMainItem.BASE_TYPE == "2") { // 必須互斥
-                        // 逐一檢查折價券明細條件
-                        for (detail in couponDetail) {
-                            // 如果 A 商品與 A' 折價券的條件有任一符合，則返回 false，表示不能刪除 A 商品
-                            if (!((deleteItem.pluMagNo == detail.PLU_MagNo || detail.PLU_MagNo == null) &&
-                                (deleteItem.DEP_No == detail.DEP_No || detail.DEP_No == null) &&
-                                (deleteItem.CAT_No == detail.CAT_No || detail.CAT_No == null) &&
-                                (deleteItem.VEN_No == detail.VEN_No || detail.VEN_No == null))
-                            ) {
-                                Log.d("刪除前警示","請先刪除對應的折價券商品")
-                                return false
+                        "2" ->{
+                            //菸酒類排除型折價券 對到只有菸酒類 會跳出警告
+
+                            //先將所有折價券的明細檔合併為一個集合
+                            val allProductList  = productDBManager.getAllProductTable() //所有商品
+                            var exclusiveList = mutableListOf<Product>()
+
+                            for (detail in couponDetail){ //走訪所有折價券明細檔
+                                if (allProductList!=null){
+                                    val matchedProducts = allProductList.filter { product ->    //單一折價券明細的集合
+                                        val matchPLU = detail.PLU_MagNo == null || product.pluMagNo == detail.PLU_MagNo
+                                        val matchDEP = detail.DEP_No == null || product.DEP_No == detail.DEP_No
+                                        val matchCAT = detail.CAT_No == null || product.CAT_No == detail.CAT_No
+                                        val matchVEN = detail.VEN_No == null || product.VEN_No == detail.VEN_No
+
+                                        matchPLU && matchDEP && matchCAT && matchVEN
+                                    }
+
+                                    Log.d("折價券品項","品項: $matchedProducts")
+
+                                    // 將符合排除型折價券的商品加入清單中
+                                    for (i in matchedProducts){
+                                        exclusiveList.add(i)    //將符合明細檔的商品內容加入清單，形成主黨對應的明細檔商品集
+                                    }
+                                }
                             }
+
+                            //去除掉 互斥型商品 後的購物清單內容
+                            var copyFilterMinus = copyFilter.subtract(   //移除掉deleteItem後的商品集 再去除 排除型明細檔商品集 後的結果
+                                exclusiveList.toSet()
+                            )
+
+                            //去除掉折價券類型的商品
+                            copyFilterMinus = copyFilterMinus.filter { it.pluType != "75" }.toSet()
+
+                            //檢查是否只有排除項目
+                            if (copyFilterMinus.isEmpty()) {
+                                //忽視掉 折價券 類型商品
+                                cycleCheckMutableList.add(false)    //指定為不許可 (只存在不適用類別的商品，不能用此折價券)
+                            }else{
+                                Log.d("清除互斥商品後紀錄",copyFilterMinus.toString())
+                            }
+                        }
+                        else ->{
+                            cycleCheckMutableList.add(false)    //正向、負向以外的類型 不許可
                         }
                     }
+                }else{  //沒有明細檔的狀況
+                    cycleCheckMutableList.add(true)     //許可(不用檢查明細檔)
                 }
             }
         }
 
-        // 如果迴圈運行完畢仍未找到符合條件的情況，則返回 true，表示可以刪除 A 商品
-        return true
+        //全部都是true就可以加入
+        Log.d("明細檔檢查狀況",cycleCheckMutableList.toString())
+
+        //回報檢查結果
+        return if (cycleCheckMutableList.contains(false)){
+            false    //有一個檢查錯誤就不許可進行更正(要求先刪除折價券)
+        } else{
+            true
+        }
     }
 
 
     //確認優惠券能否放入清單(必須超過總價)       //input: 折價券
-    private suspend fun couponAddCheck(product: Product): Boolean {
+    private suspend fun couponAddCheck(addCoupon: Product): Boolean {
         val selectItem = withContext(Dispatchers.IO) {
-            productDBManager.getCouponMainByPluMagNo(product.pluMagNo) as CouponMain //確認所選項目是否為折價券
+            productDBManager.getCouponMainByPluMagNo(addCoupon.pluMagNo) as CouponMain //確認所選項目是否為折價券
         }
 
         var singlePrc = 0   //產品單價(較低的)
         singlePrc = if (nowLoginMember != null){
-            if (product.memPrc < product.unitPrc){
-                product.memPrc
+            if (addCoupon.memPrc < addCoupon.unitPrc){
+                addCoupon.memPrc
             }else{
-                product.unitPrc
+                addCoupon.unitPrc
             }
         }else{
-            product.unitPrc
+            addCoupon.unitPrc
         }
 
-        //這邊改成抓coupon Main對應的所有coupon Detail 商品項目去跟 filterList 比對(多筆的SEQ_NO都放入清單: 不同的where 條件)
+        //這邊抓coupon Main對應的所有coupon Detail 商品項目去跟 filterList 比對(多筆的SEQ_NO都放入清單: 不同的where 條件)
 
         //已知 pluType='75' 類別
         return when (selectItem.DISC_TYPE) {
@@ -757,7 +817,7 @@ class HomeFragment : Fragment() {
 
                     if (detail != null) {
                         val detailLength = detail.size  //幾個 明細檔
-                        var cycleCheckMutableList = mutableListOf<Product>()  //排除型折價券檢核碼(99:只有自己的類別)
+                        val cycleCheckMutableList = mutableListOf<Product>()  //排除型折價券檢集合
                         Log.d("折價券","有 ${detailLength}個規則分支")   //確認明細數量，要每張都確認曾能回報
 
                         if (selectItem.BASE_TYPE == "1"){   //計算其中一項符合的情況
@@ -805,11 +865,11 @@ class HomeFragment : Fragment() {
 
                             val allProductList  = productDBManager.getAllProductTable()
 
-                            for (detailItem in detail){
+                            for (detailItem in detail){ //走訪所有折價券明細檔
                                 Log.d("折價券細項","序列號: ${detailItem.SEQ_NO}")
 
                                 if (allProductList!=null){
-                                    val matchedProducts = allProductList.filter { product ->
+                                    val matchedProducts = allProductList.filter { product ->    //單一折價券明細的集合
                                         val matchPLU = detailItem.PLU_MagNo == null || product.pluMagNo == detailItem.PLU_MagNo
                                         val matchDEP = detailItem.DEP_No == null || product.DEP_No == detailItem.DEP_No
                                         val matchCAT = detailItem.CAT_No == null || product.CAT_No == detailItem.CAT_No
@@ -820,7 +880,7 @@ class HomeFragment : Fragment() {
 
                                     Log.d("折價券品項","品項: $matchedProducts")
 
-                                    // 將檢查結果的結果添加到 MutableList 中
+                                    // 將符合排除型折價券的商品加入清單中
                                     for (i in matchedProducts){
                                         cycleCheckMutableList.add(i)
                                     }
@@ -829,7 +889,7 @@ class HomeFragment : Fragment() {
 
                             //未超過折價券試用期間
                             if (subCheck != 6){
-                                val exclusiveList = filteredProductList.subtract(
+                                val exclusiveList = filteredProductList.subtract(   //去除掉排除項目之後的集合
                                     cycleCheckMutableList.toSet()
                                 )
 
