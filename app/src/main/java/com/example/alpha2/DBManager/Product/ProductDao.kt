@@ -34,7 +34,7 @@ interface ProductDao {
     @Query("SELECT * FROM Products WHERE pluType = :plu")
     fun getProductByPluType(plu: String): MutableList<Product>?
 
-    //尋找所有Ptype的所有內容中非空值的項目
+    //尋找所有PluType的所有內容中非空值的項目
     @Query("SELECT DISTINCT pType FROM Products WHERE :columnName IS NOT NULL")
     fun getCategoryList(columnName: String): List<String>?
 

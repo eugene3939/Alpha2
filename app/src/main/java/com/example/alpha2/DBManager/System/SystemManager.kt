@@ -62,6 +62,13 @@ class SystemManager(context: Context) {
 
     //---以下為付款方式檔---
 
+    //取得所有的付款方式
+    fun getAllPaymentMethod(): MutableList<PaymentMethod>? {
+        return runBlocking {
+            systemDao.getAllPaymentMethod()
+        }
+    }
+
     //檢查是否有收銀機號id的資料
     fun getPaymentMethodById(payNo: String): PaymentMethod? {
         return runBlocking {

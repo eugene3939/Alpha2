@@ -42,6 +42,10 @@ interface SystemDao {
 
     //付款方式檔
 
+    //取得所有付款方式
+    @Query("SELECT * FROM PaymentMethods")
+    suspend fun getAllPaymentMethod(): MutableList<PaymentMethod>?
+
     //尋找是否有對應的付款方式
     @Query("SELECT * FROM PaymentMethods WHERE PAY_No = :payNo")
     suspend fun getPaymentMethodById(payNo: String): PaymentMethod?

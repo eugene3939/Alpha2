@@ -8,13 +8,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Product.Product
+import com.example.alpha2.DBManager.System.SystemManager
 
 class Payment : AppCompatActivity() {
 
-    private var filterList = mutableListOf<Product>()
-    private var filterAmount = mutableMapOf<Product,Int>()
-    private var totalPrice = 0
-    private var nowLoginMember: Member? = null
+    //從HomeFragment取得的購物清單內容
+    private var filterList = mutableListOf<Product>()           //商品項次
+    private var filterAmount = mutableMapOf<Product,Int>()      //商品項次 與 對應購買數
+    private var totalPrice = 0                                  //購買總價
+    private var nowLoginMember: Member? = null                  //會員
+
+    private lateinit var systemDBManager: SystemManager         //系統主檔 (取得支援的付款方式)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +29,9 @@ class Payment : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        //初始化Dao
+        systemDBManager = SystemManager(this)
 
         // 使用 intent 獲取 商品清單
         try {
@@ -40,6 +47,15 @@ class Payment : AppCompatActivity() {
 
         }catch (e: Exception){
             Log.d("傳遞失敗","空的intent")
+        }
+
+        //所有允許的付款方式
+        val paymentList = systemDBManager.getAllPaymentMethod()
+
+        if (paymentList != null) {
+            for (i in paymentList){
+                Log.d("付款方式", i.toString())
+            }
         }
     }
 }

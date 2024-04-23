@@ -94,7 +94,10 @@ class Login : AppCompatActivity() {
         insertSystemSettingDB("store123","Nintendo","cashRegister123",30)
 
         //Dao匯入付款方式檔 (預設)
-        insertPaymentMethodDB("PAY_No","PAY_Name","PAY_TaxType","PAY_Type","PAY_Ref","PAY_OpenBox",)
+        insertPaymentMethodDB("01","現金","0","1","N","Y")
+        insertPaymentMethodDB("05","信用卡","0","0","Y","N")
+        insertPaymentMethodDB("05","非信用卡","0","2","Y","N")
+        insertPaymentMethodDB("13","悠遊卡","0","E","N","N")
 
         //Dao匯入預設會員檔案
         insertMember("ABC12345","Joyce",LocalDateTime.of(2024, 8, 22, 10, 0),LocalDateTime.of(2024, 8, 22, 10, 0),0.9,"card123")
