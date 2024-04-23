@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.ImageFormat
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -41,6 +40,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.Serializable
 import java.lang.Exception
 import java.time.LocalDateTime
 
@@ -672,8 +672,10 @@ class HomeFragment : Fragment() {
                 Toast.makeText(requireContext(),"送出金額 $totalSumUnitPrice",Toast.LENGTH_SHORT).show()
             }
 
-            if (filteredProductList.isNotEmpty() && selectedQuantities.isNotEmpty() && totalSumUnitPrice>=0){
+            if (filteredProductList.isNotEmpty() && selectedQuantities.isNotEmpty() && totalSumUnitPrice >= 0) {
                 val intent = Intent(requireContext(), Payment::class.java)
+                intent.putExtra("filteredList_key", filteredProductList as? Serializable)
+                intent.putExtra("quantities_key", selectedQuantities as? Serializable)
                 startActivity(intent)
             }
         }
@@ -1003,10 +1005,6 @@ class HomeFragment : Fragment() {
 //            }
 //            isFirstCreation = false
         }else{
-
-            Log.d("不空喔",filteredProductList.toString())
-            viewModel.filteredProductList.postValue(filteredProductList)    //更新到ViewModel
-
             val adapter: FilterProductAdapter
             if (nowLoginMember!=null){      //有會員登入
                 adapter = FilterProductAdapter(filteredProductList, selectedQuantities,true)
