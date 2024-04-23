@@ -6,12 +6,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
+import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Product.Product
-import com.example.alpha2.ui.home.HomeFragment
-import com.example.alpha2.ui.home.HomeViewModel
 
 class Payment : AppCompatActivity() {
+
+    private var filterList = mutableListOf<Product>()
+    private var filterAmount = mutableMapOf<Product,Int>()
+    private var totalPrice = 0
+    private var nowLoginMember: Member? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -24,10 +28,16 @@ class Payment : AppCompatActivity() {
 
         // 使用 intent 獲取 商品清單
         try {
-            val receivedFilteredList = intent.getSerializableExtra("filteredList_key") as? MutableList<*>
-            val receivedSelectedQuantities = intent.getSerializableExtra("quantities_key") as? MutableMap<*, *>
-            Log.d("調用商品清單測試", receivedFilteredList.toString())
-            Log.d("調用商品數量測試", receivedSelectedQuantities.toString())
+            filterList = intent.getSerializableExtra("filteredList_key") as MutableList<Product>
+            filterAmount = intent.getSerializableExtra("quantities_key") as MutableMap<Product, Int>
+            totalPrice = intent.getIntExtra("total_price",0)
+            nowLoginMember = intent.getSerializableExtra("now_member") as? Member
+
+            Log.d("調用商品清單測試", filterList.toString())
+            Log.d("調用商品數量測試", filterAmount.toString())
+            Log.d("小計總額", totalPrice.toString())
+            Log.d("會員資訊",nowLoginMember.toString())
+
         }catch (e: Exception){
             Log.d("傳遞失敗","空的intent")
         }

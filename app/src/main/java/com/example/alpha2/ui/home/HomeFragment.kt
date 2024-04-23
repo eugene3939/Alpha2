@@ -676,6 +676,8 @@ class HomeFragment : Fragment() {
                 val intent = Intent(requireContext(), Payment::class.java)
                 intent.putExtra("filteredList_key", filteredProductList as? Serializable)
                 intent.putExtra("quantities_key", selectedQuantities as? Serializable)
+                intent.putExtra("now_member",nowLoginMember as? Serializable)
+                intent.putExtra("total_price",totalSumUnitPrice)
                 startActivity(intent)
             }
         }

@@ -2,6 +2,7 @@ package com.example.alpha2.DBManager.Member
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 import java.time.LocalDateTime
 
 @Entity(tableName = "Members")
@@ -19,4 +20,4 @@ data class Member(
     val status: String = "0",                //會員狀態 0=正常 1=無效 9=申請中
     val discRate: Double,                    //會員折扣率
     val stockFee: Int = 0,                   //累積點數
-    val cardNo: String)                      //會員卡卡號
+    val cardNo: String):Serializable         //會員卡卡號
