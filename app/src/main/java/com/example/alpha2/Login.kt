@@ -292,8 +292,8 @@ class Login : AppCompatActivity() {
                 productDBManager.insertCouponDetail(item)
                 Log.d("新增折價券明細檔", "DProduct added: $item")
             } else {    //確認是否為已知id
-                //val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo, FROM_DATE = FROM_DATE, TO_DATE = TO_DATE, SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo,DEP_No = DEP_No, CAT_No = CAT_No, VEN_No = VEN_No)
-                //productDBManager.insertCouponDetail(item)
+//                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo, FROM_DATE = FROM_DATE, TO_DATE = TO_DATE, SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo,DEP_No = DEP_No, CAT_No = CAT_No, VEN_No = VEN_No)
+//                productDBManager.insertCouponDetail(item)
                 Log.d("既有折價券明細檔", "DProduct with ID $DISC_PLU_MagNo already exists")
             }
         }

@@ -32,6 +32,7 @@ import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Member.MemberManager
 import com.example.alpha2.DBManager.Product.CouponDetail
 import com.example.alpha2.DBManager.Product.CouponMain
+import com.example.alpha2.Payment
 import com.example.alpha2.R
 import com.example.alpha2.myAdapter.CouponAdapter
 import com.example.alpha2.myAdapter.FilterProductAdapter
@@ -670,6 +671,11 @@ class HomeFragment : Fragment() {
             }else{
                 Toast.makeText(requireContext(),"送出金額 $totalSumUnitPrice",Toast.LENGTH_SHORT).show()
             }
+
+            if (filteredProductList.isNotEmpty() && selectedQuantities.isNotEmpty() && totalSumUnitPrice>=0){
+                val intent = Intent(requireContext(), Payment::class.java)
+                startActivity(intent)
+            }
         }
 
         return root
@@ -1015,26 +1021,13 @@ class HomeFragment : Fragment() {
             }
         }
 
-        //確認優惠券條件是否能繼續使用
-        lifecycleScope.launch {
-            for (item in filteredProductList){
-                if(item.pluType == "75"){
-                    Log.d("清單檢查","折扣券")
-
-//                    if (!couponAddCheck(item)){     //不滿足折扣券使用條件
-//                         filteredProductList.remove(item)   //刪除該項目，並且重新導入清單
-//                    }
-                }
-            }
-        }
-
         lifecycleScope.launch(Dispatchers.Main) {
             //變更小計金額
             for (product in filteredProductList) {
                 // 檢查商品是否在 selectNumberMap 中，如果沒有，預設選擇數量為 0
                 val selectNumber = selectedQuantities.getOrDefault(product, 0)
 
-                var totalPrice = 0
+                var totalPrice: Int
 
                 //計算單項小計
                 if(nowLoginMember != null){    //確認是否為會員
