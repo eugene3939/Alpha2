@@ -66,10 +66,7 @@ class Payment : AppCompatActivity() {
             }
 
             try {
-                // 創建一個字母列表
-                val letters = paymentList.map { it.PAY_Name }
-
-                // 使用 ArrayAdapter 將字母列表與 GridView 連接
+                //用GridView 顯示 購買清單
                 val adapter = if (nowLoginMember != null){
                      FilterProductAdapter(filterList,filterAmount,true)
                 }else{

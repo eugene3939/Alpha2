@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--輸入內容到文字框後輸出 enterText -> output -->
+
+    <!--標題-->
+    <TextView
+        android:id="@+id/txtEnterTxtTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/txtEnterTextTitle"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textAlignment="center"/>
+
+    <!--內容列表-->
+    <EditText
+        android:id="@+id/edtEnterTxtContent"
+        android:layout_width="600dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:layout_below="@+id/txtEnterTxtTitle"
+        android:hint="@string/txtFulfil"
+        android:textSize="30sp"
+        android:textColor="@color/blue_500"
+        android:textAlignment="center"
+        android:autofillHints="password"
+        android:inputType="number"
+        tools:ignore="LabelFor" />
+
+
+    <!--取消-->
+    <Button
+        android:id="@+id/btEnterTxtContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edtEnterTxtContent"
+        android:layout_centerHorizontal="true"
+        android:text="@string/buttonCancel"
+        android:textStyle="bold"
+        android:textSize="30sp"/>
+
+</RelativeLayout>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <!--清單選擇畫面 (a,b,c,d) -> a -->
+
+    <!--標題-->
+    <TextView
+        android:id="@+id/txtSelectionTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/txtPrinter"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textAlignment="center"/>
+
+    <!--內容列表-->
+    <ListView
+        android:id="@+id/lvSelectionOption"
+        android:layout_below="@+id/txtSelectionTitle"
+        android:layout_centerHorizontal="true"
+        android:padding="20dp"
+        android:layout_width="300dp"
+        android:layout_height="300dp"/>
+
+    <!--取消-->
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lvSelectionOption"
+        android:layout_centerHorizontal="true"
+        android:text="@string/buttonCancel"
+        android:textStyle="bold"
+        android:textSize="30sp"/>
+
+</RelativeLayout>
