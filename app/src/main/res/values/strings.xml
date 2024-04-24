@@ -18,7 +18,7 @@
     <string name="txtClerkName">收銀員</string>
     <string name="txtBarcode">掃描條碼</string>
     <string name="txtNowShowing">目前項目</string>
-    <string name="txtFname">商品名稱</string>
+    <string name="txtFname">品名</string>
     <string name="txtFMagno">貨號</string>
     <string name="txtFclickNum">0 個</string>
     <string name="txtFsum">付款</string>
@@ -39,4 +39,7 @@
     <string name="txtCouponName">折價券名稱</string>
     <string name="txtCouponID">折價券編號</string>
     <string name="txtCouponPrice">折價券金額</string>
+    <string name="txtInvoicePrinter">統一編號</string>
+    <string name="txtCash">現金</string>
+    <string name="txtFAmount">數量</string>
 </resources>

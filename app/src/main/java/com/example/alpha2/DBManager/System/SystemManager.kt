@@ -76,10 +76,17 @@ class SystemManager(context: Context) {
         }
     }
 
-    //新增狀態檔
+    //新增付款方式
     fun addPaymentMethod(paymentMethod: PaymentMethod) {
         runBlocking {
             systemDao.insert(paymentMethod)
+        }
+    }
+
+    //刪除付款方式
+    fun deletePaymentMethod(paymentMethod: PaymentMethod){
+        runBlocking {
+            systemDao.delete(paymentMethod)
         }
     }
 }

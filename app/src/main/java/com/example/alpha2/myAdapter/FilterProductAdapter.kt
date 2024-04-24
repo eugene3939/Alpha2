@@ -61,22 +61,29 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
             if (memberCheck){
                 //防止會員價比折扣價還高的狀況 (適用較低價格)
                 if (product.memPrc > product.unitPrc){
-                    productPrice.text = "售價: ${product.unitPrc} 元"
-                    productSum.text = "小計: ${product.unitPrc * numberInf[product]!!} 元"     //單向小計
+                    productPrice.text = "${product.unitPrc}"
+                    productSum.text = "${product.unitPrc * numberInf[product]!!} 元"     //單向小計
                 }else{
-                    productPrice.text = "售價: ${product.memPrc} 元"
-                    productSum.text = "小計: ${product.memPrc * numberInf[product]!!} 元"     //單向小計
+                    productPrice.text = "${product.memPrc}"
+                    productSum.text = "${product.memPrc * numberInf[product]!!} 元"     //單向小計
                 }
             }else{
-                productPrice.text = "售價: ${product.unitPrc} 元"
-                productSum.text = "小計: ${product.unitPrc * numberInf[product]!!} 元"     //單向小計
+                productPrice.text = "${product.unitPrc}"
+                productSum.text = "${product.unitPrc * numberInf[product]!!} 元"     //單向小計
             }
         }
 
         //限制字串長度
         private fun truncateString(input: String, maxLength: Int): String {
             return if (input.length > maxLength) {
+
+                val insertIndex  = 10 //第七個字元進行換行
+                val builder = StringBuilder(input)
+                builder.insert(insertIndex, "\n")
+                builder.toString()
+
                 input.substring(0, maxLength - 3) + "..."
+
             } else {
                 input
             }

@@ -879,6 +879,13 @@ class HomeFragment : Fragment() {
                             for (detailItem in detail){ //走訪所有折價券明細檔
                                 Log.d("折價券細項","序列號: ${detailItem.SEQ_NO}")
 
+                                //折價券已過期
+                                if (!isCouponValid(detailItem)){
+                                    Log.d("折價券適用間檢查","超過折價券期間")
+                                    subCheck = 6
+                                    break
+                                }
+
                                 if (allProductList!=null){
                                     val matchedProducts = allProductList.filter { product ->    //單一折價券明細的集合
                                         val matchPLU = detailItem.PLU_MagNo == null || product.pluMagNo == detailItem.PLU_MagNo

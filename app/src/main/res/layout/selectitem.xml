@@ -9,7 +9,7 @@
         android:id="@+id/txt_productIndex"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="30dp"
+        android:layout_marginEnd="10dp"
         android:text="@string/txtCancelSelection"
         android:textColor="@color/blue_500"
         android:textSize="25sp"
@@ -18,20 +18,18 @@
     <!-- 商品名稱 -->
     <TextView
         android:id="@+id/txt_productName"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@+id/txt_productIndex"
-        android:layout_marginEnd="30dp"
         android:text="@string/txtFname"
         android:textColor="@color/blue_500"
-        android:textSize="23sp"
+        android:textSize="20sp"
         android:textStyle="bold"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/txt_productName"
-        android:layout_toEndOf="@+id/txt_productIndex"
+        android:layout_toEndOf="@+id/txt_productName"
         android:orientation="horizontal">
 
         <!-- 商品價格 -->
@@ -44,7 +42,7 @@
             android:textColor="@color/blue_500"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textAlignment="textStart"/>
+            android:textAlignment="center"/>
 
         <!--商品點擊數量-->
         <TextView
@@ -54,7 +52,8 @@
             android:layout_weight="1"
             android:text="@string/txtFclickNum"
             android:textColor="@color/blue_800"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:textAlignment="center"/>
 
         <!-- 商品庫存 -->
         <TextView
@@ -64,7 +63,8 @@
             android:layout_weight="1"
             android:text="@string/txtFsum"
             android:textColor="@color/blue_800"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:textAlignment="center"/>
     </LinearLayout>
 
 </RelativeLayout>

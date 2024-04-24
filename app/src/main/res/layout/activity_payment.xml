@@ -8,9 +8,93 @@
     android:layout_height="match_parent"
     tools:context=".Payment">
 
+    <!--清單標頭說明-->
+    <LinearLayout
+        android:id="@+id/lr_filterTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="30dp">
+
+        <!-- 商品名稱 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.2"
+            android:text="@string/txtFname"
+            android:textColor="@color/blue_500"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textAlignment="center"/>
+
+        <!-- 商品價格 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/txtUnitPrice"
+            android:textColor="@color/blue_500"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textAlignment="center"/>
+
+        <!--商品點擊數量-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/txtFAmount"
+            android:textColor="@color/blue_500"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textAlignment="center"/>
+
+        <!-- 商品庫存 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/txtSumShopCart"
+            android:textColor="@color/blue_500"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textAlignment="center"/>
+    </LinearLayout>
+
     <GridView
         android:id="@+id/gr_paymentMethod"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"/>
+        android:layout_below="@+id/lr_filterTitle"/>
+
+    <!--是否需要印統編-->
+
+    <!--付款方式-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/txtInvoicePrinter"
+            android:textSize="20sp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/txtCash"
+            android:textSize="20sp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:text="@string/txtConfirm"
+            android:textSize="25sp"/>
+    </LinearLayout>
+
 </RelativeLayout>
