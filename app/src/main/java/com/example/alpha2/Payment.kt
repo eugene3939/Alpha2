@@ -3,7 +3,9 @@ package com.example.alpha2
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.GridView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -25,9 +27,6 @@ class Payment : AppCompatActivity() {
 
     private lateinit var systemDBManager: SystemManager         //系統主檔 (取得支援的付款方式)
 
-    private var _binding: ActivityPaymentBinding? = null
-    private val binding get() = _binding!!
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -37,6 +36,11 @@ class Payment : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        //初始化
+        val gridView: GridView = findViewById(R.id.gr_paymentMethod)    //商品清單GridView
+        val btnPayment: Button = findViewById(R.id.btnsCode)            //切換  載具按鈕 (載具、愛心碼...)
+        val btnCash: Button = findViewById(R.id.btnsPayment)            //切換  支付類別 (現金、信用卡...)
 
         //初始化Dao
         systemDBManager = SystemManager(this)
@@ -74,7 +78,6 @@ class Payment : AppCompatActivity() {
                 }
 
                 // 獲取 GridView 並設置適配器
-                val gridView: GridView = findViewById(R.id.gr_paymentMethod)
                 gridView.adapter = adapter
                 gridView.numColumns = 1
 
@@ -84,6 +87,16 @@ class Payment : AppCompatActivity() {
             }
         } else {
             Log.e("警告", "paymentList 為空")
+        }
+
+        //點擊按鈕時跳出畫面 協助用戶切換 載具形式
+        btnPayment.setOnClickListener {
+            Toast.makeText(this,"切換載具形式",Toast.LENGTH_SHORT).show()
+        }
+
+        //點擊按鈕時跳出畫面 協助用戶切換 支付方式
+        btnCash.setOnClickListener {
+            Toast.makeText(this,"切換支付方式",Toast.LENGTH_SHORT).show()
         }
     }
 }

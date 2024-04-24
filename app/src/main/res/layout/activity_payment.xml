@@ -78,12 +78,14 @@
         android:layout_alignParentBottom="true">
 
         <Button
+            android:id="@+id/btnsCode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/txtInvoicePrinter"
             android:textSize="20sp"/>
 
         <Button
+            android:id="@+id/btnsPayment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/txtCash"
