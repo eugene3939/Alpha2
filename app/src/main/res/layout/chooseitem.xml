@@ -27,6 +27,7 @@
 
     <!--取消-->
     <Button
+        android:id="@+id/btnSelectionCancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/lvSelectionOption"
