@@ -3,6 +3,7 @@ package com.example.alpha2.DBManager.Product
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import java.time.LocalDateTime
 
 @Dao
 interface ProductDao {
@@ -64,9 +65,12 @@ interface ProductDao {
     @Query("DELETE FROM CouponDetails")
     suspend fun deleteAllDetail()
 
+    @Query("SELECT * FROM CouponDetails WHERE DISC_PLU_MagNo = :pluMagNo AND FROM_DATE = :fromDate AND TO_DATE = :toDate AND SEQ_NO = :seqNo") //尋找符合項目的單一pluMagNo
+    fun getCouponDetailByFullKeys(pluMagNo: String, fromDate: LocalDateTime, toDate: LocalDateTime, seqNo: Int): MutableList<CouponDetail>?
+
+
     @Query("SELECT * FROM CouponDetails WHERE DISC_PLU_MagNo = :pluMagNo") //尋找符合項目的單一pluMagNo
     fun getCouponDetailBypluMagNo(pluMagNo: String): MutableList<CouponDetail>?
-
     //    組合商品
     @Insert
     suspend fun insertCluster(cm: ClusterProduct)

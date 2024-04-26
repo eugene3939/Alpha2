@@ -31,7 +31,7 @@ interface SystemDao {
     //收銀機狀態檔
 
     //尋找是否有對應的收銀機號
-    @Query("SELECT * FROM CashStates WHERE ecrNo = :eId")
+    @Query("SELECT * FROM CashStates WHERE ECR_No = :eId")
     suspend fun getCashStateNoById(eId: String): CashState?
 
     @Insert

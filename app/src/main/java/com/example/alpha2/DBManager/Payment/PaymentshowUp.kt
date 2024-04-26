@@ -5,16 +5,16 @@ import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 
 /*即時銷售付款付款檔 (POS3010)*/
-@Entity(tableName = "PaymentshowUps")
+@Entity(tableName = "PaymentshowUps", primaryKeys = ["SYS_StoreNo", "TXN_Date", "ECR_No", "TXN_No", "TXN_Item"])
 
 
 data class PaymentshowUp (
-    @PrimaryKey
     val SYS_StoreNo:         String          ,       /*店號*/
     val TXN_Date:            LocalDateTime   ,       /*交易日期*/
     val ECR_No:              String          ,       /*收銀機代碼*/
     val TXN_No:              Int             ,       /*交易序號*/
     val TXN_Item:            Int             ,       /*項次*/
+
     val TXN_Time:            LocalDateTime   ,       /*交易時間*/
     val PAY_No:              String          ,       /*付款編號*/
     val TXN_PayDesc:         String          ,       /*付款註記*/

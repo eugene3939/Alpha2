@@ -6,14 +6,15 @@ import java.time.LocalDateTime
 
 /*即時銷售主檔 (POS3008)*/
 
-@Entity(tableName = "PaymentMains")
+@Entity(tableName = "PaymentMains", primaryKeys = ["SYS_StoreNo", "TXN_Date", "ECR_No", "TXN_No"])
 
 data class PaymentMain(
-    @PrimaryKey
+    //PrimaryKey
     val  SYS_StoreNo:        String,      /*店號*/
     val  TXN_Date:    LocalDateTime,      /*交易日期*/
     val  ECR_No:             String,      /*收銀機代碼*/
     val  TXN_No:                Int,      /*交易序號*/
+
     val  TXN_Time  :  LocalDateTime,      /*交易時間*/
     val  USR_No:             String,      /*收銀員號碼*/
     val  TXN_Uniform:        String,      /*統一編號*/
@@ -22,6 +23,8 @@ data class PaymentMain(
     val  TXN_GUIBegNo:       String,      /*起始發票號碼*/
     val  TXN_GUICnt:            Int,      /*發票號碼張數*/
     val  TXN_TotQty:            Int,      /*總數量*/
+
+
     val  TXN_TotDiscS:          Int,      /*總人工折扣(負數)*/
     val  TXN_TotDiscM:          Int,      /*總組合折扣(負數)*/
     val  TXN_TotDiscT:          Int,      /*總總合折扣(負數)*/
@@ -35,6 +38,8 @@ data class PaymentMain(
     val  TXN_TotOver:           Int,      /*總溢收金額*/
     val  TXN_DtlCnt:            Int,      /*明細項數*/
     val  TXN_PayCnt:            Int,      /*付款項數*/
+
+
     val  TXN_CustCnt:           Int,      /*來客數*/
     val  TXN_VoidUsrNo:      String,      /*發票作廢人員號碼*/
     val  TXN_VoidDT:  LocalDateTime,      /*發票作廢日期*/
@@ -51,7 +56,7 @@ data class PaymentMain(
 //        /  U=當日預收取消   V=隔日預收取消 /
 //        /  M=非銷貨交易     A=非銷貨當日作廢 /
 //        /  B=非銷貨隔日作廢 /
-val  TXN_VIP:            String         ,      /*外交官交易 Y=是 N=否 */
+val  TXN_VIP:            String = "N"   ,      /*外交官交易 Y=是 N=否 */
 val  TXN_ShiftNo:        String         ,      /*班別*/
 val  TXN_TotPayAmt:      Int            ,      /*總付款金額*/
 val  TXN_MemID:          String         ,      /*會員身分證字號*/

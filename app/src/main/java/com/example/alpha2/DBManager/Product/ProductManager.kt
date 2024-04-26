@@ -3,6 +3,7 @@ package com.example.alpha2.DBManager.Product
 import android.content.Context
 import androidx.room.Room
 import kotlinx.coroutines.runBlocking
+import java.time.LocalDateTime
 
 class ProductManager(context: Context) {
     private val db: ProductDatabase = Room.databaseBuilder(
@@ -127,10 +128,17 @@ class ProductManager(context: Context) {
         }
     }
 
-    //尋找商品id
+    //依照複合主鍵值尋找商品id
     fun getCouponDetailBypluMagNo(id: String): MutableList<CouponDetail>?{
         return runBlocking {
             productDao.getCouponDetailBypluMagNo(id)
+        }
+    }
+
+    //尋找商品id
+    fun getCouponDetailByFullKeys(id: String, fromDate: LocalDateTime, toDate: LocalDateTime, seqNo: Int): MutableList<CouponDetail>?{
+        return runBlocking {
+            productDao.getCouponDetailByFullKeys(id,fromDate, toDate, seqNo)
         }
     }
 

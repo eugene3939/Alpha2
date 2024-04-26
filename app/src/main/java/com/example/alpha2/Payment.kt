@@ -183,6 +183,7 @@ class Payment : AppCompatActivity() {
 
         val builder = AlertDialog.Builder(context)
         builder.setView(customView)
+        builder.setTitle("選擇載具")
 
         //顯示支付清單內容
         val myEdtText = customView.findViewById<EditText>(R.id.edtEnterTxtContent)

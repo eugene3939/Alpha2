@@ -96,7 +96,7 @@ class Login : AppCompatActivity() {
         //Dao匯入付款方式檔 (預設)
         insertPaymentMethodDB("01","現金","0","1","N","Y")
         insertPaymentMethodDB("05","信用卡","0","0","Y","N")
-        insertPaymentMethodDB("05","非信用卡","0","2","Y","N")
+        insertPaymentMethodDB("06","非信用卡","0","2","Y","N")
         insertPaymentMethodDB("13","悠遊卡","0","E","N","N")
 
         //Dao匯入預設會員檔案
@@ -289,15 +289,17 @@ class Login : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO){
             //確認折扣商品是否已經存在
-            val existCouponDetail = productDBManager.getCouponDetailBypluMagNo(DISC_PLU_MagNo)
-            if (existCouponDetail == null) {
-                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo, FROM_DATE = FROM_DATE, TO_DATE = TO_DATE, SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo,DEP_No = DEP_No, CAT_No = CAT_No, VEN_No = VEN_No)
-                productDBManager.insertCouponDetail(item)
-                Log.d("新增折價券明細檔", "DProduct added: $item")
-            } else {    //確認是否為已知id
-//                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo, FROM_DATE = FROM_DATE, TO_DATE = TO_DATE, SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo,DEP_No = DEP_No, CAT_No = CAT_No, VEN_No = VEN_No)
-//                productDBManager.insertCouponDetail(item)
-                Log.d("既有折價券明細檔", "DProduct with ID $DISC_PLU_MagNo already exists")
+            val existCouponDetail = productDBManager.getCouponDetailByFullKeys(DISC_PLU_MagNo,FROM_DATE,TO_DATE,SEQ_NO)
+            if (existCouponDetail != null) {
+                if (existCouponDetail.isEmpty()) {
+                    val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo, FROM_DATE = FROM_DATE, TO_DATE = TO_DATE, SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo,DEP_No = DEP_No, CAT_No = CAT_No, VEN_No = VEN_No)
+                    productDBManager.insertCouponDetail(item)
+                    Log.d("新增折價券明細檔", "DProduct added: $item")
+                } else {    //確認是否為已知id
+        //                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo, FROM_DATE = FROM_DATE, TO_DATE = TO_DATE, SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo,DEP_No = DEP_No, CAT_No = CAT_No, VEN_No = VEN_No)
+        //                productDBManager.insertCouponDetail(item)
+                    Log.d("既有折價券明細檔", "DProduct with ID $DISC_PLU_MagNo already exists")
+                }
             }
         }
     }

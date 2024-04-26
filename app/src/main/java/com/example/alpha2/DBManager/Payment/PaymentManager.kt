@@ -2,7 +2,6 @@ package com.example.alpha2.DBManager.Payment
 
 import android.content.Context
 import androidx.room.Room
-import com.example.alpha2.DBManager.Member.Member
 import kotlinx.coroutines.runBlocking
 
 class PaymentManager(context: Context) {
@@ -23,9 +22,9 @@ class PaymentManager(context: Context) {
     }
 
     //檢查是否有符合店號的銷售主檔
-    fun getPaymentMainById(storeNo: String): PaymentMain? {
+    fun getPaymentMainByStoreNo(storeNo: String): PaymentMain? {
         return runBlocking {
-            paymentDao.getPaymentMainById(storeNo)
+            paymentDao.getPaymentMainByStoreNo(storeNo)
         }
     }
 
