@@ -1,7 +1,6 @@
 package com.example.alpha2.DBManager.Product
 
 import android.content.Context
-import androidx.room.Query
 import androidx.room.Room
 import kotlinx.coroutines.runBlocking
 

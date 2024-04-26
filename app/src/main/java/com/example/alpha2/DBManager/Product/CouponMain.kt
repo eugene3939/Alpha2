@@ -1,7 +1,6 @@
 package com.example.alpha2.DBManager.Product
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 
 //折價券主檔(原POS2087)

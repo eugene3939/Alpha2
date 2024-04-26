@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.EditText
 import android.widget.GridView
 import android.widget.ListView
 import android.widget.SimpleAdapter
@@ -23,7 +24,6 @@ import com.example.alpha2.myAdapter.FilterProductAdapter
 
 
 class Payment : AppCompatActivity() {
-
     //從HomeFragment取得的購物清單內容
     private var filterList = mutableListOf<Product>()           //商品項次
     private var filterAmount = mutableMapOf<Product,Int>()      //商品項次 與 對應購買數
@@ -31,6 +31,10 @@ class Payment : AppCompatActivity() {
     private var nowLoginMember: Member? = null                  //會員
 
     private lateinit var systemDBManager: SystemManager         //系統主檔 (取得支援的付款方式)
+
+    //目前的支付方式
+    private var nowPaymentMethod: String? = "01"                //預設支付方式為現金
+    private var nowInvoiceText: String? = null                  //載具/電子發票號碼
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,16 +100,16 @@ class Payment : AppCompatActivity() {
 
         //點擊按鈕時跳出畫面 協助用戶切換 載具形式
         btnPayment.setOnClickListener {
-            showReceiptAlertDialog(this,paymentList)
-            Toast.makeText(this,"切換載具形式",Toast.LENGTH_SHORT).show()
+            showInvoiceAlertDialog(this)
         }
 
         //點擊按鈕時跳出畫面 協助用戶切換 支付方式
         btnCash.setOnClickListener {
-            Toast.makeText(this,"切換支付方式",Toast.LENGTH_SHORT).show()
+            showReceiptAlertDialog(this,paymentList)
         }
     }
 
+    //選擇支付方式
     @SuppressLint("WrongViewCast")
     fun showReceiptAlertDialog(context: Context, paymentList: MutableList<PaymentMethod>?) {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -114,8 +118,8 @@ class Payment : AppCompatActivity() {
         val builder = AlertDialog.Builder(context)
         builder.setView(customView)
 
-        val showUpGridView = customView.findViewById<ListView>(R.id.lvSelectionOption)
-        val btnCancel = customView.findViewById<Button>(R.id.btnSelectionCancel)
+        //顯示支付清單內容
+        val showUpListView = customView.findViewById<ListView>(R.id.lvSelectionOption)
 
         //內容清單
         // 檢查支付方式列表是否為空
@@ -123,7 +127,7 @@ class Payment : AppCompatActivity() {
             // 轉換 PaymentMethod 對象為 Map
             val dataList = paymentList.map { paymentMethod ->
                 mapOf("a" to paymentMethod.PAY_No, "b" to paymentMethod.PAY_Name)
-            }
+            }.sortedBy { it["a"] }
 
             // 設置 SimpleAdapter
             val from = arrayOf("a", "b")
@@ -136,17 +140,62 @@ class Payment : AppCompatActivity() {
                 to
             )
 
-            showUpGridView.adapter = adapter
-        }
+            showUpListView.adapter = adapter
 
-        //取消變更按鈕
-        btnCancel.setOnClickListener {
-            Toast.makeText(this,"哈囉你好嗎~衷心感謝",Toast.LENGTH_SHORT).show()
+            // 監聽 ListView 的點擊事件
+            showUpListView.setOnItemClickListener { _, _, position, _ ->
+                // 獲取點擊的位置
+                val clickedItem = dataList[position]
+                val paymentNo = clickedItem["a"]
+                val paymentName = clickedItem["b"]
+
+                nowPaymentMethod = clickedItem["a"]
+
+                nowPaymentMethod?.let { Log.d("點點位置", it) }
+
+                // 顯示 Toast
+                Toast.makeText(context, "點擊位置: $position, 支付編號: $paymentNo, 支付名稱: $paymentName", Toast.LENGTH_SHORT).show()
+            }
         }
 
         // 添加確定按鈕
         builder.setPositiveButton("確定") { dialog, which ->
             // 在確定按鈕點擊時執行的操作
+            dialog.dismiss() // 關閉對話框
+        }
+
+        // 添加取消按鈕
+        builder.setNegativeButton("取消") { dialog, which ->
+            // 在取消按鈕點擊時執行的操作
+            dialog.dismiss() // 關閉對話框
+        }
+
+        // 創建並顯示對話框
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    //選擇載具
+    @SuppressLint("WrongViewCast")
+    fun showInvoiceAlertDialog(context: Context) {
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val customView = inflater.inflate(R.layout.entertext, null)
+
+        val builder = AlertDialog.Builder(context)
+        builder.setView(customView)
+
+        //顯示支付清單內容
+        val myEdtText = customView.findViewById<EditText>(R.id.edtEnterTxtContent)
+
+        // 添加確定按鈕
+        builder.setPositiveButton("確定") { dialog, which ->
+            // 在確定按鈕點擊時執行的操作
+            val enteredText = myEdtText.text.toString() // 獲取EditText內容
+            // 將輸入的文本保存到全域變數中
+            // 這裡假設你有一個名為 globalText 的全域變數來存儲文本
+            nowInvoiceText = enteredText
+
+            Log.d("載具號碼",nowInvoiceText.toString())
             dialog.dismiss() // 關閉對話框
         }
 

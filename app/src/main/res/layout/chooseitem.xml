@@ -25,15 +25,4 @@
         android:layout_width="300dp"
         android:layout_height="300dp"/>
 
-    <!--取消-->
-    <Button
-        android:id="@+id/btnSelectionCancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/lvSelectionOption"
-        android:layout_centerHorizontal="true"
-        android:text="@string/buttonCancel"
-        android:textStyle="bold"
-        android:textSize="30sp"/>
-
 </RelativeLayout>

@@ -42,7 +42,7 @@
     <string name="txtInvoicePrinter">統一編號</string>
     <string name="txtCash">現金</string>
     <string name="txtFAmount">數量</string>
-    <string name="txtPrinter">列印模式</string>
+    <string name="txtPrinter">支付方式</string>
     <string name="buttonCancel">取消</string>
     <string name="txtEnterTextTitle">輸入電子載具</string>
     <string name="txtFulfil">請輸入內容</string>

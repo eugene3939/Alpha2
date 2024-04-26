@@ -32,16 +32,4 @@
         android:inputType="number"
         tools:ignore="LabelFor" />
 
-
-    <!--取消-->
-    <Button
-        android:id="@+id/btEnterTxtContent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/edtEnterTxtContent"
-        android:layout_centerHorizontal="true"
-        android:text="@string/buttonCancel"
-        android:textStyle="bold"
-        android:textSize="30sp"/>
-
 </RelativeLayout>
