@@ -278,10 +278,8 @@ class Login : AppCompatActivity() {
                                      FROM_DATE: LocalDateTime,
                                      TO_DATE: LocalDateTime,
                                      SEQ_NO: Int,
-
         //指定貨號
                                      PLU_MagNo:String?= null,
-
         //商品分類
                                      DEP_No: String ?= null,    /*部門編號*/
                                      CAT_No: String ?= null,    /*分類編號*/
@@ -295,9 +293,7 @@ class Login : AppCompatActivity() {
                     val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo, FROM_DATE = FROM_DATE, TO_DATE = TO_DATE, SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo,DEP_No = DEP_No, CAT_No = CAT_No, VEN_No = VEN_No)
                     productDBManager.insertCouponDetail(item)
                     Log.d("新增折價券明細檔", "DProduct added: $item")
-                } else {    //確認是否為已知id
-        //                val item = CouponDetail(DISC_PLU_MagNo = DISC_PLU_MagNo, FROM_DATE = FROM_DATE, TO_DATE = TO_DATE, SEQ_NO = SEQ_NO, PLU_MagNo = PLU_MagNo,DEP_No = DEP_No, CAT_No = CAT_No, VEN_No = VEN_No)
-        //                productDBManager.insertCouponDetail(item)
+                } else {    //確認是否為已知id )
                     Log.d("既有折價券明細檔", "DProduct with ID $DISC_PLU_MagNo already exists")
                 }
             }

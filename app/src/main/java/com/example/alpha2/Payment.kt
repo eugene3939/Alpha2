@@ -2,6 +2,7 @@ package com.example.alpha2
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,10 +18,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.alpha2.DBManager.Member.Member
+import com.example.alpha2.DBManager.Payment.PaymentMain
+import com.example.alpha2.DBManager.Payment.PaymentManager
+import com.example.alpha2.DBManager.Product.CouponDetail
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.System.PaymentMethod
 import com.example.alpha2.DBManager.System.SystemManager
 import com.example.alpha2.myAdapter.FilterProductAdapter
+import java.time.LocalDateTime
 
 
 class Payment : AppCompatActivity() {
@@ -31,11 +36,13 @@ class Payment : AppCompatActivity() {
     private var nowLoginMember: Member? = null                  //會員
 
     private lateinit var systemDBManager: SystemManager         //系統主檔 (取得支援的付款方式)
+    private lateinit var paymentDBManager: PaymentManager       //付款主檔 (取得付款相關Dao資料)
 
     //目前的支付方式
     private var nowPaymentMethod: String? = "01"                //預設支付方式為現金
     private var nowInvoiceText: String? = null                  //載具/電子發票號碼
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -50,9 +57,11 @@ class Payment : AppCompatActivity() {
         val gridView: GridView = findViewById(R.id.gr_paymentMethod)    //商品清單GridView
         val btnPayment: Button = findViewById(R.id.btnsCode)            //切換  載具按鈕 (載具、愛心碼...)
         val btnCash: Button = findViewById(R.id.btnsPayment)            //切換  支付類別 (現金、信用卡...)
+        val btnConfirm: Button = findViewById(R.id.btnsPaymentConfirm)   //完成交易 按鈕 (按下後送出交易主檔)
 
         //初始化Dao
         systemDBManager = SystemManager(this)
+        paymentDBManager = PaymentManager(this)
 
         // 用 intent 獲取 商品清單
         try {
@@ -106,6 +115,50 @@ class Payment : AppCompatActivity() {
         //點擊按鈕時跳出畫面 協助用戶切換 支付方式
         btnCash.setOnClickListener {
             showReceiptAlertDialog(this,paymentList)
+        }
+
+        //按下確定按鈕後產生交易主檔
+        btnConfirm.setOnClickListener {
+            //顯示目前店號、機號
+            val nowCashSystem = systemDBManager.getCashSystemNoById("1")
+            val nowSystem = systemDBManager.getSystemSettingNoById("cashRegister123")
+
+            if (nowCashSystem!= null && nowSystem!= null){
+                Log.d("目前店號",nowSystem.storeNo)
+                Log.d("目前收銀機號",nowSystem.ecrNo)
+
+                var seqNo = 1
+                for (i in filterList){  //將每一個商品項次都儲存到 即時銷售主檔
+                    val PaymentMainItem = PaymentMain(SYS_StoreNo = nowSystem.storeNo,
+                                                        TXN_Date = LocalDateTime.now(),
+                                                        ECR_No = nowSystem.ecrNo,
+                                                        TXN_No = seqNo,
+
+                                                        TXN_Time =  LocalDateTime.now(),
+                                                        USR_No = "Eugene",
+                                                        TXN_Uniform = "統一編號",
+                                                        TXN_MemCard = "會員卡號碼",
+                                                        TXN_GUIPaper = "3",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
+                                                        TXN_GUIBegNo = "起始發票號碼",
+                                                        TXN_GUICnt = 1,
+                                                        TXN_TotQty = filterList.size,
+                                                        TXN_TotDiscS = 0,
+                                                        TXN_TotDiscM = 0,
+                                                        TXN_TotDiscT = 0,
+                                                        TXN_TotSaleAmt = totalPrice,
+                                                        TXN_TotGUI = totalPrice,
+                                                        TXN_Mode = "N",
+                                                        TXN_TotPayAmt = totalPrice)
+
+                    paymentDBManager.addPaymentMain(PaymentMainItem)
+
+                    seqNo +=1
+                }
+
+                //成功送出後回到主畫面
+                val intent = Intent(this,MainActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 

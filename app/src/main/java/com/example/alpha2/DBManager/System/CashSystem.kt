@@ -3,7 +3,7 @@ package com.example.alpha2.DBManager.System
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-//收銀機系統設定檔
+//收銀機系統設定檔 (POS1002)
 @Entity(tableName = "CashSystems")
 
 data class CashSystem (

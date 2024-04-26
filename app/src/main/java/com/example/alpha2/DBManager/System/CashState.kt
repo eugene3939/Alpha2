@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 
-//收銀機狀態檔 (原POS1003)
+//收銀機狀態檔 (POS1003)
 @Entity(tableName = "CashStates")
 
 data class CashState (
