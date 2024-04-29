@@ -8,7 +8,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -44,8 +43,10 @@ class Payment : AppCompatActivity() {
     private lateinit var paymentDBManager: PaymentManager       //付款主檔 (取得付款相關Dao資料)
 
     //目前的支付方式
-    private var nowPaymentMethod: String? = "01"                //預設支付方式為現金
+    private var nowPaymentMethod: String? = "現金"                //預設支付方式為現金
     private var nowInvoiceText: String? = null                  //載具/電子發票號碼
+
+    private var nowPayment: Int = 0                          //支付金額
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,11 +62,12 @@ class Payment : AppCompatActivity() {
         //初始化
         val gridView: GridView = findViewById(R.id.gr_paymentMethod)    //商品清單GridView
         val txtCartAmount: TextView = findViewById(R.id.txtCartAmount)  //商品數
+        val txtMember: TextView = findViewById(R.id.txtMember)          //會員
         val txtCashSum: TextView = findViewById(R.id.txtCashSum)        //小計總額
         val txtChange: TextView = findViewById(R.id.txtChange)          //找零金額
         val edtEnterCash: EditText = findViewById(R.id.edtCashAmount)   //輸入的商品金額( 如果是電子支付不允許此操作)
-        val btnPayment: Button = findViewById(R.id.btnsCode)            //切換  載具按鈕 (載具、愛心碼...)
-        val btnCash: Button = findViewById(R.id.btnsPayment)            //切換  支付類別 (現金、信用卡...)
+        val btnsCode: Button = findViewById(R.id.btnsCode)            //切換  載具按鈕 (載具、愛心碼...)
+        val btnsPayment: Button = findViewById(R.id.btnsPayment)            //切換  支付類別 (現金、信用卡...)
         val btnConfirm: Button = findViewById(R.id.btnsPaymentConfirm)  //完成交易 按鈕 (按下後送出交易主檔)
 
         //初始化Dao
@@ -88,6 +90,8 @@ class Payment : AppCompatActivity() {
             txtCartAmount.text = filterList.size.toString()
             //顯示小計總額
             txtCashSum.text = totalPrice.toString()
+            //顯示會員內容
+            txtMember.text = nowLoginMember?.name ?: "非會員"  //顯示是否為會員身分
 
         }catch (e: Exception){
             Log.d("傳遞失敗","空的intent")
@@ -127,8 +131,12 @@ class Payment : AppCompatActivity() {
                 // 文字變化後顯示找零金額
                 val totalAmount = edtEnterCash.text.toString().toIntOrNull() ?: 0
                 val change = totalAmount - totalPrice
-                if (change >= 0)
+                if (change >= 0){
                     txtChange.text = change.toString()
+
+                    //更新支付金額
+                    nowPayment = totalAmount
+                }
                 else
                     txtChange.text = "金額不足"
             }
@@ -143,7 +151,7 @@ class Payment : AppCompatActivity() {
         })
 
         //點擊按鈕時跳出畫面 協助用戶切換 載具形式
-        btnPayment.setOnClickListener {
+        btnsCode.setOnClickListener {
             //所有允許的發票內容 (無統編、統編、愛心碼、電子載具...)
 
             val allowedInvoiceContents = listOf(
@@ -157,52 +165,60 @@ class Payment : AppCompatActivity() {
         }
 
         //點擊按鈕時跳出畫面 協助用戶切換 支付方式
-        btnCash.setOnClickListener {
+        btnsPayment.setOnClickListener {
             showReceiptAlertDialog(this,paymentList,"選擇支付方式")
         }
 
         //按下確定按鈕後產生交易主檔
         btnConfirm.setOnClickListener {
 
-            //顯示目前店號、機號
-            val nowCashSystem = systemDBManager.getCashSystemNoById("1")
-            val nowSystem = systemDBManager.getSystemSettingNoById("cashRegister123")
+            //付款金額必須大於等於應付金額
+            if (nowPayment >= totalPrice){
+                //顯示目前店號、機號
+                val nowCashSystem = systemDBManager.getCashSystemNoById("1")
+                val nowSystem = systemDBManager.getSystemSettingNoById("cashRegister123")
 
-            if (nowCashSystem!= null && nowSystem!= null){
-                Log.d("目前店號",nowSystem.storeNo)
-                Log.d("目前收銀機號",nowSystem.ecrNo)
+                if (nowCashSystem!= null && nowSystem!= null){
+                    Log.d("目前店號",nowSystem.storeNo)
+                    Log.d("目前收銀機號",nowSystem.ecrNo)
 
-                var seqNo = 1
-                for (i in filterList){  //將每一個商品項次都儲存到 即時銷售主檔
-                    val paymentMainItem = PaymentMain(SYS_StoreNo = nowSystem.storeNo,
-                                                        TXN_Date = LocalDateTime.now(),
-                                                        ECR_No = nowSystem.ecrNo,
-                                                        TXN_No = seqNo,
+                    var seqNo = 1
+                    for (i in filterList){  //將每一個商品項次都儲存到 即時銷售主檔
+                        val paymentMainItem = PaymentMain(SYS_StoreNo = nowSystem.storeNo,
+                            TXN_Date = LocalDateTime.now(),
+                            ECR_No = nowSystem.ecrNo,
+                            TXN_No = seqNo,
 
-                                                        TXN_Time =  LocalDateTime.now(),
-                                                        USR_No = "Eugene",
-                                                        TXN_Uniform = "統一編號",
-                                                        TXN_MemCard = "會員卡號碼",
-                                                        TXN_GUIPaper = "3",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
-                                                        TXN_GUIBegNo = "起始發票號碼",
-                                                        TXN_GUICnt = 1,
-                                                        TXN_TotQty = filterList.size,
-                                                        TXN_TotDiscS = 0,
-                                                        TXN_TotDiscM = 0,
-                                                        TXN_TotDiscT = 0,
-                                                        TXN_TotSaleAmt = totalPrice,
-                                                        TXN_TotGUI = totalPrice,
-                                                        TXN_Mode = "N",
-                                                        TXN_TotPayAmt = totalPrice)
+                            TXN_Time =  LocalDateTime.now(),
+                            USR_No = "Eugene",
+                            TXN_Uniform = nowPaymentMethod.toString(),
+                            TXN_MemCard = nowLoginMember?.id.toString(),
+                            TXN_GUIPaper = "3",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
+                            TXN_GUIBegNo = "起始發票號碼",
+                            TXN_GUICnt = 1,
+                            TXN_TotQty = filterList.size,
+                            TXN_TotDiscS = 0,
+                            TXN_TotDiscM = 0,
+                            TXN_TotDiscT = 0,
+                            TXN_TotSaleAmt = nowPayment,
+                            TXN_TotGUI = totalPrice,
+                            TXN_Mode = "N",
+                            TXN_TotPayAmt = totalPrice)
 
-                    paymentDBManager.addPaymentMain(paymentMainItem)
+                        paymentDBManager.addPaymentMain(paymentMainItem)
 
-                    seqNo +=1
+                        seqNo +=1
+                    }
+
+                    //成功送出後回到主畫面
+                    val intent = Intent(this,MainActivity::class.java)
+                    startActivity(intent)
                 }
+            }else{
+//                Toast.makeText(this,"未達到應付金額",Toast.LENGTH_SHORT).show()
 
-                //成功送出後回到主畫面
-                val intent = Intent(this,MainActivity::class.java)
-                startActivity(intent)
+                Toast.makeText(this,"支付方式 $nowPaymentMethod",Toast.LENGTH_SHORT).show()
+
             }
         }
     }
@@ -225,7 +241,7 @@ class Payment : AppCompatActivity() {
 
         //顯示支付清單內容
         val showUpListView = customView.findViewById<ListView>(R.id.lvSelectionOption)
-
+        //變更顯示標題
         customTitle.text = title
 
         //內容清單
@@ -256,9 +272,24 @@ class Payment : AppCompatActivity() {
                 val paymentNo = clickedItem["a"]
                 val paymentName = clickedItem["b"]
 
-                nowPaymentMethod = clickedItem["a"]
+                nowPaymentMethod = paymentName
 
                 nowPaymentMethod?.let { Log.d("點點位置", it) }
+
+                //如果選現金以外欄位，自動填入金額
+                if (position != 0 ){
+                   val edtEnterCash: EditText = findViewById(R.id.edtCashAmount)
+
+                    nowPayment = totalPrice
+
+                    Log.d("目前支付金額",nowPayment.toString())
+
+                    //更新支付方式
+                    val btnConfirm: Button = findViewById(R.id.btnsPayment)
+                    btnConfirm.text = paymentName
+
+                    edtEnterCash.setText(nowPayment.toString())    //變更文本內容
+                }
 
                 // 顯示 Toast
                 Toast.makeText(context, "點擊位置: $position, 支付編號: $paymentNo, 支付名稱: $paymentName", Toast.LENGTH_SHORT).show()
@@ -324,13 +355,13 @@ class Payment : AppCompatActivity() {
         }
 
         // 添加確定按鈕
-        builder.setPositiveButton("確定") { dialog, _ ->
+        builder.setPositiveButton("確定") { _, _ ->
             // 在確定按鈕點擊時執行的操作
             dialog.dismiss() // 關閉對話框
         }
 
         // 添加取消按鈕
-        builder.setNegativeButton("取消") { dialog, _ ->
+        builder.setNegativeButton("取消") { _, _ ->
             // 在取消按鈕點擊時執行的操作
             dialog.dismiss() // 關閉對話框
         }
@@ -358,7 +389,19 @@ class Payment : AppCompatActivity() {
             //儲存到全域變數
             nowInvoiceText = myEditText.text.toString()
 
-            println("我儲存的支付方式 $nowInvoiceText")
+            println("我儲存的發票形式 $nowInvoiceText")
+
+            //變更按鈕的顯示內容(載具、愛心碼...)
+            val btnsCode: Button = findViewById(R.id.btnsCode)
+            btnsCode.text = selectedPaymentItem
+
+            //變更文字的顯示內容(載具、愛心碼...)
+            val btnsCodeTitle: TextView = findViewById(R.id.txtScodeTitle)
+            btnsCodeTitle.text = selectedPaymentItem
+
+            //載具顯示內容
+            val btnsCodeVale: TextView = findViewById(R.id.txtVATNumber)
+            btnsCodeVale.text = nowInvoiceText
 
             // 在確定按鈕點擊時執行的操作
             dialog.dismiss() // 關閉對話框
