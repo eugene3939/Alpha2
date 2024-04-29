@@ -39,11 +39,12 @@
     <string name="txtCouponName">折價券名稱</string>
     <string name="txtCouponID">折價券編號</string>
     <string name="txtCouponPrice">折價券金額</string>
-    <string name="txtInvoicePrinter">統一編號</string>
+    <string name="txtInvoicePrinter">統編</string>
     <string name="txtCash">現金</string>
     <string name="txtFAmount">數量</string>
     <string name="txtPrinter">支付方式</string>
     <string name="buttonCancel">取消</string>
     <string name="txtEnterTextTitle">輸入電子載具</string>
     <string name="txtFulfil">請輸入內容</string>
+    <string name="txtCharge">找零</string>
 </resources>

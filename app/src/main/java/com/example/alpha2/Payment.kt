@@ -129,7 +129,7 @@ class Payment : AppCompatActivity() {
 
                 var seqNo = 1
                 for (i in filterList){  //將每一個商品項次都儲存到 即時銷售主檔
-                    val PaymentMainItem = PaymentMain(SYS_StoreNo = nowSystem.storeNo,
+                    val paymentMainItem = PaymentMain(SYS_StoreNo = nowSystem.storeNo,
                                                         TXN_Date = LocalDateTime.now(),
                                                         ECR_No = nowSystem.ecrNo,
                                                         TXN_No = seqNo,
@@ -150,7 +150,7 @@ class Payment : AppCompatActivity() {
                                                         TXN_Mode = "N",
                                                         TXN_TotPayAmt = totalPrice)
 
-                    paymentDBManager.addPaymentMain(PaymentMainItem)
+                    paymentDBManager.addPaymentMain(paymentMainItem)
 
                     seqNo +=1
                 }
@@ -236,7 +236,6 @@ class Payment : AppCompatActivity() {
 
         val builder = AlertDialog.Builder(context)
         builder.setView(customView)
-        builder.setTitle("選擇載具")
 
         //顯示支付清單內容
         val myEdtText = customView.findViewById<EditText>(R.id.edtEnterTxtContent)
