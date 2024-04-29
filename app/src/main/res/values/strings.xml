@@ -44,7 +44,7 @@
     <string name="txtFAmount">數量</string>
     <string name="txtPrinter">支付方式</string>
     <string name="buttonCancel">取消</string>
-    <string name="txtEnterTextTitle">輸入電子載具</string>
+    <string name="txtEnterTextTitle">這是標題</string>
     <string name="txtFulfil">請輸入內容</string>
     <string name="txtCharge">找零</string>
 </resources>

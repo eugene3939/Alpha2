@@ -11,7 +11,7 @@
         android:id="@+id/txtSelectionTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/txtPrinter"
+        android:text="@string/txtEnterTextTitle"
         android:textSize="30sp"
         android:textStyle="bold"
         android:textAlignment="center"/>

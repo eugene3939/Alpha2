@@ -66,7 +66,7 @@
     <GridView
         android:id="@+id/gr_paymentMethod"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="350dp"
         android:layout_below="@+id/lr_filterTitle"/>
 
     <!--金額找零顯示區-->
@@ -89,6 +89,7 @@
                 android:textSize="30sp"/>
 
             <TextView
+                android:id="@+id/txtVATNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
@@ -109,6 +110,7 @@
                 android:textSize="30sp"/>
 
             <TextView
+                android:id="@+id/txtCartAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
@@ -129,6 +131,7 @@
                 android:textSize="30sp"/>
 
             <TextView
+                android:id="@+id/txtCashSum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
@@ -143,6 +146,7 @@
                 android:textSize="30sp"/>
 
             <EditText
+                android:id="@+id/edtCashAmount"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
@@ -166,6 +170,7 @@
                 android:textSize="30sp"/>
 
             <TextView
+                android:id="@+id/txtChange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
