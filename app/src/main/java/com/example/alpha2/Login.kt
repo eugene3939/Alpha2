@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
+import com.example.alpha2.DBManager.Invoice.InvoiceDao
+import com.example.alpha2.DBManager.Invoice.InvoiceManager
+import com.example.alpha2.DBManager.Invoice.InvoiceSetup
 import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Member.MemberManager
 import com.example.alpha2.DBManager.Product.ClusterProduct
@@ -30,8 +33,9 @@ class Login : AppCompatActivity() {
 
     private lateinit var userDBManager: UserManager       //用戶Dao (用封裝的方式獲取Dao)
     private lateinit var productDBManager: ProductManager //商品Dao
-    private lateinit var systemDBManager: SystemManager  //設定檔Dao
-    private lateinit var memberDBManager: MemberManager  //會員Dao
+    private lateinit var systemDBManager: SystemManager   //設定檔Dao
+    private lateinit var memberDBManager: MemberManager   //會員Dao
+    private lateinit var InvoiceDBManager: InvoiceManager //發票Dao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +49,7 @@ class Login : AppCompatActivity() {
         productDBManager = ProductManager(applicationContext)
         systemDBManager = SystemManager(applicationContext)
         memberDBManager = MemberManager(applicationContext)
+        InvoiceDBManager = InvoiceManager(applicationContext)
 
         //匯入整檔
         insertUserDB("1","Eugene", "1", "1")        //建立預設用戶
@@ -93,6 +98,11 @@ class Login : AppCompatActivity() {
         //Dao匯入系統設定檔 (預設)
         insertSystemSettingDB("store123","Nintendo","cashRegister123",30)
 
+        //Dao匯入付款發票號碼設定檔 (預設)
+        insertInvoiceSetupDB("store123","202405","register123","invoiceSerialNo",
+            "00","AB","000000","999999","000001",
+            0,50,50,"統一編號","Y")
+
         //Dao匯入付款方式檔 (預設)
         insertPaymentMethodDB("01","現金","0","1","N","Y")
         insertPaymentMethodDB("05","信用卡","0","0","Y","N")
@@ -131,6 +141,34 @@ class Login : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    //Dao匯入付款發票號碼設定檔 (預設)
+    private fun insertInvoiceSetupDB( STO_No: String, GUI_YYMM: String, POS_NOS: String, SER_NOS: String,
+
+                                      STATUS: String, GUI_TRACK: String, GUI_SNOS: String, GUI_ENOS: String, NEXT_SNOS: String,
+                                      USED_NOS: Int, TOT_NOS: Int, FREE_NOS: Int, REMARK: String, eINV_Flag: String) {
+
+        lifecycleScope.launch(Dispatchers.IO){
+            val invoiceManager = InvoiceManager(applicationContext)
+
+            //確認是否有重複的項目
+            val existingInvoiceSetting = invoiceManager.getInvoiceSetupsBy(STO_No, GUI_YYMM,POS_NOS, SER_NOS)
+
+            if(existingInvoiceSetting == null){
+                //新建發票號碼設定檔
+                val newInvoiceSetup = InvoiceSetup(STO_No, GUI_YYMM, POS_NOS, SER_NOS,
+                    STATUS,GUI_TRACK,GUI_SNOS,GUI_ENOS,NEXT_SNOS,
+                            USED_NOS,TOT_NOS,FREE_NOS,REMARK,eINV_Flag)
+
+                InvoiceDBManager.addInvoiceSetup(newInvoiceSetup)
+
+                Log.d("新增發票號碼設定檔", "Cash System added: $STO_No $GUI_YYMM")
+            }else{
+                Log.d("既有發票號碼設定檔", "Cash System ecrNo $STO_No $GUI_YYMM already exists")
+            }
+        }
+
     }
 
     //新增會員預設資料

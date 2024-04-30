@@ -30,15 +30,15 @@ data class CashState (
     val ERS_NextEInvNo:      String,       /*下一個可使用電子發票號碼*/
     val ERS_EndEInvNo:       String,       /*最後一個電子發票號碼*/
     val USR_Level:           String,       /*權限等級*/
-    val ERS_FtpUsrId:        String,       /*FTP登入使用者代碼*/
-    val ERS_FtpUsrPwd:       String,       /*FTP登入使用者密碼*/
-    val ECR_KBType:          String,       /*鍵盤型態*/
-    val ERS_ExtData:         String,       /*備註*/
-    val ORG_SYS_StoreNo:     String,       /*原交易店號*/
-    val ORG_TXN_Date: LocalDateTime,       /*原交易日期*/
-    val ORG_ECR_No:          String,       /*原交易機號*/
-    val ORG_TXN_No:          Int,          /*原交易序號*/
-    val ORG_TXN_Item:        Int,          /*原交易項次*/
-    val TLT_No:              String,       /*專櫃編號*/
-    val MMT_No:              String        /*商場代號*/
+    val ERS_FtpUsrId:        String ?= null,       /*FTP登入使用者代碼*/
+    val ERS_FtpUsrPwd:       String ?= null,       /*FTP登入使用者密碼*/
+    val ECR_KBType:          String ?= null,       /*鍵盤型態*/
+    val ERS_ExtData:         String ?= null,       /*備註*/
+    val ORG_SYS_StoreNo:     String ?= null,       /*原交易店號*/
+    val ORG_TXN_Date: LocalDateTime ?= null,       /*原交易日期*/
+    val ORG_ECR_No:          String ?= null,       /*原交易機號*/
+    val ORG_TXN_No:          Int ?= null,          /*原交易序號*/
+    val ORG_TXN_Item:        Int ?= null,          /*原交易項次*/
+    val TLT_No:              String ?= null,       /*專櫃編號*/
+    val MMT_No:              String ?= null        /*商場代號*/
 )

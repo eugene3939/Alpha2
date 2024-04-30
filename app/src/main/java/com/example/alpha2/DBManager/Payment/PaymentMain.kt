@@ -32,7 +32,7 @@ data class PaymentMain(
     val  TXN_TotSaleNoTax:      Int ?= null,      /*總免稅銷售金額*/
     val  TXN_TotNet:            Int ?= null,      /*總未稅銷售金額*/
     val  TXN_TotTax:            Int ?= null,      /*總稅額*/
-    val  TXN_TotGUI:            Int,      /*總發票金額*/
+    val  TXN_TotGUI:            Int,              /*總發票金額*/
     val  TXN_TotHaveTax:        Int ?= null,      /*總已稅金額*/
     val  TXN_TotOver:           Int ?= null,      /*總溢收金額*/
     val  TXN_DtlCnt:            Int ?= null,      /*明細項數*/
