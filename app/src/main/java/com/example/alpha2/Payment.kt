@@ -22,6 +22,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.alpha2.DBManager.Invoice.InvoiceManager
+import com.example.alpha2.DBManager.Invoice.InvoiceSetup
 import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Payment.PaymentMain
 import com.example.alpha2.DBManager.Payment.PaymentManager
@@ -41,6 +43,7 @@ class Payment : AppCompatActivity() {
 
     private lateinit var systemDBManager: SystemManager         //系統主檔 (取得支援的付款方式)
     private lateinit var paymentDBManager: PaymentManager       //付款主檔 (取得付款相關Dao資料)
+    private lateinit var invoiceDBManager: InvoiceManager       //發票號碼設定檔 (取得發票號碼相關Dao資料)
 
     //目前的支付方式
     private var nowPaymentMethod: String? = "現金"                //預設支付方式為現金
@@ -73,6 +76,7 @@ class Payment : AppCompatActivity() {
         //初始化Dao
         systemDBManager = SystemManager(this)
         paymentDBManager = PaymentManager(this)
+        invoiceDBManager = InvoiceManager(this)
 
         // 用 intent 獲取 商品清單
         try {
@@ -172,55 +176,102 @@ class Payment : AppCompatActivity() {
         //按下確定按鈕後產生交易主檔
         btnConfirm.setOnClickListener {
 
-            //付款金額必須大於等於應付金額
-            if (nowPayment >= totalPrice){
-                //顯示目前店號、機號
-                val nowCashSystem = systemDBManager.getCashSystemNoById("1")
-                val nowSystem = systemDBManager.getSystemSettingNoById("cashRegister123")
+            //送出發票前先確認發票效期
+            val invoiceYYYYMM = getYYYYMM() //取得效期
+            //確認是否有對應的發票效期
+            val existInvoiceSetup = invoiceDBManager.getInvoiceSetupsBy("store123",invoiceYYYYMM,"register123","invoiceSerialNo")
+            Log.d("會贏喔",existInvoiceSetup.toString())
 
-                if (nowCashSystem!= null && nowSystem!= null){
-                    Log.d("目前店號",nowSystem.storeNo)
-                    Log.d("目前收銀機號",nowSystem.ecrNo)
+            if (existInvoiceSetup != null){     //確認效期許可才會開立發票
+                //付款金額必須大於等於應付金額
+                if (nowPayment >= totalPrice){
+                    //顯示目前店號、機號
+                    val nowCashSystem = systemDBManager.getCashSystemNoById("1")
+                    val nowSystem = systemDBManager.getSystemSettingNoById("cashRegister123")
 
-                    var seqNo = 1
-                    for (i in filterList){  //將每一個商品項次都儲存到 即時銷售主檔
-                        val paymentMainItem = PaymentMain(SYS_StoreNo = nowSystem.storeNo,
-                            TXN_Date = LocalDateTime.now(),
-                            ECR_No = nowSystem.ecrNo,
-                            TXN_No = seqNo,
+                    if (nowCashSystem!= null && nowSystem!= null){
+                        Log.d("目前店號",nowSystem.storeNo)
+                        Log.d("目前收銀機號",nowSystem.ecrNo)
 
-                            TXN_Time =  LocalDateTime.now(),
-                            USR_No = "Eugene",
-                            TXN_Uniform = nowPaymentMethod.toString(),
-                            TXN_MemCard = nowLoginMember?.id.toString(),
-                            TXN_GUIPaper = "3",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
-                            TXN_GUIBegNo = "起始發票號碼",
-                            TXN_GUICnt = 1,
-                            TXN_TotQty = filterList.size,
-                            TXN_TotDiscS = 0,
-                            TXN_TotDiscM = 0,
-                            TXN_TotDiscT = 0,
-                            TXN_TotSaleAmt = nowPayment,
-                            TXN_TotGUI = totalPrice,
-                            TXN_Mode = "N",
-                            TXN_TotPayAmt = totalPrice)
+                        var seqNo = 1
+                        for (i in filterList){  //將每一個商品項次都儲存到 即時銷售主檔
+                            val paymentMainItem = PaymentMain(SYS_StoreNo = nowSystem.storeNo,
+                                TXN_Date = LocalDateTime.now(),
+                                ECR_No = nowSystem.ecrNo,
+                                TXN_No = seqNo,
 
-                        paymentDBManager.addPaymentMain(paymentMainItem)
+                                TXN_Time =  LocalDateTime.now(),
+                                USR_No = "Eugene",
+                                TXN_Uniform = nowPaymentMethod.toString(),
+                                TXN_MemCard = nowLoginMember?.id.toString(),
+                                TXN_GUIPaper = "E",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
+                                TXN_GUIBegNo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
+                                TXN_GUICnt = 1,         /*發票張數*/
+                                TXN_TotQty = filterList.size,
+                                TXN_TotDiscS = 0,
+                                TXN_TotDiscM = 0,
+                                TXN_TotDiscT = 0,
+                                TXN_TotSaleAmt = nowPayment,
+                                TXN_TotGUI = totalPrice,
+                                TXN_Mode = "N",
+                                TXN_TotPayAmt = totalPrice)
 
-                        seqNo +=1
+                            paymentDBManager.addPaymentMain(paymentMainItem)
+
+                            seqNo +=1
+                        }
+
+                        //更新下一個發票序號
+                        updateNextInvoiceNumber(existInvoiceSetup,invoiceYYYYMM)
+
+                        //成功送出後回到主畫面
+                        val intent = Intent(this,MainActivity::class.java)
+                        startActivity(intent)
                     }
-
-                    //成功送出後回到主畫面
-                    val intent = Intent(this,MainActivity::class.java)
-                    startActivity(intent)
+                }else{
+                Toast.makeText(this,"未達到應付金額",Toast.LENGTH_SHORT).show()
                 }
-            }else{
-//                Toast.makeText(this,"未達到應付金額",Toast.LENGTH_SHORT).show()
-
-                Toast.makeText(this,"支付方式 $nowPaymentMethod",Toast.LENGTH_SHORT).show()
-
             }
         }
+    }
+
+    //更新下一個發票序號
+    private fun updateNextInvoiceNumber(existInvoiceSetup: InvoiceSetup, invoiceYYYYMM: String) {
+        val currentGUI = existInvoiceSetup.GUI_SNOS?.toInt() ?: 0
+        val nextGUI = String.format("%06d", currentGUI + 1)
+
+        val currentNEXT_SNOS = existInvoiceSetup.NEXT_SNOS?.toInt() ?: 0
+        val nextNEXT_SNOS = String.format("%06d", currentNEXT_SNOS + 1)
+
+        //成功開立發票後更新發票號 (該效期的發票號 起始號 、下一號 進行變更)
+        invoiceDBManager.updateGUI_NEXT(nextGUI,nextNEXT_SNOS,"store123",invoiceYYYYMM)
+    }
+
+    //將目前日期(LocalDateTime)轉換為YYYYMM
+    private fun getYYYYMM(): String {
+
+        // 取得目前時間
+        val now = LocalDateTime.now()
+
+        // 從時間中擷取年份和月份
+        val year = now.year
+        val month = now.monthValue
+
+        // 生成表示法 "YYYYMM"
+        // 將單數月份轉換成雙數形式
+        val formattedMonth = if (month % 2 == 0) {
+            (month - 1).toString().padStart(2, '0')
+        } else {
+            month.toString().padStart(2, '0')
+        }
+
+        // 生成表示法 "YYYYMM"
+        val yearMonthString = "%04d%s".format(year, formattedMonth)
+
+        // 印出結果
+//        Log.d("會贏喔",yearMonthString)
+
+        return  yearMonthString
     }
 
     //選擇支付方式

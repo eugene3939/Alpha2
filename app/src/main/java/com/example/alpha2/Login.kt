@@ -99,6 +99,10 @@ class Login : AppCompatActivity() {
         insertSystemSettingDB("store123","Nintendo","cashRegister123",30)
 
         //Dao匯入付款發票號碼設定檔 (預設)
+        insertInvoiceSetupDB("store123","202403","register123","invoiceSerialNo",
+            "00","XY","000000","999999","000001",
+            0,50,50,"統一編號","Y")
+
         insertInvoiceSetupDB("store123","202405","register123","invoiceSerialNo",
             "00","AB","000000","999999","000001",
             0,50,50,"統一編號","Y")
