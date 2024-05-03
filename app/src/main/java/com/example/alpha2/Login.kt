@@ -93,17 +93,17 @@ class Login : AppCompatActivity() {
         insertPairProduct("20","1,2,3","1,2,3",60)    //綑綁商品清單
 
         //Dao匯入收銀機設定檔 (預設)
-        insertCashSystemDB("1","Eugene")
+        insertCashSystemDB("031","Eugene")
 
         //Dao匯入系統設定檔 (預設)
-        insertSystemSettingDB("store123","Nintendo","cashRegister123",30)
+        insertSystemSettingDB("03","Systex","031",30)
 
         //Dao匯入付款發票號碼設定檔 (預設)
-        insertInvoiceSetupDB("store123","202403","register123","invoiceSerialNo",
+        insertInvoiceSetupDB("03","202403","031","invoiceSerialNo",
             "00","XY","000000","999999","000001",
             0,50,50,"統一編號","Y")
 
-        insertInvoiceSetupDB("store123","202405","register123","invoiceSerialNo",
+        insertInvoiceSetupDB("03","202405","031","invoiceSerialNo",
             "00","AB","000000","999999","000001",
             0,50,50,"統一編號","Y")
 

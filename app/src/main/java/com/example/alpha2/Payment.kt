@@ -46,10 +46,11 @@ class Payment : AppCompatActivity() {
     private lateinit var invoiceDBManager: InvoiceManager       //發票號碼設定檔 (取得發票號碼相關Dao資料)
 
     //目前的支付方式
-    private var nowPaymentMethod: String? = "現金"                //預設支付方式為現金
+    private var nowPaymentCode: String? = "無統編"               //付款類別: 無統編、統編、愛心碼... (預設支付方式為無統編)
+    private var nowPaymentMethod: String? = "現金"               //支付方式: 現金、電子支付...      (預設支付方式為現金)
     private var nowInvoiceText: String? = null                  //載具/電子發票號碼
 
-    private var nowPayment: Int = 0                          //支付金額
+    private var nowPayment: Int = 0                             //支付金額
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -179,15 +180,15 @@ class Payment : AppCompatActivity() {
             //送出發票前先確認發票效期
             val invoiceYYYYMM = getYYYYMM() //取得效期
             //確認是否有對應的發票效期
-            val existInvoiceSetup = invoiceDBManager.getInvoiceSetupsBy("store123",invoiceYYYYMM,"register123","invoiceSerialNo")
+            val existInvoiceSetup = invoiceDBManager.getInvoiceSetupsBy("03",invoiceYYYYMM,"register123","invoiceSerialNo")
             Log.d("會贏喔",existInvoiceSetup.toString())
 
             if (existInvoiceSetup != null){     //確認效期許可才會開立發票
                 //付款金額必須大於等於應付金額
                 if (nowPayment >= totalPrice){
                     //顯示目前店號、機號
-                    val nowCashSystem = systemDBManager.getCashSystemNoById("1")
-                    val nowSystem = systemDBManager.getSystemSettingNoById("cashRegister123")
+                    val nowCashSystem = systemDBManager.getCashSystemNoById("031")
+                    val nowSystem = systemDBManager.getSystemSettingNoById("031")
 
                     if (nowCashSystem!= null && nowSystem!= null){
                         Log.d("目前店號",nowSystem.storeNo)
@@ -196,25 +197,25 @@ class Payment : AppCompatActivity() {
                         var seqNo = 1
                         for (i in filterList){  //將每一個商品項次都儲存到 即時銷售主檔
                             val paymentMainItem = PaymentMain(SYS_StoreNo = nowSystem.storeNo,
-                                TXN_Date = LocalDateTime.now(),
-                                ECR_No = nowSystem.ecrNo,
-                                TXN_No = seqNo,
+                                TXN_Date = LocalDateTime.now(),                 /*交易日期*/
+                                ECR_No = nowSystem.ecrNo,                       /*收銀機代碼*/
+                                TXN_No = seqNo,                                 /*交易序號*/
 
-                                TXN_Time =  LocalDateTime.now(),
-                                USR_No = "Eugene",
-                                TXN_Uniform = nowPaymentMethod.toString(),
-                                TXN_MemCard = nowLoginMember?.id.toString(),
+                                TXN_Time =  LocalDateTime.now(),                /*交易時間*/
+                                USR_No = "Eugene",                              /*收銀員號碼*/
+                                TXN_Uniform = nowInvoiceText.toString(),      /*統一編號*/
+                                TXN_MemCard = nowLoginMember?.id.toString(),    /*會員卡號碼*/
                                 TXN_GUIPaper = "E",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
                                 TXN_GUIBegNo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
-                                TXN_GUICnt = 1,         /*發票張數*/
-                                TXN_TotQty = filterList.size,
-                                TXN_TotDiscS = 0,
-                                TXN_TotDiscM = 0,
-                                TXN_TotDiscT = 0,
-                                TXN_TotSaleAmt = nowPayment,
-                                TXN_TotGUI = totalPrice,
-                                TXN_Mode = "N",
-                                TXN_TotPayAmt = totalPrice)
+                                TXN_GUICnt = 1,                 /*發票張數*/
+                                TXN_TotQty = filterList.size,   /*總數量*/
+                                TXN_TotDiscS = 0,               /*總人工折扣(負數)*/
+                                TXN_TotDiscM = 0,               /*總組合折扣(負數)*/
+                                TXN_TotDiscT = filterList.filter { it.pluType == "75" }.sumOf{ it.unitPrc },        /*總總合折扣(負數) 折扣券折價金額僅依照unitPrc不會變動*/
+                                TXN_TotSaleAmt = nowPayment,    /*總銷售金額=總應稅銷售金額+總免稅銷售金額*/
+                                TXN_TotGUI = totalPrice,        /*總發票金額*/
+                                TXN_Mode = "N",                 /*交易模式*/
+                                TXN_TotPayAmt = totalPrice)     /*總付款金額*/
 
                             paymentDBManager.addPaymentMain(paymentMainItem)
 
@@ -243,8 +244,13 @@ class Payment : AppCompatActivity() {
         val currentNEXT_SNOS = existInvoiceSetup.NEXT_SNOS?.toInt() ?: 0
         val nextNEXT_SNOS = String.format("%06d", currentNEXT_SNOS + 1)
 
+        //如果發票設定檔還是未使用狀態就進行更新
+        if (existInvoiceSetup.STATUS == "0"){
+            invoiceDBManager.updateStatus("01","03",invoiceYYYYMM)     //變更狀態為使用中
+        }
+
         //成功開立發票後更新發票號 (該效期的發票號 起始號 、下一號 進行變更)
-        invoiceDBManager.updateGUI_NEXT(nextGUI,nextNEXT_SNOS,"store123",invoiceYYYYMM)
+        invoiceDBManager.updateGUI_NEXT(nextGUI,nextNEXT_SNOS,"03",invoiceYYYYMM)
     }
 
     //將目前日期(LocalDateTime)轉換為YYYYMM
@@ -268,9 +274,7 @@ class Payment : AppCompatActivity() {
         // 生成表示法 "YYYYMM"
         val yearMonthString = "%04d%s".format(year, formattedMonth)
 
-        // 印出結果
-//        Log.d("會贏喔",yearMonthString)
-
+        // 回傳結果
         return  yearMonthString
     }
 
@@ -348,13 +352,13 @@ class Payment : AppCompatActivity() {
         }
 
         // 添加確定按鈕
-        builder.setPositiveButton("確定") { dialog, which ->
+        builder.setPositiveButton("確定") { dialog, _ ->
             // 在確定按鈕點擊時執行的操作
             dialog.dismiss() // 關閉對話框
         }
 
         // 添加取消按鈕
-        builder.setNegativeButton("取消") { dialog, which ->
+        builder.setNegativeButton("取消") { dialog, _ ->
             // 在取消按鈕點擊時執行的操作
             dialog.dismiss() // 關閉對話框
         }
@@ -438,7 +442,8 @@ class Payment : AppCompatActivity() {
         // 添加確定按鈕
         builder.setPositiveButton("確定") { dialog, _ ->
             //儲存到全域變數
-            nowInvoiceText = myEditText.text.toString()
+            nowInvoiceText = myEditText.text.toString() //統編號碼
+            nowPaymentCode = selectedPaymentItem        //統一編號類別
 
             println("我儲存的發票形式 $nowInvoiceText")
 

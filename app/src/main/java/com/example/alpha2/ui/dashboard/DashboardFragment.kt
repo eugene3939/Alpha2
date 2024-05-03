@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.alpha2.DBManager.User.UserManager
@@ -42,6 +43,8 @@ class DashboardFragment : Fragment() {
             val accessUser = userDBManager.getUserById(userID)
             if (accessUser != null) {
                 binding.textDashboard.text = "收銀員: ${accessUser.name}"
+
+                Toast.makeText(requireContext(), "這是主頁面", Toast.LENGTH_SHORT).show()
             }
         }else{
             binding.textDashboard.text = "Null user access"

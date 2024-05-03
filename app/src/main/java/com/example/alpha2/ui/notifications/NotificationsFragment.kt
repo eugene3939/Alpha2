@@ -30,7 +30,7 @@ class NotificationsFragment : Fragment() {
 
         val textView: TextView = binding.textNotifications
         notificationsViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+           binding.textNotifications.text = "銷售查詢"
         }
         return root
     }

@@ -33,6 +33,13 @@ class InvoiceManager(context: Context) {
         }
     }
 
+    //變更發票的使用狀態
+    fun updateStatus(status: String,STO_No: String,GUI_YYMM: String){
+        return runBlocking {
+            invoiceDao.updateStatus(status, STO_No, GUI_YYMM)
+        }
+    }
+
     //檢查是否有符合卡的發票號碼設定檔
     fun getInvoiceSetupsBy(STO_No: String,GUI_YYMM: String,POS_NOS: String,SER_NOS: String): InvoiceSetup?{
         return runBlocking {

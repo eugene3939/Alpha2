@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.Serializable
 import java.lang.Exception
+import java.text.ParsePosition
 import java.time.LocalDateTime
 
 //不允許螢幕旋轉，螢幕旋轉容易導致資料流失
@@ -76,6 +77,9 @@ class HomeFragment : Fragment() {
 
     //目前會員
     private var nowLoginMember: Member? = null
+
+    //紀錄先前的點擊位置
+    private var couponClickPostion:Int? = null
 
     //鏡頭開啟時處理條碼邏輯 (加入會員)
     @SuppressLint("SetTextI18n")
@@ -265,8 +269,6 @@ class HomeFragment : Fragment() {
 
         //點擊gridView變更數量
         binding.grTableProduct.setOnItemClickListener { parent, _, position, _ ->
-            //Toast.makeText(requireContext(),"點按項目: ${parent.getItemAtPosition(position)}",Toast.LENGTH_SHORT).show()
-
             //目前點按項目
             val clickItem = parent.getItemAtPosition(position) as Product //進行強制轉型確認商品類別
 
@@ -552,7 +554,7 @@ class HomeFragment : Fragment() {
         }
 
         // 定義下拉列表中的折扣選項
-        val items = arrayOf("不適用折扣","會員折扣", "折價券", "檔期促銷")
+        val items = arrayOf("不適用折扣","人工折扣", "折價券")
         // 創建一個 ArrayAdapter 來設置 Spinner 的選項內容
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, items)
         // 設置下拉列表的風格
@@ -567,6 +569,10 @@ class HomeFragment : Fragment() {
 
                 val simpleBottomDialog = BottomSheetDialog(requireContext())
                 simpleBottomDialog.setContentView(R.layout.couponlist)
+
+                Log.d("點點點","位置")
+
+                couponClickPostion = position
 
                 //選擇折價券選項後開啟BottomView
                 if (selectedItem == "折價券"){
@@ -584,9 +590,6 @@ class HomeFragment : Fragment() {
                         // 顯示篩選出的列印資訊
                         showUpList?.forEach { Log.d("Product Info", it) }
 
-                        //確認是否送出
-                        var sentCouponItem: String?
-
                         withContext(Dispatchers.Main){
                             val couponAdapter = CouponAdapter(requireContext(), showUpList ?: emptyList())
                             grCouponList?.adapter = couponAdapter
@@ -597,44 +600,37 @@ class HomeFragment : Fragment() {
                                 override fun onButtonClicked(position: Int) {
 
                                     //顯示折價券貨號
-                                    val selectPluMagNo = filterPluList!![position].pluMagNo
-                                    //Log.d("所選貨號", selectPluMagNo)
+                                    val sentCouponItem = filterPluList!![position].pluMagNo
 
-                                    sentCouponItem = selectPluMagNo
-
-                                    Log.d("折扣券號",sentCouponItem.toString())
+                                    Log.d("折扣券號",sentCouponItem)
 
                                     // 送出折價券商品
-                                    if (sentCouponItem != null) {
-                                        // 將外部操作也放在協程內部
-                                        lifecycleScope.launch(Dispatchers.IO) {
-                                            // 在主線程中執行資料庫操作
-                                            val product = productDBManager.getProductByMagNo(sentCouponItem!!)
+                                    // 將外部操作也放在協程內部
+                                    lifecycleScope.launch(Dispatchers.IO) {
+                                        // 在主線程中執行資料庫操作
+                                        val product = productDBManager.getProductByMagNo(sentCouponItem!!)
 
-                                            // 將商品加入購物車 (必須不包含在已知清單內)
-                                            if (product != null && !filteredProductList.contains(product)) {
-                                                withContext(Dispatchers.Main) {
-                                                    //確認優惠券能否放入清單
-                                                    if(couponAddCheck(product)){
-                                                        filteredProductList.add(product)
-                                                        // 如果商品已經存在，數量指定為1
-                                                        selectedQuantities[product] = -1
+                                        // 將商品加入購物車 (必須不包含在已知清單內)
+                                        if (product != null && !filteredProductList.contains(product)) {
+                                            withContext(Dispatchers.Main) {
+                                                //確認優惠券能否放入清單
+                                                if(couponAddCheck(product)){
+                                                    filteredProductList.add(product)
+                                                    // 如果商品已經存在，數量指定為1
+                                                    selectedQuantities[product] = -1
 
-                                                        Toast.makeText(requireContext(),"新增折價券 ${product.pName}",Toast.LENGTH_SHORT).show()
-                                                    }else{
-                                                        //錯誤回報在couponAddCheck就會跳出提示，這邊用Log說明新增出現異常即可
-                                                        Log.d("折價券新增狀況","未滿足折價券使用條件")
-                                                    }
-                                                    //主程序外更新顯示內容
-                                                    loadFilterProduct()
+                                                    Toast.makeText(requireContext(),"新增折價券 ${product.pName}",Toast.LENGTH_SHORT).show()
+                                                }else{
+                                                    //錯誤回報在couponAddCheck就會跳出提示，這邊用Log說明新增出現異常即可
+                                                    Log.d("折價券新增狀況","未滿足折價券使用條件")
                                                 }
+                                                //主程序外更新顯示內容
+                                                loadFilterProduct()
                                             }
                                         }
-
-                                        Log.d("優惠券檢查", "已經更新")
-                                    } else {
-                                        Log.d("優惠券檢查", "尚未更新")
                                     }
+
+                                    Log.d("優惠券檢查", "已經更新")
                                 }
                             })
 
@@ -646,6 +642,7 @@ class HomeFragment : Fragment() {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // 沒被選中的處理
+                Log.d("沒被選中的處理","點點")
             }
         }
 
@@ -738,7 +735,7 @@ class HomeFragment : Fragment() {
 
                             //先將所有折價券的明細檔合併為一個集合
                             val allProductList  = productDBManager.getAllProductTable() //所有商品
-                            var exclusiveList = mutableListOf<Product>()
+                            val exclusiveList = mutableListOf<Product>()
 
                             for (detail in couponDetail){ //走訪所有折價券明細檔
                                 if (allProductList!=null){
@@ -986,7 +983,7 @@ class HomeFragment : Fragment() {
     }
 
     // 檢查現在的時間是否在折價券適用期間內
-    fun isCouponValid(coupon: CouponDetail): Boolean {
+    private fun isCouponValid(coupon: CouponDetail): Boolean {
         val now = LocalDateTime.now()
         return now.isAfter(coupon.FROM_DATE) && now.isBefore(coupon.TO_DATE)
     }
@@ -1014,11 +1011,10 @@ class HomeFragment : Fragment() {
 //            }
 //            isFirstCreation = false
         }else{
-            val adapter: FilterProductAdapter
-            if (nowLoginMember!=null){      //有會員登入
-                adapter = FilterProductAdapter(filteredProductList, selectedQuantities,true)
+            val adapter: FilterProductAdapter = if (nowLoginMember!=null){      //有會員登入
+                FilterProductAdapter(filteredProductList, selectedQuantities,true)
             }else{
-                adapter = FilterProductAdapter(filteredProductList, selectedQuantities,false)
+                FilterProductAdapter(filteredProductList, selectedQuantities,false)
             }
 
             lifecycleScope.launch(Dispatchers.Main) {
@@ -1073,6 +1069,7 @@ class HomeFragment : Fragment() {
         barcodeScannerLauncher.launch(integrator.createScanIntent())
     }
 
+    //離開頁面的處理
     override fun onDestroyView() {
         super.onDestroyView()
 

@@ -8,8 +8,8 @@ import androidx.room.Query
 @Dao
 interface SystemDao {
     //系統設定檔
-    @Query("SELECT * FROM SystemSettings WHERE ecrNo = :eId")   //單一收集機號對應單一設定檔案
-    suspend fun getSystemSettingNoById(eId: String): SystemSetting?
+    @Query("SELECT * FROM SystemSettings WHERE ecrNo = :ecrNo")   //單一收集機號對應單一設定檔案
+    suspend fun getSystemSettingNoById(ecrNo: String): SystemSetting?
 
     @Insert
     suspend fun insert(system: SystemSetting)
@@ -20,8 +20,8 @@ interface SystemDao {
     //收銀機設定檔
 
     //尋找是否有對應的收銀機號
-    @Query("SELECT * FROM CashSystems WHERE ecrNo = :eId")
-    suspend fun getCashSystemNoById(eId: String): CashSystem?
+    @Query("SELECT * FROM CashSystems WHERE ecrNo = :ecrNo")
+    suspend fun getCashSystemNoById(ecrNo: String): CashSystem?
     @Insert
     suspend fun insert(cashSystems: CashSystem)
 

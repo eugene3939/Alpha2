@@ -16,9 +16,9 @@ class SystemManager(context: Context) {
     //---以下為系統設定檔---
 
     //檢查是否有收銀機號id的資料
-    fun getSystemSettingNoById(eId: String): SystemSetting? {
+    fun getSystemSettingNoById(ecrNo: String): SystemSetting? {
         return runBlocking {
-            systemDao.getSystemSettingNoById(eId)
+            systemDao.getSystemSettingNoById(ecrNo)
         }
     }
 
@@ -31,9 +31,9 @@ class SystemManager(context: Context) {
     //---以下為收銀機設定檔---
 
     //檢查是否有收銀機號id的資料
-    fun getCashSystemNoById(eId: String): CashSystem? {
+    fun getCashSystemNoById(ecrNo: String): CashSystem? {
         return runBlocking {
-            systemDao.getCashSystemNoById(eId)
+            systemDao.getCashSystemNoById(ecrNo)
         }
     }
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,8 +16,237 @@
         android:layout_marginEnd="8dp"
         android:textAlignment="center"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--銷售品項欄位(上方)-->
+    <LinearLayout
+        android:id="@+id/lrObjectColumns"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/text_notifications">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="項"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="條碼"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="商品名稱"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="數量"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="單價"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="折扣"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="小計"
+            android:textSize="15sp"/>
+    </LinearLayout>
+
+    <!--查詢結果顯示區-->
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_below="@+id/lrObjectColumns"/>
+
+    <!--銷售總款項顯示區域 (右下)-->
+    <RelativeLayout
+        android:id="@+id/lrPaymentBoard"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true">
+
+        <!--發票金額-->
+        <LinearLayout
+            android:id="@+id/lrSalesQuery1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="發票金額"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="0"
+                android:textSize="20sp"
+                android:textAlignment="textEnd"/>
+        </LinearLayout>
+
+        <!--銷售數量-->
+        <LinearLayout
+            android:id="@+id/lrSalesQuery2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lrSalesQuery1"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="銷售數量"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="0"
+                android:textSize="20sp"
+                android:textAlignment="textEnd"/>
+        </LinearLayout>
+
+        <!--折扣總額-->
+        <LinearLayout
+            android:id="@+id/lrSalesQuery3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lrSalesQuery2"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="折扣總額"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="0"
+                android:textSize="20sp"
+                android:textAlignment="textEnd"/>
+        </LinearLayout>
+
+        <!--銷售總額-->
+        <LinearLayout
+            android:id="@+id/lrSalesQuery4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lrSalesQuery3"
+            android:layout_marginBottom="80dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="銷售總額"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="0"
+                android:textSize="20sp"
+                android:textAlignment="textEnd"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!--發票輸入區-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_above="@+id/lrButtonOpr"
+        android:orientation="horizontal">
+
+        <!--使用者輸入框-->
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:hint="輸入交易編號"
+            android:inputType="numberDecimal"
+            android:textAlignment="center"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:text="查詢"
+            android:textSize="20sp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:text="清除"
+            android:textSize="20sp"/>
+
+    </LinearLayout>
+
+    <!--發票操作選擇項-->
+    <LinearLayout
+        android:id="@+id/lrButtonOpr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="80dp"
+        android:orientation="vertical">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="退貨"
+            android:textSize="20sp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="作廢"
+            android:textSize="20sp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="補印"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+</RelativeLayout>
