@@ -176,51 +176,52 @@ class Payment : AppCompatActivity() {
 
         //按下確定按鈕後產生交易主檔
         btnConfirm.setOnClickListener {
+            //目前店號、機號、日期(localDateTime)
+            val nowCashSystem = systemDBManager.getCashSystemNoById("031")
+            val nowSystem = systemDBManager.getSystemSettingNoById("031")
+            val nowDate = LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().monthValue, 1, 0, 0, 0, 0)
 
-            //送出發票前先確認發票效期
-            val invoiceYYYYMM = getYYYYMM() //取得效期
-            //確認是否有對應的發票效期
-            val existInvoiceSetup = invoiceDBManager.getInvoiceSetupsBy("03",invoiceYYYYMM,"register123","invoiceSerialNo")
-            Log.d("會贏喔",existInvoiceSetup.toString())
+            // 目前登入的收銀員
+            val sharedPreferences = getSharedPreferences("loginUser", Context.MODE_PRIVATE)
+            val clerkId = sharedPreferences.getString("userId", null)
 
-            if (existInvoiceSetup != null){     //確認效期許可才會開立發票
-                //付款金額必須大於等於應付金額
-                if (nowPayment >= totalPrice){
-                    //顯示目前店號、機號
-                    val nowCashSystem = systemDBManager.getCashSystemNoById("031")
-                    val nowSystem = systemDBManager.getSystemSettingNoById("031")
+            if (nowCashSystem!= null && nowSystem!= null && clerkId!=null) { //顯示目前機號
+                Log.d("目前店號", nowSystem.storeNo)
+                Log.d("目前收銀機號", nowSystem.ecrNo)
 
-                    if (nowCashSystem!= null && nowSystem!= null){
-                        Log.d("目前店號",nowSystem.storeNo)
-                        Log.d("目前收銀機號",nowSystem.ecrNo)
+                //送出發票前先確認發票效期
+                val invoiceYYYYMM = getYYYYMM() //取得效期
+                //確認是否有對應的發票效期
+                val existInvoiceSetup = invoiceDBManager.getInvoiceSetupsBy(nowSystem.storeNo,invoiceYYYYMM,nowSystem.ecrNo,"invoiceSerialNo")
+                Log.d("會贏喔",existInvoiceSetup.toString())
 
-                        var seqNo = 1
-                        for (i in filterList){  //將每一個商品項次都儲存到 即時銷售主檔
-                            val paymentMainItem = PaymentMain(SYS_StoreNo = nowSystem.storeNo,
-                                TXN_Date = LocalDateTime.now(),                 /*交易日期*/
-                                ECR_No = nowSystem.ecrNo,                       /*收銀機代碼*/
-                                TXN_No = seqNo,                                 /*交易序號*/
+                if (existInvoiceSetup != null){     //確認效期許可才會開立發票
+                    //付款金額必須大於等於應付金額
+                    if (nowPayment >= totalPrice){
+                        val paymentMainItem = PaymentMain(
+                            SYS_StoreNo = nowSystem.storeNo,
+                            TXN_Date = nowDate,                 /*交易日期*/
+                            ECR_No = nowSystem.ecrNo,                       /*收銀機代碼*/
+                            TXN_No = paymentDBManager.searchPaymentMainByMaxYYMM(nowDate)?.plus(1)
+                                ?: 1,/*交易序號 (今日開出數+1 ，確認今天開出幾張，由1開始)*/
 
-                                TXN_Time =  LocalDateTime.now(),                /*交易時間*/
-                                USR_No = "Eugene",                              /*收銀員號碼*/
-                                TXN_Uniform = nowInvoiceText.toString(),      /*統一編號*/
-                                TXN_MemCard = nowLoginMember?.id.toString(),    /*會員卡號碼*/
-                                TXN_GUIPaper = "E",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
-                                TXN_GUIBegNo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
-                                TXN_GUICnt = 1,                 /*發票張數*/
-                                TXN_TotQty = filterList.size,   /*總數量*/
-                                TXN_TotDiscS = 0,               /*總人工折扣(負數)*/
-                                TXN_TotDiscM = 0,               /*總組合折扣(負數)*/
-                                TXN_TotDiscT = filterList.filter { it.pluType == "75" }.sumOf{ it.unitPrc },        /*總總合折扣(負數) 折扣券折價金額僅依照unitPrc不會變動*/
-                                TXN_TotSaleAmt = nowPayment,    /*總銷售金額=總應稅銷售金額+總免稅銷售金額*/
-                                TXN_TotGUI = totalPrice,        /*總發票金額*/
-                                TXN_Mode = "N",                 /*交易模式*/
-                                TXN_TotPayAmt = totalPrice)     /*總付款金額*/
+                            TXN_Time =  LocalDateTime.now(),                /*交易時間*/
+                            USR_No = clerkId,                              /*收銀員號碼*/
+                            TXN_Uniform = nowInvoiceText.toString(),      /*統一編號*/
+                            TXN_MemCard = nowLoginMember?.id.toString(),    /*會員卡號碼*/
+                            TXN_GUIPaper = "E",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
+                            TXN_GUIBegNo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
+                            TXN_GUICnt = 1,                 /*發票張數*/
+                            TXN_TotQty = filterList.size,   /*總數量*/
+                            TXN_TotDiscS = 0,               /*總人工折扣(負數)*/
+                            TXN_TotDiscM = 0,               /*總組合折扣(負數)*/
+                            TXN_TotDiscT = filterList.filter { it.pluType == "75" }.sumOf{ it.unitPrc * (filterAmount[it] ?: 1)},        /*總總合折扣(負數) 折扣券折價金額僅依照unitPrc不會變動*/
+                            TXN_TotSaleAmt = nowPayment,    /*總銷售金額=總應稅銷售金額+總免稅銷售金額  銷售明細加總*/
+                            TXN_TotGUI = totalPrice,        /*總發票金額 有多少錢是要開發票的(可能有禮券，禮券已經開過了)*/
+                            TXN_Mode = "N",                 /*交易模式*/
+                            TXN_TotPayAmt = nowPayment)     /*總付款金額 付款明細加總*/
 
-                            paymentDBManager.addPaymentMain(paymentMainItem)
-
-                            seqNo +=1
-                        }
+                        paymentDBManager.addPaymentMain(paymentMainItem)
 
                         //更新下一個發票序號
                         updateNextInvoiceNumber(existInvoiceSetup,invoiceYYYYMM)
@@ -228,9 +229,11 @@ class Payment : AppCompatActivity() {
                         //成功送出後回到主畫面
                         val intent = Intent(this,MainActivity::class.java)
                         startActivity(intent)
+                    }else{
+                        Toast.makeText(this,"未達到應付金額",Toast.LENGTH_SHORT).show()
                     }
                 }else{
-                Toast.makeText(this,"未達到應付金額",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,"不在許可發票效期內",Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -329,7 +332,7 @@ class Payment : AppCompatActivity() {
 
                 nowPaymentMethod = paymentName
 
-                nowPaymentMethod?.let { Log.d("點點位置", it) }
+                nowPaymentMethod?.let { Log.d("點擊位置", it) }
 
                 //如果選現金以外欄位，自動填入金額
                 if (position != 0 ){

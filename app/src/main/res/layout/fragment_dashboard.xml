@@ -16,4 +16,10 @@
         android:textStyle="bold"
         android:textSize="25sp"/>
 
+    <ListView
+        android:id="@+id/Ls"
+        android:layout_below="@+id/textDashboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
 </RelativeLayout>

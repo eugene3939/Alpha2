@@ -26,8 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="@string/txtClerkName"
-            android:textStyle="bold"
-            android:textSize="25sp"/>
+            android:textSize="20sp"/>
 
         <LinearLayout
             android:id="@+id/SearchBarLayout"
@@ -44,17 +43,16 @@
                 android:autofillHints="empty"
                 android:hint="@string/txtSearchBarHint"
                 android:inputType="text"
-                android:textSize="25sp"
+                android:textSize="20sp"
                 android:textColor="@color/blue_500"
                 android:textColorHint="@color/blue_500"/>
 
             <Button
-                android:id="@+id/btn_search"
+                android:id="@+id/btnSearch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:layout_weight="0.125"
-                android:selectAllOnFocus="false"
                 android:text="@string/txtConfirm"
                 android:textSize="20sp"
                 android:textColor="@color/blue_800"
@@ -78,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/SearchBarLayout"
             android:text="@string/txtBarcode"
-            android:textSize="30sp"
+            android:textSize="20sp"
             android:backgroundTint="@color/blue_500"/>
 
         <LinearLayout
@@ -92,7 +90,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="2.2"
+                android:layout_weight="2"
                 android:text="@string/txtFname"
                 android:textColor="@color/blue_500"
                 android:textSize="20sp"
@@ -175,7 +173,7 @@
             android:layout_alignParentEnd="true"
             android:layout_above="@+id/txt_totalDollar"
             android:text="@string/txtUserSettingButton"
-            android:textSize="25sp"
+            android:textSize="20sp"
             android:backgroundTint="@color/blue_500"/>
 
         <!--折扣選項-->

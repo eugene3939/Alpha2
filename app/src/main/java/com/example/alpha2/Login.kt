@@ -52,7 +52,7 @@ class Login : AppCompatActivity() {
         InvoiceDBManager = InvoiceManager(applicationContext)
 
         //匯入整檔
-        insertUserDB("1","Eugene", "1", "1")        //建立預設用戶
+        insertUserDB("9687","Eugene", "1", "1")        //建立預設用戶
         insertUserDB("2","Oscar", "3", "3")
 
         //----DAO 方式建立預設商品資料庫 (建立商品資料)

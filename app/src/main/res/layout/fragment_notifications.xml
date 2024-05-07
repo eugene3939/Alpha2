@@ -7,26 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".ui.notifications.NotificationsFragment">
 
-    <TextView
-        android:id="@+id/text_notifications"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <!--銷售品項欄位(上方)-->
     <LinearLayout
         android:id="@+id/lrObjectColumns"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@+id/text_notifications">
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
@@ -107,6 +93,7 @@
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/txtSearchSalesAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"
@@ -131,6 +118,7 @@
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/txtSearchSalesNumber"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"
@@ -155,6 +143,7 @@
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/txtSearchDiscountValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"
@@ -180,6 +169,7 @@
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/txtSearchSalesTotalPrice"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"
@@ -199,13 +189,15 @@
 
         <!--使用者輸入框-->
         <EditText
+            android:id="@+id/edtInvoiceText"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:hint="輸入交易編號"
-            android:inputType="numberDecimal"
+            android:inputType="text"
             android:textAlignment="center"/>
 
         <Button
+            android:id="@+id/btnInvoiceSearch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
@@ -213,6 +205,7 @@
             android:textSize="20sp"/>
 
         <Button
+            android:id="@+id/btnInvoiceClear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"

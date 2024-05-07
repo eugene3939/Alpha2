@@ -4,11 +4,20 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import java.time.LocalDateTime
 
 @Dao
 interface PaymentDao {
 
     //---以下為付款主檔---
+
+    //尋找對應的發票號碼
+    @Query("SELECT * FROM PaymentMains WHERE TXN_GUIBegNo = :TXN_GUIBegNo")
+    suspend fun searchPaymentMainByTXN_GUINo(TXN_GUIBegNo: String): PaymentMain?
+
+    //尋找對應日期的交易序號
+    @Query("SELECT MAX(TXN_No) FROM PaymentMains WHERE TXN_Date = :YYMM")
+    suspend fun searchPaymentMainByMaxYYMM(YYMM: LocalDateTime): Int?
 
     //檢查是否有符合id的付款主檔
     @Query("SELECT * FROM PaymentMains WHERE SYS_StoreNo = :storeNo")

@@ -12,7 +12,7 @@ data class PaymentMain(
     val  SYS_StoreNo:        String,      /*店號*/
     val  TXN_Date:    LocalDateTime,      /*交易日期*/
     val  ECR_No:             String,      /*收銀機代碼*/
-    val  TXN_No:                Int,      /*交易序號*/ //A商品 -> 1, B商品 -> 2
+    val  TXN_No:                Int,      /*交易序號*/ //A交易 -> 1, B交易 -> 2
 
     val  TXN_Time  :  LocalDateTime,      /*交易時間*/
     val  USR_No:             String,      /*收銀員號碼*/
