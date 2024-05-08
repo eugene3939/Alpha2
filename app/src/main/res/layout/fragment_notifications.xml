@@ -66,6 +66,7 @@
 
     <!--查詢結果顯示區-->
     <ListView
+        android:id="@+id/lsInvoiceSearchResult"
         android:layout_width="match_parent"
         android:layout_height="350dp"
         android:layout_below="@+id/lrObjectColumns"/>

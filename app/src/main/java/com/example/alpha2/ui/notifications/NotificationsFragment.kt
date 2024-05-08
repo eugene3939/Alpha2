@@ -5,13 +5,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.alpha2.DBManager.Payment.PaymentDetail
 import com.example.alpha2.DBManager.Payment.PaymentMain
 import com.example.alpha2.DBManager.Payment.PaymentManager
 import com.example.alpha2.databinding.FragmentNotificationsBinding
+import com.example.alpha2.myAdapter.SearchPaymentDetailAdapter
 
 class NotificationsFragment : Fragment() {
 
@@ -19,7 +20,9 @@ class NotificationsFragment : Fragment() {
 
     private lateinit var paymentDBManager: PaymentManager       //付款主檔 (取得付款相關Dao資料)
 
-    private var nowSearchPaymentMain: PaymentMain?= null      //目前查詢的紀錄，預設為空
+    private var nowSearchPaymentMain: PaymentMain?= null      //目前查詢的支付主檔，預設為空
+    private var nowSearchPaymentDetail: MutableList<PaymentDetail>?= null      //目前查詢的支付明細檔，預設為空
+
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -51,9 +54,11 @@ class NotificationsFragment : Fragment() {
 
                 //搜尋符合的項目
                 val accessPaymentMain = paymentDBManager.searchPaymentMainByTXN_GUINo(searchText.toString())
+                val accessPaymentDetail = paymentDBManager.searchPaymentDetailByTXN_GUINo(searchText.toString())
 
                 if (accessPaymentMain!=null){
                     nowSearchPaymentMain = accessPaymentMain
+                    nowSearchPaymentDetail = accessPaymentDetail
                     //更新查詢顯示文字
                     updateShowText()
                     Toast.makeText(requireContext(), "查詢單號: ${accessPaymentMain.TXN_GUIBegNo}", Toast.LENGTH_LONG).show()
@@ -69,12 +74,24 @@ class NotificationsFragment : Fragment() {
 
     //更新查詢顯示文字
     private fun updateShowText() {
+        //明細總和
         if (nowSearchPaymentMain != null){
             binding.txtSearchSalesAmount.text = nowSearchPaymentMain!!.TXN_TotPayAmt.toString()    //發票金額
             binding.txtSearchSalesNumber.text = nowSearchPaymentMain!!.TXN_TotQty.toString()        //銷售數量
             binding.txtSearchDiscountValue.text = nowSearchPaymentMain!!.TXN_TotDiscT.toString()      //折扣總額
             binding.txtSearchSalesTotalPrice.text = nowSearchPaymentMain!!.TXN_TotGUI.toString()      //銷售總額
+        }
 
+        //銷售商品資訊
+        if (!nowSearchPaymentDetail.isNullOrEmpty()){
+            try {
+                val myAdapter = SearchPaymentDetailAdapter(nowSearchPaymentDetail!!,memberCheck = true)
+
+                binding.lsInvoiceSearchResult.adapter = myAdapter
+
+            }catch (e: Exception){
+                Log.e("錯誤",e.toString())
+            }
         }
     }
 

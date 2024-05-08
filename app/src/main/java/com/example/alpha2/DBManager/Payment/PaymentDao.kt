@@ -31,9 +31,17 @@ interface PaymentDao {
 
     //---以下為付款明細檔---
 
+    //尋找對應的發票號碼
+    @Query("SELECT * FROM PaymentDetails WHERE TXN_GUINo = :TXN_GUINo")
+    suspend fun searchPaymentDetailByTXN_GUINo(TXN_GUINo: String): MutableList<PaymentDetail>?
+
     //檢查是否有符合id的付款明細檔
     @Query("SELECT * FROM PaymentDetails WHERE SYS_StoreNo = :pId")
     suspend fun getPaymentDetailById(pId: String): PaymentDetail?
+
+    //尋找對應日期的交易序號
+    @Query("SELECT MAX(TXN_No) FROM PaymentDetails WHERE TXN_Date = :YYMM")
+    suspend fun searchPaymentDetailByMaxYYMM(YYMM: LocalDateTime): Int?
 
     //檢查是否有符合店號的明細檔
     @Query("SELECT * FROM PaymentDetails WHERE SYS_StoreNo = :pId")

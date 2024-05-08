@@ -61,6 +61,19 @@ class PaymentManager(context: Context) {
 
     //--即時銷售明細檔--
 
+    fun searchPaymentDetailByTXN_GUINo(TXN_GUINo: String): MutableList<PaymentDetail>? {
+        return runBlocking {
+            paymentDao.searchPaymentDetailByTXN_GUINo(TXN_GUINo)
+        }
+    }
+
+    //依照發票日期進行搜尋
+    fun searchPaymentDetailByMaxYYMM(YYMM: LocalDateTime): Int?{
+        return runBlocking {
+            paymentDao.searchPaymentDetailByMaxYYMM(YYMM)
+        }
+    }
+
     //新增銷售明細檔
     fun addPaymentDetail(paymentShowUp: PaymentshowUp) {
         runBlocking {

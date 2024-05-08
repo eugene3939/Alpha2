@@ -67,7 +67,7 @@ class Login : AppCompatActivity() {
         insertMerchandisesDB("BookCoupon03","貨號券(實戰)","折扣券","SS555555",50,50,50,50,200, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon11","貨號券(排除 實戰、輕鬆)","折扣券","SS444444",50,50,50,50,200, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon04","類別券CAT(單一)","折扣券","SS666666",100,100,100,100,300, pluUnit = "張", pluType = "75")
-        insertMerchandisesDB("BookCoupon05","類別券C D V(多重)","折扣券","SS600000",30,30,300,30,300, pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon05","類別券C D V(多重)","折扣券","SS600000",30,30,300,300,300, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon06","類別券DEP(排除)","折扣券","SS777777",100,100,100,100,300, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon08","過期類別券(排除)","折扣券","SS888888",100,100,100,100,300, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,30,100, pluUnit = "張", pluType = "75")

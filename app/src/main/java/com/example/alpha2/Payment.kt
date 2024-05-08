@@ -25,11 +25,13 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.alpha2.DBManager.Invoice.InvoiceManager
 import com.example.alpha2.DBManager.Invoice.InvoiceSetup
 import com.example.alpha2.DBManager.Member.Member
+import com.example.alpha2.DBManager.Payment.PaymentDetail
 import com.example.alpha2.DBManager.Payment.PaymentMain
 import com.example.alpha2.DBManager.Payment.PaymentManager
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.System.PaymentMethod
 import com.example.alpha2.DBManager.System.SystemManager
+import com.example.alpha2.DBManager.System.SystemSetting
 import com.example.alpha2.myAdapter.FilterProductAdapter
 import java.time.LocalDateTime
 
@@ -174,7 +176,7 @@ class Payment : AppCompatActivity() {
             showReceiptAlertDialog(this,paymentList,"選擇支付方式")
         }
 
-        //按下確定按鈕後產生交易主檔
+        //按下確定按鈕後產生交易主檔 和 交易明細檔
         btnConfirm.setOnClickListener {
             //目前店號、機號、日期(localDateTime)
             val nowCashSystem = systemDBManager.getCashSystemNoById("031")
@@ -205,26 +207,30 @@ class Payment : AppCompatActivity() {
                             TXN_No = paymentDBManager.searchPaymentMainByMaxYYMM(nowDate)?.plus(1)
                                 ?: 1,/*交易序號 (今日開出數+1 ，確認今天開出幾張，由1開始)*/
 
-                            TXN_Time =  LocalDateTime.now(),                /*交易時間*/
+                            TXN_Time =  LocalDateTime.now(),               /*交易時間*/
                             USR_No = clerkId,                              /*收銀員號碼*/
-                            TXN_Uniform = nowInvoiceText.toString(),      /*統一編號*/
-                            TXN_MemCard = nowLoginMember?.id.toString(),    /*會員卡號碼*/
+                            TXN_Uniform = nowInvoiceText.toString(),       /*統一編號*/
+                            TXN_MemCard = nowLoginMember?.id.toString(),   /*會員卡號碼*/
                             TXN_GUIPaper = "E",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
                             TXN_GUIBegNo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
                             TXN_GUICnt = 1,                 /*發票張數*/
                             TXN_TotQty = filterList.size,   /*總數量*/
-                            TXN_TotDiscS = 0,               /*總人工折扣(負數)*/
-                            TXN_TotDiscM = 0,               /*總組合折扣(負數)*/
-                            TXN_TotDiscT = filterList.filter { it.pluType == "75" }.sumOf{ it.unitPrc * (filterAmount[it] ?: 1)},        /*總總合折扣(負數) 折扣券折價金額僅依照unitPrc不會變動*/
+                            TXN_TotDiscS = 0,               /*總人工折扣(負數) 最優先*/
+                            TXN_TotDiscT = 0,        /*總合小計折扣 目前僅依照會員價與商品單價之差價 第二優先*/
+                            TXN_TotDiscM = nowLoginMember?.let { filterList.sumOf{ (it.unitPrc - it.memPrc) * (filterAmount[it] ?: 1) }}?: 0,               /*總會員折扣(負數) 最後算*/
                             TXN_TotSaleAmt = nowPayment,    /*總銷售金額=總應稅銷售金額+總免稅銷售金額  銷售明細加總*/
                             TXN_TotGUI = totalPrice,        /*總發票金額 有多少錢是要開發票的(可能有禮券，禮券已經開過了)*/
                             TXN_Mode = "N",                 /*交易模式*/
+                            TXN_Status = "N",
                             TXN_TotPayAmt = nowPayment)     /*總付款金額 付款明細加總*/
 
                         paymentDBManager.addPaymentMain(paymentMainItem)
 
                         //更新下一個發票序號
                         updateNextInvoiceNumber(existInvoiceSetup,invoiceYYYYMM)
+
+                        //建立即時銷售明細檔
+                        buildPaymentDetail(nowSystem,nowDate,existInvoiceSetup)
 
                         //成功送出後回到主畫面
                         val intent = Intent(this,MainActivity::class.java)
@@ -233,9 +239,54 @@ class Payment : AppCompatActivity() {
                         Toast.makeText(this,"未達到應付金額",Toast.LENGTH_SHORT).show()
                     }
                 }else{
-                    Toast.makeText(this,"不在許可發票效期內",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,"不在許可發票效期",Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+    }
+
+    //建立商品明細檔
+    private fun buildPaymentDetail(nowSystem: SystemSetting, nowDate: LocalDateTime,existInvoiceSetup: InvoiceSetup) {
+        //目前最大的TXN_No(交易序號) ，向上疊加
+        val maxTXN = paymentDBManager.searchPaymentDetailByMaxYYMM(nowDate)?.plus(1) ?: 1
+        var temp = 1    //項次
+        for ((product,amount) in filterAmount){
+            val paymentDetailItem = PaymentDetail(
+                SYS_StoreNo = nowSystem.storeNo,
+                TXN_Date = nowDate,
+                ECR_No = nowSystem.ecrNo,
+                TXN_No = maxTXN,       /*交易序號 (今日開出數+1 ，確認今天開出幾張，由1開始)*/
+
+                TXN_Item = temp,
+                TXN_Time = LocalDateTime.now(),
+                TXN_GUINo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
+                PLU_No = product.pluMagNo,
+                DEP_No = product.DEP_No,
+                VEN_No = product.VEN_No,
+                CAT_No = product.CAT_No,
+                TXN_Qty = amount,
+                PLU_FixPrc = product.fixPrc,
+                PLU_SalePrc = product.salePrc,
+                TXN_DiscS = 0,                  /*人工折扣(負數)*/
+                TXN_DiscM = nowLoginMember?.let { (product.unitPrc - product.memPrc) * amount }?: 0,   /*會員折扣 目前僅計算會員差價*/
+                TXN_DiscT = 0,                  /*總合折扣(負數)*/
+                TXN_SaleAmt = product.unitPrc,  /*銷售金額=應稅銷售金額+免稅銷售金額*/
+                TXN_SaleTax = product.unitPrc,  /*應稅銷售金額=未稅銷售金額+稅額*/
+                TXN_SaleNoTax = product.unitPrc,/*免稅銷售金額*/
+                TXN_Net = product.unitPrc,      /*未稅銷售金額*/
+                TXN_Tax = 0,                    /*稅額*/
+                PLU_TaxType = "0",              /*稅別 0=免稅 1=應稅*/
+
+                TXN_Mode = "N",                 /*交易模式(同POS3008)*/
+                TXN_Status = "N",               /*交易狀態(同POS3008,R=退貨)*/
+
+                PLU_Name = product.pName
+            )
+
+            //寫入明細檔
+            paymentDBManager.addPaymentDetail(paymentDetailItem)
+
+            temp+=1
         }
     }
 
