@@ -12,19 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--會員名稱-->
-        <TextView
-            android:id="@+id/txt_MemberClass"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/txtMemberClass"
-            android:textSize="20sp"/>
-
         <TextView
             android:id="@+id/textDashboard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:text="@string/txtClerkName"
             android:textSize="20sp"/>
 
@@ -39,22 +30,31 @@
                 android:id="@+id/edt_searchRow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.75"
+                android:layout_weight="0.7"
                 android:autofillHints="empty"
                 android:hint="@string/txtSearchBarHint"
-                android:inputType="numberDecimal"
+                android:inputType="text"
                 android:textSize="20sp"
                 android:textColor="@color/blue_500"
                 android:textColorHint="@color/blue_500"/>
+
+            <Button
+                android:id="@+id/bt_barcodeScanner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:text="@string/txtBarcode"
+                android:textSize="15sp"
+                android:backgroundTint="@color/blue_500"/>
 
             <Button
                 android:id="@+id/btnSearch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:layout_weight="0.125"
+                android:layout_weight="0.1"
                 android:text="@string/txtAddProduct"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:textColor="@color/blue_800"
                 android:backgroundTint="@color/blue_200"/>
 
@@ -63,72 +63,68 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:layout_weight="0.125"
+                android:layout_weight="0.1"
                 android:text="@string/txtClearText"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:textColor="@color/blue_800"
                 android:backgroundTint="@color/blue_200"/>
         </LinearLayout>
-
-        <Button
-            android:id="@+id/bt_barcodeScanner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/SearchBarLayout"
-            android:text="@string/txtBarcode"
-            android:textSize="20sp"
-            android:backgroundTint="@color/blue_500"/>
 
         <LinearLayout
             android:id="@+id/lr_filterTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/bt_barcodeScanner"
+            android:layout_below="@+id/SearchBarLayout"
             android:orientation="horizontal">
+            <!-- 商品項次 -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:text=" "
+                android:textColor="@color/blue_500"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
 
             <!-- 商品名稱 -->
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:text="@string/txtFname"
                 android:textColor="@color/blue_500"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textAlignment="center"/>
+                android:textSize="15sp"
+                android:textStyle="bold"/>
 
             <!-- 商品價格 -->
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/txtUnitPrice"
                 android:textColor="@color/blue_500"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textAlignment="center"/>
+                android:textSize="15sp"
+                android:textStyle="bold"/>
 
             <!--商品點擊數量-->
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/txtFAmount"
                 android:textColor="@color/blue_500"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textAlignment="center"/>
+                android:textSize="15sp"
+                android:textStyle="bold"/>
 
             <!-- 商品庫存 -->
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/txtSumShopCart"
                 android:textColor="@color/blue_500"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textAlignment="center"/>
+                android:textSize="15sp"
+                android:textStyle="bold"/>
         </LinearLayout>
 
         <!-- 欄位內容 -->
@@ -137,8 +133,59 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/lr_filterTitle"
-            android:layout_above="@+id/btn_deal"
+            android:layout_above="@+id/lrClerkOpr"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <!--店員常用操作內容-->
+        <LinearLayout
+            android:id="@+id/lrClerkOpr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btnDiscountList">
+
+            <!--會員選項 (非會員就會成會員)-->
+            <Button
+                android:id="@+id/btnUserFavor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/blue_500"
+                android:text="@string/txtUserSettingButton"
+                android:textSize="15sp"/>
+
+            <!--現折 (單一商品折扣，輸入折抵金額)-->
+            <Button
+                android:id="@+id/btnSingleCharge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/blue_200"
+                android:text="現折"
+                android:textColor="@color/blue_800"
+                android:textSize="15sp"/>
+
+            <!--全折 (所有商品折扣，輸入折抵比例)-->
+            <Button
+                android:id="@+id/btnMultipleCharge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/blue_200"
+                android:text="全折"
+                android:textColor="@color/blue_800"
+                android:textSize="15sp"/>
+
+            <!--更正 (刪除最後一項商品)-->
+            <Button
+                android:id="@+id/btnMerchantClear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/blue_200"
+                android:text="更正"
+                android:textColor="@color/blue_800"
+                android:textSize="15sp"/>
+        </LinearLayout>
 
         <!-- 確認價格 -->
         <Button
@@ -147,7 +194,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="110dp"
+            android:layout_marginBottom="60dp"
             android:text="@string/txtSumShopCart"
             android:textSize="25sp"
             android:backgroundTint="@color/blue_500"/>
@@ -165,23 +212,14 @@
             android:textSize="30sp"
             android:textStyle="bold"/>
 
-        <!--會員選項-->
-        <Button
-            android:id="@+id/btnUserFavor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_above="@+id/txt_totalDollar"
-            android:text="@string/txtUserSettingButton"
-            android:textSize="20sp"
-            android:backgroundTint="@color/blue_500"/>
-
         <!--自訂常用折價券-->
         <Button
             android:id="@+id/btnDiscountList"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:text="@string/txtCoupon"
+            android:textSize="15sp"
+            android:textColor="@color/blue_800"
             android:layout_alignBottom="@+id/txt_totalDollar"
             android:background="@color/blue_200"/>
     </RelativeLayout>

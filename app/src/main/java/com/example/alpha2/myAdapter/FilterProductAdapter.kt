@@ -81,9 +81,6 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
                 val builder = StringBuilder(input)
                 builder.insert(insertIndex, "\n")
                 builder.toString()
-
-                input.substring(0, maxLength - 3) + "..."
-
             } else {
                 input
             }

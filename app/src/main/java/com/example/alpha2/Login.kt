@@ -76,11 +76,10 @@ class Login : AppCompatActivity() {
         insertMerchandisesDB("BookCoupon03","貨號券(實戰)","折扣券","SS555555",50,50,50,50,200, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon11","貨號券(排除 實戰、輕鬆)","折扣券","SS444444",50,50,50,50,200, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon04","類別券CAT(單一)","折扣券","SS666666",100,100,100,100,300, pluUnit = "張", pluType = "75")
-        insertMerchandisesDB("BookCoupon05","類別券C D V(多重)","折扣券","SS600000",30,30,300,300,300, pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon05","類別券CDV(多重)","折扣券","SS600000",30,30,300,300,300, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon06","類別券DEP(排除)","折扣券","SS777777",100,100,100,100,300, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon08","過期類別券(排除)","折扣券","SS888888",100,100,100,100,300, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,30,100, pluUnit = "張", pluType = "75")
-        insertMerchandisesDB("Coupon500","50元折價券","折價券","SS111111",50,50,50,50,200, pluUnit = "張", pluType = "75")
 
         insertCouponDetailDB(DISC_PLU_MagNo = "SS444444", FROM_DATE = LocalDateTime.of(2024, 1, 20, 20, 20), TO_DATE = LocalDateTime.of(2024, 10, 10, 10, 10), SEQ_NO = 177, PLU_MagNo = "9789864343751")
         insertCouponDetailDB(DISC_PLU_MagNo = "SS444444", FROM_DATE = LocalDateTime.of(2024, 1, 20, 20, 20), TO_DATE = LocalDateTime.of(2024, 10, 10, 10, 10), SEQ_NO = 188, PLU_MagNo = "9786263332577")
@@ -97,7 +96,6 @@ class Login : AppCompatActivity() {
         insertCouponMainDB(pluMagNo = "SS777777", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"0","2")
         insertCouponMainDB(pluMagNo = "SS888888", fromDate = LocalDateTime.of(2022, 1, 20, 20, 20), toDate = LocalDateTime.of(2023, 10, 10, 10, 10),"0","2")
         insertCouponMainDB(pluMagNo = "SS123456", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"1")                   //折價券(單價) baseType = 0 就不用檢查明細檔，直接適用
-        insertCouponMainDB(pluMagNo = "SS111111", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"1")
 
         insertPairProduct("20","1,2,3","1,2,3",60)    //綑綁商品清單
 
