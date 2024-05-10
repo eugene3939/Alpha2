@@ -1,10 +1,16 @@
 package com.example.alpha2
 
+import android.R
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.SimpleAdapter
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Invoice.InvoiceDao
 import com.example.alpha2.DBManager.Invoice.InvoiceManager
@@ -43,6 +49,9 @@ class Login : AppCompatActivity() {
         // 使用 View Binding 初始化綁定
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        //要傳送的sharedReference資訊
+        val sharedPreferences = getSharedPreferences("loginUser", Context.MODE_PRIVATE)
 
         // 初始化資料庫管理器
         userDBManager = UserManager(applicationContext)
@@ -116,6 +125,34 @@ class Login : AppCompatActivity() {
         //Dao匯入預設會員檔案
         insertMember("ABC12345","Joyce",LocalDateTime.of(2024, 8, 22, 10, 0),LocalDateTime.of(2024, 8, 22, 10, 0),0.9,"card123")
 
+        //支付方式
+        // 定義下拉列表中的折扣選項
+        val items = arrayOf("收銀","補輸入", "訓練")
+        var transactionMethod = items[0]    //預設支付方式為收銀
+        // 創建一個 ArrayAdapter 來設置 Spinner 的選項內容
+        val adapter = ArrayAdapter(this, R.layout.simple_list_item_1, items)
+        // 設置下拉列表的風格
+        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+        // 將 Adapter 設置給 Spinner
+        binding.spPaymentType.adapter = adapter
+
+        //傳送交易模式到sharedReference
+        binding.spPaymentType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // 在這裡處理項目被選擇的事件
+                transactionMethod = items[position] //更新選擇內容
+                Log.d("切換支付方式為",transactionMethod)
+
+                val editor = sharedPreferences.edit()                      //傳遞交易方式到sharedReference
+                editor.putString("transactionMethod", transactionMethod)
+                editor.apply()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // 如果什麼都沒有被選擇時的處理
+            }
+        }
+
         // 登入按鈕
         binding.btnLogin.setOnClickListener {
             // 取得帳號、密碼
@@ -132,16 +169,15 @@ class Login : AppCompatActivity() {
                     Log.d("登入成功", "用戶名稱: ${accessUser.name}")
 
                     //保存用戶訊息到sharedReference
-                    val sharedPreferences = getSharedPreferences("loginUser", Context.MODE_PRIVATE)
                     val editor = sharedPreferences.edit()
-                    editor.putString("userId", accessUser.id)
+                    editor.putString("userId", accessUser.id)   //傳遞用戶id到sharedReference
                     editor.apply()
 
                     //跳轉到登入頁面
                     val intent = Intent(this@Login,MainActivity::class.java)
                     startActivity(intent)
                 }else{
-                    Log.d("登入失敗: ", "無此用戶")
+                    Toast.makeText(this@Login,"帳號、密碼輸入錯誤",Toast.LENGTH_SHORT).show()
                 }
             }
         }

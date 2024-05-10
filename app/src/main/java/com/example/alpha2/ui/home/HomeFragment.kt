@@ -12,8 +12,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.GridView
@@ -42,7 +40,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.Serializable
 import java.lang.Exception
-import java.text.ParsePosition
 import java.time.LocalDateTime
 
 //不允許螢幕旋轉，螢幕旋轉容易導致資料流失
@@ -134,86 +131,10 @@ class HomeFragment : Fragment() {
             val data: Intent? = result.data
             val scanResult = IntentIntegrator.parseActivityResult(result.resultCode, data)
             if (scanResult != null) {
-
-                var errorHintCode = 0   //錯誤代碼 (0: 掃描取消,1: 重複商品, 2: 不存在商品)
                 if (scanResult.contents == null) {
                     Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_LONG).show()
                 } else {
-                    //確認Dao商品是否包含掃描項目
-                    lifecycleScope.launch {
-                        val product = withContext(Dispatchers.IO) {
-                            productDBManager.getProductByMagNo(scanResult.contents)
-                        }
-                        if (product != null) {
-                            Log.d("存在對應商品", product.pName)
-                            // 檢查是否存在相同商品
-                            if (!filteredProductList.contains(product)) {
-
-                                //確認是否為特殊條件才能加入的商品(像是折價券...)
-                                if (product.pluType == "75"){       //折價券商品
-
-                                    //確認是否可加入折價券商品
-                                    if (couponAddCheck(product)){       //確認折價券能否加入清單
-                                        //將掃描到的商品加入列表中
-                                        filteredProductList.add(product)
-
-                                        Log.d("加入商品", filteredProductList.last().pName)
-
-                                        // 如果商品已經存在，數量指定為-1
-                                        selectedQuantities[product] = -1
-
-                                        existItemCheck = true
-                                    }else{
-                                        errorHintCode = 3   //未達折價券指定金額
-                                        Log.d("未達折價券指定金額","not enough total price for this coupon")
-                                        existItemCheck = false
-                                    }
-
-                                }else{
-                                    //將掃描到的商品加入列表中
-                                    filteredProductList.add(product)
-
-                                    Log.d("加入商品", filteredProductList.last().pName)
-
-                                    // 如果商品已經存在，數量指定為1
-                                    selectedQuantities[product] = 1
-
-                                    existItemCheck = true
-                                }
-
-                            } else {
-                                errorHintCode = 1   //重複商品
-                                Log.d("商品已存在於清單中","exist product")
-
-                                existItemCheck = false
-                            }
-                        } else {
-                            errorHintCode = 2   //不存在商品
-                            Log.d("不存在此商品", "not exist product")
-                            existItemCheck = false
-                        }
-
-                        // 生成只包含 pName 的列表
-                        val productNameList = filteredProductList.map { it.pName }
-
-                        withContext(Dispatchers.Main) {
-                            //變更GridView顯示項目
-                            loadFilterProduct()
-
-                            if (existItemCheck) {
-                                Toast.makeText(requireContext(), "加入商品: ${filteredProductList.last().pName}", Toast.LENGTH_SHORT).show()
-                                Log.d("商品清單", productNameList.toString())
-                            } else {
-                                when (errorHintCode) {
-                                    0 -> Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_SHORT).show()
-                                    1 -> Toast.makeText(requireContext(), "商品已存在於清單中", Toast.LENGTH_SHORT).show()
-                                    2 -> Toast.makeText(requireContext(), "不存在此商品", Toast.LENGTH_SHORT).show()
-                                    3 -> Toast.makeText(requireContext(), "未達折價券指定金額", Toast.LENGTH_SHORT).show()
-                                }
-                                Log.d("商品清單", productNameList.toString())
-                            }
-                        }
-                    }
+                    productScanCheck(scanResult.contents)    //確認掃描結果能否加入購物車
                 }
             }
         }
@@ -267,7 +188,7 @@ class HomeFragment : Fragment() {
         // 找到 目前數量的 輸入框
         val edtNumber = bottomSheetDialog.findViewById<EditText>(R.id.edtScanNumber)
 
-        //點擊gridView變更數量
+        //變更購物車商品數量(+1 -1 取消)
         binding.grTableProduct.setOnItemClickListener { parent, _, position, _ ->
             //目前點按項目
             val clickItem = parent.getItemAtPosition(position) as Product //進行強制轉型確認商品類別
@@ -292,7 +213,7 @@ class HomeFragment : Fragment() {
                     edtNumber.text = Editable.Factory.getInstance().newEditable(changeAmount.toString())
                 }
 
-                // 添加文字變更監聽器
+                // 更新editText內容
                 edtNumber?.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                         // 不需要實現
@@ -416,7 +337,7 @@ class HomeFragment : Fragment() {
                 edtMemberCardNumber?.text = Editable.Factory.getInstance().newEditable("")
             }
 
-            //確認輸入文字是否為會員
+            //輸入會員
             btnConfirmMemberID?.setOnClickListener {
                 if (edtMemberCardNumber != null){
                     //輸入的會員卡號
@@ -441,12 +362,10 @@ class HomeFragment : Fragment() {
                             }
                         }else{
                             Log.d("沒有此會員",memberCardNumber)
-
-                            nowLoginMember = null //清除登錄會員紀錄
+                            nowLoginMember = null //重置會員名稱
 
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(requireContext(), "沒有此會員: $memberCardNumber", Toast.LENGTH_SHORT).show()
-
                                 //重設會員提示文字
                                 binding.txtMemberClass.text = "非會員"
                             }
@@ -477,7 +396,7 @@ class HomeFragment : Fragment() {
             startBarcodeScanner()
         }
 
-        //輸入貨號後新增商品
+        //輸入貨號後新增商品(加入\移出購物車)
         binding.btnSearch.setOnClickListener {
             //搜尋文字
             val searchMgaNo: String = binding.edtSearchRow.text.toString()
@@ -513,7 +432,8 @@ class HomeFragment : Fragment() {
                                 Log.d("不符合折價券規格", "未達折價券指定最低金額")
                                 resultCode = 3
                             }
-                        }else{
+                        }else{ //輸入貨號為一般商品
+                            productScanCheck(selectItem.pluMagNo)
                             // 如果商品已經存在，數量指定為1
                             selectedQuantities[productDBManager.getProductByMagNo(searchMgaNo)!!] = 1
 
@@ -544,119 +464,87 @@ class HomeFragment : Fragment() {
                         1 -> Toast.makeText(requireContext(),"不存在的貨號",Toast.LENGTH_SHORT).show()
                         2 -> Toast.makeText(requireContext(),"已經加入這筆商品了",Toast.LENGTH_SHORT).show()
                         3 -> Toast.makeText(requireContext(),"未達折價券指定最低金額",Toast.LENGTH_SHORT).show()
-                        99 -> Toast.makeText(requireContext(),"新增成功",Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+                        99 ->{
+                            Toast.makeText(requireContext(),"新增成功",Toast.LENGTH_SHORT).show()
 
-            //主程序外更新顯示內容
-            loadFilterProduct()
-        }
-
-        // 定義下拉列表中的折扣選項
-        val items = arrayOf("不適用折扣","人工折扣", "折價券")
-        // 創建一個 ArrayAdapter 來設置 Spinner 的選項內容
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, items)
-        // 設置下拉列表的風格
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        // 將 Adapter 設置給 Spinner
-        binding.spDiscountList.adapter = adapter
-        // 處理用戶選擇的事件
-        binding.spDiscountList.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            //選中該項目的處理
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedItem = parent?.getItemAtPosition(position).toString()
-
-                val simpleBottomDialog = BottomSheetDialog(requireContext())
-                simpleBottomDialog.setContentView(R.layout.couponlist)
-
-                Log.d("點點點","位置")
-
-                couponClickPostion = position
-
-                //選擇折價券選項後開啟BottomView
-                if (selectedItem == "折價券"){
-                    // 找到 顯示折扣清單 gridView
-                    val grCouponList = simpleBottomDialog.findViewById<GridView>(R.id.grCouponList)
-
-                    //用lifecycleScope找尋對應的Dao資料
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        //折價券商品(全部欄位)
-                        val filterPluList = productDBManager.getProductByPluType("75")  //類別是折價券
-
-                        //折價券商品(顯示欄位)
-                        val showUpList = filterPluList?.map { "${it.pId}, ${it.pName}, ${it.unitPrc}" }
-
-                        // 顯示篩選出的列印資訊
-                        showUpList?.forEach { Log.d("Product Info", it) }
-
-                        withContext(Dispatchers.Main){
-                            val couponAdapter = CouponAdapter(requireContext(), showUpList ?: emptyList())
-                            grCouponList?.adapter = couponAdapter
-
-                            couponAdapter.setOnItemClickListener(object : CouponAdapter.OnItemClickListener {
-
-                                //取得按鈕點按位置
-                                override fun onButtonClicked(position: Int) {
-
-                                    //顯示折價券貨號
-                                    val sentCouponItem = filterPluList!![position].pluMagNo
-
-                                    Log.d("折扣券號",sentCouponItem)
-
-                                    // 送出折價券商品
-                                    // 將外部操作也放在協程內部
-                                    lifecycleScope.launch(Dispatchers.IO) {
-                                        // 在主線程中執行資料庫操作
-                                        val product = productDBManager.getProductByMagNo(sentCouponItem!!)
-
-                                        // 將商品加入購物車 (必須不包含在已知清單內)
-                                        if (product != null && !filteredProductList.contains(product)) {
-                                            withContext(Dispatchers.Main) {
-                                                //確認優惠券能否放入清單
-                                                if(couponAddCheck(product)){
-                                                    filteredProductList.add(product)
-                                                    // 如果商品已經存在，數量指定為1
-                                                    selectedQuantities[product] = -1
-
-                                                    Toast.makeText(requireContext(),"新增折價券 ${product.pName}",Toast.LENGTH_SHORT).show()
-                                                }else{
-                                                    //錯誤回報在couponAddCheck就會跳出提示，這邊用Log說明新增出現異常即可
-                                                    Log.d("折價券新增狀況","未滿足折價券使用條件")
-                                                }
-                                                //主程序外更新顯示內容
-                                                loadFilterProduct()
-                                            }
-                                        }
-                                    }
-
-                                    Log.d("優惠券檢查", "已經更新")
-                                }
-                            })
-
-                            simpleBottomDialog.show()
+                            //主程序外更新顯示內容
+                            loadFilterProduct()
                         }
                     }
                 }
             }
+        }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // 沒被選中的處理
-                Log.d("沒被選中的處理","點點")
+        // 自訂折價券按鈕(快速鍵)
+        binding.btnDiscountList.setOnClickListener{
+            //顯示的折價券清單
+            val simpleBottomDialog = BottomSheetDialog(requireContext())
+            simpleBottomDialog.setContentView(R.layout.couponlist)
+
+            // 找到 顯示折扣清單 gridView
+            val grCouponList = simpleBottomDialog.findViewById<GridView>(R.id.grCouponList)
+
+            //用lifecycleScope找尋對應的Dao資料
+            lifecycleScope.launch(Dispatchers.IO) {
+                //折價券商品(全部欄位)
+                val filterPluList = productDBManager.getProductByPluType("75")  //類別是折價券
+
+                //折價券商品(顯示欄位)
+                val showUpList = filterPluList?.map { "${it.pId}, ${it.pName}, ${it.unitPrc}" }
+
+                // 顯示篩選出的列印資訊
+                showUpList?.forEach { Log.d("Product Info", it) }
+
+                withContext(Dispatchers.Main){
+                    val couponAdapter = CouponAdapter(requireContext(), showUpList ?: emptyList())
+                    grCouponList?.adapter = couponAdapter
+
+                    couponAdapter.setOnItemClickListener(object : CouponAdapter.OnItemClickListener {
+
+                        //取得按鈕點按位置
+                        override fun onButtonClicked(position: Int) {
+
+                            //顯示折價券貨號
+                            val sentCouponItem = filterPluList!![position].pluMagNo
+
+                            Log.d("折扣券號",sentCouponItem)
+
+                            // 送出折價券商品
+                            // 將外部操作也放在協程內部
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                // 在主線程中執行資料庫操作
+                                val product = productDBManager.getProductByMagNo(sentCouponItem)
+
+                                // 將商品加入購物車 (必須不包含在已知清單內)
+                                if (product != null && !filteredProductList.contains(product)) {
+                                    withContext(Dispatchers.Main) {
+                                        //確認優惠券能否放入清單
+                                        if(couponAddCheck(product)){
+                                            filteredProductList.add(product)
+                                            // 如果商品已經存在，數量指定為1
+                                            selectedQuantities[product] = -1
+
+                                            Toast.makeText(requireContext(),"新增折價券 ${product.pName}",Toast.LENGTH_SHORT).show()
+                                        }else{
+                                            //錯誤回報在couponAddCheck就會跳出提示，這邊用Log說明新增出現異常即可
+                                            Log.d("折價券新增狀況","未滿足折價券使用條件")
+                                        }
+                                        //主程序外更新顯示內容
+                                        loadFilterProduct()
+                                    }
+                                }
+                            }
+
+                            Log.d("優惠券檢查", "已經更新")
+                        }
+                    })
+
+                    simpleBottomDialog.show()
+                }
             }
         }
 
-        // 定義下拉列表中的折扣選項
-        val items2 = arrayOf("生鮮商品","預購商品", "菸酒類商品", "贈品")
-        // 創建一個 ArrayAdapter 來設置 Spinner 的選項內容
-        val adapter2 = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, items2)
-        // 設置下拉列表的風格
-        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        // 將 Adapter 設置給 Spinner
-        binding.spDiscountList2.adapter = adapter2
-        // 處理用戶選擇的事件
-
-        //按鈕清除輸入貨號
+        //按鈕清除輸入貨號(送出購物車)
         binding.btnClear.setOnClickListener {
             binding.edtSearchRow.setText("")
         }
@@ -682,7 +570,7 @@ class HomeFragment : Fragment() {
         return root
     }
 
-    //確認商品能否移出清單(必須新移除對應的優惠券)
+    //確認優惠券能否移出清單(必須新移除對應的優惠券)
     private fun couponDeleteCheck(deleteItem: Product, copyFilter: MutableList<Product>): Boolean {
         // 檢查刪除項目是否為折價券，如果是直接返回 true
         if (deleteItem.pluType == "75") {
@@ -870,7 +758,6 @@ class HomeFragment : Fragment() {
                             }
                         }else if(selectItem.BASE_TYPE == "2"){
                             //先將所有折價券的明細檔合併為一個集合
-
                             val allProductList  = productDBManager.getAllProductTable()
 
                             for (detailItem in detail){ //走訪所有折價券明細檔
@@ -988,7 +875,7 @@ class HomeFragment : Fragment() {
         return now.isAfter(coupon.FROM_DATE) && now.isBefore(coupon.TO_DATE)
     }
 
-    //螢幕旋轉或其他因素導致資料流失時會重新載入資料
+    //重新載入購物車畫面
     @SuppressLint("SetTextI18n")
     private fun loadFilterProduct() {
 
@@ -1012,8 +899,12 @@ class HomeFragment : Fragment() {
 //            isFirstCreation = false
         }else{
             val adapter: FilterProductAdapter = if (nowLoginMember!=null){      //有會員登入
+
                 FilterProductAdapter(filteredProductList, selectedQuantities,true)
             }else{
+
+                Log.d("嚕嚕嚕",filteredProductList.toString())
+
                 FilterProductAdapter(filteredProductList, selectedQuantities,false)
             }
 
@@ -1053,6 +944,80 @@ class HomeFragment : Fragment() {
                 binding.txtTotalDollar.text = "總計: $totalSumUnitPrice 元"
             }else{
                 binding.txtTotalDollar.visibility = View.INVISIBLE   //金額小於0不可視
+            }
+        }
+    }
+
+    //確認掃描結果能否加入購物車
+    private fun productScanCheck(productMagno: String) {
+        var errorHintCode = 0   //錯誤代碼 (0: 掃描取消,1: 重複商品, 2: 不存在商品)
+
+        //確認Dao商品是否包含掃描項目
+        lifecycleScope.launch {
+            val product = withContext(Dispatchers.IO) {
+                productDBManager.getProductByMagNo(productMagno)
+            }
+            if (product != null) {
+                Log.d("存在對應商品", product.pName)
+                // 檢查是否存在相同商品
+                if (!filteredProductList.contains(product)) {
+
+                    //確認是否為特殊條件才能加入的商品(像是折價券...)
+                    if (product.pluType == "75"){       //折價券商品
+
+                        //確認是否可加入折價券商品
+                        if (couponAddCheck(product)){       //確認折價券能否加入清單
+                            //將掃描到的商品加入列表中
+                            filteredProductList.add(product)
+
+                            Log.d("加入商品", filteredProductList.last().pName)
+
+                            // 如果商品已經存在，數量指定為-1
+                            selectedQuantities[product] = -1
+                            existItemCheck = true
+                        }else{
+                            errorHintCode = 3   //未達折價券指定金額
+                            Log.d("未達折價券指定金額","not enough total price for this coupon")
+                            existItemCheck = false
+                        }
+
+                    }else{
+                        //將掃描到的商品加入列表中
+                        filteredProductList.add(product)
+
+                        Log.d("加入商品", filteredProductList.last().pName)
+
+                        // 如果商品已經存在，數量指定為1
+                        selectedQuantities[product] = 1
+                        existItemCheck = true
+                    }
+
+                } else {
+                    errorHintCode = 1   //重複商品
+                    Log.d("商品已存在於清單中","exist product")
+                    existItemCheck = false
+                }
+            } else {
+                errorHintCode = 2   //不存在商品
+                Log.d("不存在此商品", "not exist product")
+                existItemCheck = false
+            }
+
+            //前台顯示的購物車清單
+            withContext(Dispatchers.Main) {
+                //變更GridView顯示項目
+                loadFilterProduct()
+
+                if (existItemCheck) {
+                    Toast.makeText(requireContext(), "加入商品: ${filteredProductList.last().pName}", Toast.LENGTH_SHORT).show()
+                } else {
+                    when (errorHintCode) {
+                        0 -> Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_SHORT).show()
+                        1 -> Toast.makeText(requireContext(), "商品已存在於清單中", Toast.LENGTH_SHORT).show()
+                        2 -> Toast.makeText(requireContext(), "不存在此商品", Toast.LENGTH_SHORT).show()
+                        3 -> Toast.makeText(requireContext(), "未達折價券指定金額", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }

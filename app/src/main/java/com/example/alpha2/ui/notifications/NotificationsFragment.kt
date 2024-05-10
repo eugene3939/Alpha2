@@ -42,11 +42,6 @@ class NotificationsFragment : Fragment() {
         //初始化Dao
         paymentDBManager = PaymentManager(requireContext())
 
-        //交易查詢列的操作
-        binding.btnInvoiceClear.setOnClickListener {//清空按鈕
-            binding.edtInvoiceText.setText("")
-        }
-
         //按下查詢後找出對應的銷售主檔
         binding.btnInvoiceSearch.setOnClickListener {
             val searchText = binding.edtInvoiceText.text

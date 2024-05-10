@@ -183,13 +183,17 @@ class Payment : AppCompatActivity() {
             val nowSystem = systemDBManager.getSystemSettingNoById("031")
             val nowDate = LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().monthValue, 1, 0, 0, 0, 0)
 
-            // 目前登入的收銀員
+            // 用sharedReference取得豋入頁面資料
             val sharedPreferences = getSharedPreferences("loginUser", Context.MODE_PRIVATE)
+            // 目前登入的收銀員
             val clerkId = sharedPreferences.getString("userId", null)
+            //目前的交易模式
+            val transactionMethod = sharedPreferences.getString("transactionMethod","收銀")
 
             if (nowCashSystem!= null && nowSystem!= null && clerkId!=null) { //顯示目前機號
                 Log.d("目前店號", nowSystem.storeNo)
                 Log.d("目前收銀機號", nowSystem.ecrNo)
+                Log.d("目前交易模式",transactionMethod.toString())
 
                 //送出發票前先確認發票效期
                 val invoiceYYYYMM = getYYYYMM() //取得效期
@@ -220,7 +224,15 @@ class Payment : AppCompatActivity() {
                             TXN_TotDiscM = nowLoginMember?.let { filterList.sumOf{ (it.unitPrc - it.memPrc) * (filterAmount[it] ?: 1) }}?: 0,               /*總會員折扣(負數) 最後算*/
                             TXN_TotSaleAmt = nowPayment,    /*總銷售金額=總應稅銷售金額+總免稅銷售金額  銷售明細加總*/
                             TXN_TotGUI = totalPrice,        /*總發票金額 有多少錢是要開發票的(可能有禮券，禮券已經開過了)*/
-                            TXN_Mode = "N",                 /*交易模式*/
+                            TXN_Mode = when(transactionMethod){
+                                "收銀" -> "R"
+                                "補輸入"-> "E"
+                                "訓練"->"T"
+                                "預收取貨"->"W"
+                                "銷退"->"Y"
+                                "折讓"->"X"
+                                "財務手開"->"F"
+                                else -> "F"},                 /*交易模式*/
                             TXN_Status = "N",
                             TXN_TotPayAmt = nowPayment)     /*總付款金額 付款明細加總*/
 
@@ -230,7 +242,7 @@ class Payment : AppCompatActivity() {
                         updateNextInvoiceNumber(existInvoiceSetup,invoiceYYYYMM)
 
                         //建立即時銷售明細檔
-                        buildPaymentDetail(nowSystem,nowDate,existInvoiceSetup)
+                        buildPaymentDetail(nowSystem,nowDate,existInvoiceSetup,transactionMethod)
 
                         //成功送出後回到主畫面
                         val intent = Intent(this,MainActivity::class.java)
@@ -246,7 +258,12 @@ class Payment : AppCompatActivity() {
     }
 
     //建立商品明細檔
-    private fun buildPaymentDetail(nowSystem: SystemSetting, nowDate: LocalDateTime,existInvoiceSetup: InvoiceSetup) {
+    private fun buildPaymentDetail(
+        nowSystem: SystemSetting,
+        nowDate: LocalDateTime,
+        existInvoiceSetup: InvoiceSetup,
+        transactionMethod: String?
+    ) {
         //目前最大的TXN_No(交易序號) ，向上疊加
         val maxTXN = paymentDBManager.searchPaymentDetailByMaxYYMM(nowDate)?.plus(1) ?: 1
         var temp = 1    //項次
@@ -277,7 +294,15 @@ class Payment : AppCompatActivity() {
                 TXN_Tax = 0,                    /*稅額*/
                 PLU_TaxType = "0",              /*稅別 0=免稅 1=應稅*/
 
-                TXN_Mode = "N",                 /*交易模式(同POS3008)*/
+                TXN_Mode = when(transactionMethod){
+                    "收銀" -> "R"
+                    "補輸入"-> "E"
+                    "訓練"->"T"
+                    "預收取貨"->"W"
+                    "銷退"->"Y"
+                    "折讓"->"X"
+                    "財務手開"->"F"
+                    else -> "F"},               /*交易模式(同POS3008)*/
                 TXN_Status = "N",               /*交易狀態(同POS3008,R=退貨)*/
 
                 PLU_Name = product.pName

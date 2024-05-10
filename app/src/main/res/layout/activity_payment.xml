@@ -14,14 +14,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_alignParentTop="true"
         android:layout_marginTop="30dp">
 
         <!-- 商品名稱 -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2.2"
+            android:layout_weight="4"
             android:text="@string/txtFname"
             android:textColor="@color/blue_500"
             android:textSize="20sp"
@@ -66,11 +65,13 @@
     <GridView
         android:id="@+id/gr_paymentMethod"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:layout_below="@+id/lr_filterTitle"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lr_filterTitle"
+        android:layout_above="@+id/lrInvoiceShowUp"/>
 
     <!--金額找零顯示區-->
     <LinearLayout
+        android:id="@+id/lrInvoiceShowUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/lrChoicePayment"
@@ -87,15 +88,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/txtInvoicePrinter"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <TextView
                 android:id="@+id/txtVATNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="25sp"
                 android:text="@string/txtCancelSelection"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
         </LinearLayout>
 
         <!--數量顯示區-->
@@ -108,7 +109,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/txtFAmount"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <TextView
                 android:id="@+id/txtCartAmount"
@@ -116,14 +117,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
                 android:text="@string/txtCancelSelection"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
                 android:text="@string/txtUserSettingButton"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <TextView
                 android:id="@+id/txtMember"
@@ -131,7 +132,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
                 android:text="@string/txtCancelSelection"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
         </LinearLayout>
 
         <!--小計顯示區-->
@@ -144,7 +145,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/txtSumShopCart"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <TextView
                 android:id="@+id/txtCashSum"
@@ -152,14 +153,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
                 android:text="@string/txtCancelSelection"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
                 android:text="@string/txtFsum"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <EditText
                 android:id="@+id/edtCashAmount"
@@ -167,7 +168,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
                 android:hint="@string/txtCancelSelection"
-                android:textSize="30sp"
+                android:textSize="20sp"
                 android:textAlignment="center"
                 android:inputType="numberDecimal"/>
 
@@ -183,7 +184,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/txtCharge"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <TextView
                 android:id="@+id/txtChange"
@@ -191,17 +192,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
                 android:text="@string/txtCancelSelection"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
         </LinearLayout>
     </LinearLayout>
 
 
+    <!--付款方式選擇區-->
     <LinearLayout
         android:id="@+id/lrChoicePayment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
 
         <!--是否需要印統編-->
         <Button
@@ -226,7 +228,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
             android:text="@string/txtConfirm"
-            android:textSize="25sp"/>
+            android:textSize="20sp"/>
     </LinearLayout>
 
 </RelativeLayout>

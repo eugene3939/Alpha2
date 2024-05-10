@@ -42,7 +42,7 @@
                 android:layout_weight="0.75"
                 android:autofillHints="empty"
                 android:hint="@string/txtSearchBarHint"
-                android:inputType="text"
+                android:inputType="numberDecimal"
                 android:textSize="20sp"
                 android:textColor="@color/blue_500"
                 android:textColorHint="@color/blue_500"/>
@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:layout_weight="0.125"
-                android:text="@string/txtConfirm"
+                android:text="@string/txtAddProduct"
                 android:textSize="20sp"
                 android:textColor="@color/blue_800"
                 android:backgroundTint="@color/blue_200"/>
@@ -176,20 +176,12 @@
             android:textSize="20sp"
             android:backgroundTint="@color/blue_500"/>
 
-        <!--折扣選項-->
-        <Spinner
-            android:id="@+id/spDiscountList"
+        <!--自訂常用折價券-->
+        <Button
+            android:id="@+id/btnDiscountList"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_alignBottom="@+id/txt_totalDollar"
-            android:background="@color/blue_200"/>
-
-        <!--自訂按鈕2-->
-        <Spinner
-            android:id="@+id/spDiscountList2"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_toEndOf="@+id/spDiscountList"
+            android:text="@string/txtCoupon"
             android:layout_alignBottom="@+id/txt_totalDollar"
             android:background="@color/blue_200"/>
     </RelativeLayout>

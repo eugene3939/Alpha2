@@ -47,4 +47,6 @@
     <string name="txtEnterTextTitle">這是標題</string>
     <string name="txtFulfil">請輸入內容</string>
     <string name="txtCharge">找零</string>
+    <string name="txtCoupon">常用折價券</string>
+    <string name="txtAddProduct">加入商品</string>
 </resources>

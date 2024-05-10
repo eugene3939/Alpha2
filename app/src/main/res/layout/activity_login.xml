@@ -49,6 +49,11 @@
             android:textSize="30sp"
             android:importantForAutofill="no" />
 
+        <Spinner
+            android:id="@+id/spPaymentType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
         <Button
             android:id="@+id/btn_login"
             android:layout_width="wrap_content"
