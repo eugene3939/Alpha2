@@ -58,6 +58,17 @@ class HomeFragment : Fragment() {
     //List儲存商品篩選結果(依據文字搜尋或欄位搜尋結果)
     private var filteredProductList: MutableList<Product> = mutableListOf()
 
+    //用購物車物件管理條目(包含商品、折扣、購買數、稅別...可以新增不同需求)---------------------------
+
+    //購物車項次(單次交易)
+    private var Cno:Int = 0
+    //購物車項次物件 (序號、貨號、購買數量、折扣)
+    data class CartItem(val sequence:Int, val plu_Magno: String, var quantity: Int, val discount: Double = 0.00)   //購物車項次內容
+    //購物車條目組合
+    private val cartList = mutableListOf<CartItem>()    //購物車項次清單
+
+    //--------------------------------------------------------------------------------------
+
     private val REQUEST_CODE_SCAN = 1002    //掃描請求碼
 
     private var existItemCheck = false      //檢查掃描商品是否存在於Dao
@@ -68,15 +79,17 @@ class HomeFragment : Fragment() {
     // 定義一個映射來存儲商品和它們的選擇數量
     private var selectedQuantities = mutableMapOf<Product, Int>()
 
+    //用物件保留刪除的購物車資訊
+    data class DeletedCartItem(val deleteOrder: Int, val cartItem: CartItem)
     //刪除掉的商品購物車內容
-    private var clearProductMap = mutableMapOf<Product, Int>()
+    private val deleteCartList = mutableListOf<DeletedCartItem>()
+    //刪除的購物車索引
+    private var Dno:Int = 0
+
     //總小計金額
     private var totalSumUnitPrice = 0
     //目前會員
     private var nowLoginMember: Member? = null
-
-    //紀錄先前的點擊位置
-    private var couponClickPostion:Int? = null
 
     //鏡頭開啟時處理條碼邏輯 (加入會員)
     @SuppressLint("SetTextI18n")
@@ -266,6 +279,15 @@ class HomeFragment : Fragment() {
                                     selectedQuantities[filteredProductList[position]] = changeAmount!! * -1
                                 }else{
                                     selectedQuantities[filteredProductList[position]] = changeAmount!!
+                                }
+
+                                //更新購物車物件的數量
+                                if (cartList.isNotEmpty()) {
+                                    val lastItem = cartList.last()
+                                    lastItem.quantity = changeAmount as Int
+                                    println("變更數量 ${lastItem.quantity}")
+                                } else {
+                                    println("購物車為空，無法變更數量")
                                 }
 
                                 Log.d("商品數量","${selectedQuantities[filteredProductList[position]]}")
@@ -565,9 +587,30 @@ class HomeFragment : Fragment() {
                 Log.d("警告", "刪除商品 ${lastItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
                 safeDeleteCheck = false
             }
-
             // 如果所有檢查都通過，執行刪除操作
             if (safeDeleteCheck) {
+                //刪除最後一項購物車物件
+                if (cartList.isNotEmpty()) {
+                    //刪除前先將記錄保存更正紀錄
+                    Dno+=1  //更新更正清單項次
+                    deleteCartList.add(DeletedCartItem(Dno,cartList.last()))
+                    println("已經保存更正紀錄到清單")
+
+                    for (i in deleteCartList){
+                        println("第${i.deleteOrder}筆刪除內容: ${i.cartItem}")
+                    }
+
+                    //更新購物車清單內容
+                    cartList.remove(cartList.last())    //刪除最後一項
+                    println("刪除購物車物件成功")
+
+                    for (i in cartList){
+                        println("目前商品貨號: ${i.plu_Magno}")
+                    }
+
+                } else {
+                    println("購物車為空，無法變更數量")
+                }
                 // 使用主執行緒進行UI操作
                 withContext(Dispatchers.Main) {
                     //詢問用alertDialog詢問是否要進行更正作業
@@ -576,13 +619,6 @@ class HomeFragment : Fragment() {
                     deleteCheckDialogBuilder.setMessage("請問您確定要刪除 ${lastItem.pName} 嗎?")
                     //確定更正
                     deleteCheckDialogBuilder.setPositiveButton("確定") { _, _ ->
-                        //刪除前先將記錄保存
-                        clearProductMap[lastItem] = 1
-
-                        for (i in clearProductMap){
-                            Log.d("刪除紀錄"," ${i.key.pName}")
-                        }
-
                         // 刪除掃描商品提示訊息(商品名稱)
                         Toast.makeText(requireContext(), "刪除: ${lastItem.pName}", Toast.LENGTH_SHORT).show()
                         selectedQuantities.remove(filteredProductList[filteredProductList.size-1])
@@ -932,12 +968,8 @@ class HomeFragment : Fragment() {
 //            isFirstCreation = false
         }else{
             val adapter: FilterProductAdapter = if (nowLoginMember!=null){      //有會員登入
-
                 FilterProductAdapter(filteredProductList, selectedQuantities,true)
             }else{
-
-                Log.d("嚕嚕嚕",filteredProductList.toString())
-
                 FilterProductAdapter(filteredProductList, selectedQuantities,false)
             }
 
@@ -1005,6 +1037,10 @@ class HomeFragment : Fragment() {
 
                             Log.d("加入商品", filteredProductList.last().pName)
 
+                            //將掃描結果加入購物車物件
+                            Cno+=1  //更新購物車項次
+                            cartList.add(CartItem(Cno,productMagno,-1))    //項次+1
+
                             // 如果商品已經存在，數量指定為-1
                             selectedQuantities[product] = -1
                             existItemCheck = true
@@ -1013,12 +1049,15 @@ class HomeFragment : Fragment() {
                             Log.d("未達折價券指定金額","not enough total price for this coupon")
                             existItemCheck = false
                         }
-
-                    }else{
+                    }else{          //非折價券商品
                         //將掃描到的商品加入列表中
                         filteredProductList.add(product)
 
                         Log.d("加入商品", filteredProductList.last().pName)
+
+                        //將掃描結果加入購物車物件
+                        Cno+=1  //更新購物車項次
+                        cartList.add(CartItem(Cno,productMagno,1))    //項次+1
 
                         // 如果商品已經存在，數量指定為1
                         selectedQuantities[product] = 1
