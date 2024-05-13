@@ -49,4 +49,5 @@
     <string name="txtCharge">找零</string>
     <string name="txtCoupon">常用折價券</string>
     <string name="txtAddProduct">加入商品</string>
+    <string name="txtDiscount">折扣</string>
 </resources>

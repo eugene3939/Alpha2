@@ -33,15 +33,15 @@ import com.example.alpha2.DBManager.System.PaymentMethod
 import com.example.alpha2.DBManager.System.SystemManager
 import com.example.alpha2.DBManager.System.SystemSetting
 import com.example.alpha2.myAdapter.FilterProductAdapter
+import com.example.alpha2.myObject.CartItem
 import java.time.LocalDateTime
 
 
 class Payment : AppCompatActivity() {
     //從HomeFragment取得的購物清單內容
-    private var filterList = mutableListOf<Product>()           //商品項次
-    private var filterAmount = mutableMapOf<Product,Int>()      //商品項次 與 對應購買數
     private var totalPrice = 0                                  //購買總價
     private var nowLoginMember: Member? = null                  //會員
+    private var cartList = mutableListOf<CartItem>()            //購物車項目
 
     private lateinit var systemDBManager: SystemManager         //系統主檔 (取得支援的付款方式)
     private lateinit var paymentDBManager: PaymentManager       //付款主檔 (取得付款相關Dao資料)
@@ -83,18 +83,20 @@ class Payment : AppCompatActivity() {
 
         // 用 intent 獲取 商品清單
         try {
-            filterList = intent.getSerializableExtra("filteredList_key") as MutableList<Product>
-            filterAmount = intent.getSerializableExtra("quantities_key") as MutableMap<Product, Int>
+            cartList = intent.getSerializableExtra("cartList_key") as MutableList<CartItem>
+
             totalPrice = intent.getIntExtra("total_price",0)
             nowLoginMember = intent.getSerializableExtra("now_member") as? Member
 
-            Log.d("調用商品清單測試", filterList.toString())
-            Log.d("調用商品數量測試", filterAmount.toString())
             Log.d("小計總額", totalPrice.toString())
             Log.d("會員資訊",nowLoginMember.toString())
 
+            for (i in cartList){
+                println("都看看是誰來了: ${i.productItem.pName}")
+            }
+
             //顯示商品件數
-            txtCartAmount.text = filterList.size.toString()
+            txtCartAmount.text = cartList.size.toString()
             //顯示小計總額
             txtCashSum.text = totalPrice.toString()
             //顯示會員內容
@@ -115,9 +117,9 @@ class Payment : AppCompatActivity() {
             try {
                 //用GridView 顯示 購買清單
                 val adapter = if (nowLoginMember != null){
-                     FilterProductAdapter(filterList,filterAmount,true)
+                    FilterProductAdapter(cartList,true)
                 }else{
-                     FilterProductAdapter(filterList,filterAmount,false)
+                    FilterProductAdapter(cartList,false)
                 }
 
                 // 獲取 GridView 並設置適配器
@@ -218,10 +220,11 @@ class Payment : AppCompatActivity() {
                             TXN_GUIPaper = "E",     /*2=二聯式 3=三聯式 N=免開發票 E=電子發票 R=銷退單*/
                             TXN_GUIBegNo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
                             TXN_GUICnt = 1,                 /*發票張數*/
-                            TXN_TotQty = filterList.size,   /*總數量*/
+                            TXN_TotQty = cartList.size,   /*總數量*/
                             TXN_TotDiscS = 0,               /*總人工折扣(負數) 最優先*/
                             TXN_TotDiscT = 0,        /*總合小計折扣 目前僅依照會員價與商品單價之差價 第二優先*/
-                            TXN_TotDiscM = nowLoginMember?.let { filterList.sumOf{ (it.unitPrc - it.memPrc) * (filterAmount[it] ?: 1) }}?: 0,               /*總會員折扣(負數) 最後算*/
+                            TXN_TotDiscM = nowLoginMember?.let { cartList.sumOf{ (it.productItem.unitPrc - it.productItem.memPrc) * (it.quantity) }}?: 0,               /*總會員折扣(負數) 最後算*/
+
                             TXN_TotSaleAmt = nowPayment,    /*總銷售金額=總應稅銷售金額+總免稅銷售金額  銷售明細加總*/
                             TXN_TotGUI = totalPrice,        /*總發票金額 有多少錢是要開發票的(可能有禮券，禮券已經開過了)*/
                             TXN_Mode = when(transactionMethod){
@@ -267,7 +270,7 @@ class Payment : AppCompatActivity() {
         //目前最大的TXN_No(交易序號) ，向上疊加
         val maxTXN = paymentDBManager.searchPaymentDetailByMaxYYMM(nowDate)?.plus(1) ?: 1
         var temp = 1    //項次
-        for ((product,amount) in filterAmount){
+        for ((product,amount) in cartList.associate { it.productItem to it.quantity }){
             val paymentDetailItem = PaymentDetail(
                 SYS_StoreNo = nowSystem.storeNo,
                 TXN_Date = nowDate,
@@ -412,7 +415,7 @@ class Payment : AppCompatActivity() {
 
                 //如果選現金以外欄位，自動填入金額
                 if (position != 0 ){
-                   val edtEnterCash: EditText = findViewById(R.id.edtCashAmount)
+                    val edtEnterCash: EditText = findViewById(R.id.edtCashAmount)
 
                     nowPayment = totalPrice
 

@@ -9,8 +9,9 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.R
+import com.example.alpha2.myObject.CartItem
 
-class FilterProductAdapter(private val dataList: List<Product>,private val numberInf: MutableMap<Product, Int>,private val memberCheck: Boolean) : BaseAdapter() {
+class FilterProductAdapter(private val dataList: MutableList<CartItem>,private val memberCheck: Boolean) : BaseAdapter() {
     override fun getCount(): Int {
         return dataList.size
     }
@@ -35,8 +36,8 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
             holder = view.tag as ViewHolder
         }
 
-        val product = dataList[position]
-        holder.bind(product, numberInf,position + 1,memberCheck)
+        val item = dataList[position]
+        holder.bind(item,memberCheck)
 
         return view!!
     }
@@ -46,30 +47,33 @@ class FilterProductAdapter(private val dataList: List<Product>,private val numbe
         private val productID: TextView = itemView.findViewById(R.id.txt_productIndex)
         private val productName: TextView = itemView.findViewById(R.id.txt_productName)
         private val productPrice: TextView = itemView.findViewById(R.id.txt_productPrice)
+        private val productDiscount: TextView = itemView.findViewById(R.id.txt_product_discount)
         private val productSum: TextView = itemView.findViewById(R.id.txt_productSum)
 
         private val shopNumber: TextView = itemView.findViewById(R.id.txt_product_buy_number)
         @SuppressLint("SetTextI18n")
-        fun bind(product: Product, numberInf: MutableMap<Product, Int>, ID: Int, memberCheck: Boolean) {
-            productID.text = "$ID"
+        fun bind(item: CartItem,memberCheck: Boolean) {
+            productID.text = "${item.sequence}"
             // 使用 Glide 或其他圖片載入庫載入商品圖片
-            shopNumber.text = "x ${numberInf[product]}"
+            shopNumber.text = "x ${item.quantity}"
 
-            productName.text = truncateString(product.pName, 20)
+            productDiscount.text = "${item.discount}"
+
+            productName.text = truncateString(item.productItem.pName, 20)
 
             //如果是會員就顯示會員價，非會員unitPrice
             if (memberCheck){
                 //防止會員價比折扣價還高的狀況 (適用較低價格)
-                if (product.memPrc > product.unitPrc){
-                    productPrice.text = "${product.unitPrc}"
-                    productSum.text = "${product.unitPrc * numberInf[product]!!} 元"     //單向小計
+                if (item.productItem.memPrc > item.productItem.unitPrc){
+                    productPrice.text = "${item.productItem.unitPrc}"
+                    productSum.text = "${item.productItem.unitPrc * item.quantity} 元"     //單向小計
                 }else{
-                    productPrice.text = "${product.memPrc}"
-                    productSum.text = "${product.memPrc * numberInf[product]!!} 元"     //單向小計
+                    productPrice.text = "${item.productItem.memPrc}"
+                    productSum.text = "${item.productItem.memPrc * item.quantity} 元"     //單向小計
                 }
             }else{
-                productPrice.text = "${product.unitPrc}"
-                productSum.text = "${product.unitPrc * numberInf[product]!!} 元"     //單向小計
+                productPrice.text = "${item.productItem.unitPrc}"
+                productSum.text = "${item.productItem.unitPrc * item.quantity} 元"     //單向小計
             }
         }
 

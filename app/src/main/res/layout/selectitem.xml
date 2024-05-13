@@ -50,6 +50,16 @@
         android:textColor="@color/blue_800"
         android:textSize="15sp"/>
 
+    <!--商品折扣-->
+    <TextView
+        android:id="@+id/txt_product_discount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/txtDiscount"
+        android:textColor="@color/blue_800"
+        android:textSize="15sp"/>
+
     <!-- 商品庫存 -->
     <TextView
         android:id="@+id/txt_productSum"

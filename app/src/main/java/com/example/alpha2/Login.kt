@@ -175,7 +175,10 @@ class Login : AppCompatActivity() {
                     val intent = Intent(this@Login,MainActivity::class.java)
                     startActivity(intent)
                 }else{
-                    Toast.makeText(this@Login,"帳號、密碼輸入錯誤",Toast.LENGTH_SHORT).show()
+
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        Toast.makeText(this@Login,"帳號、密碼輸入錯誤",Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

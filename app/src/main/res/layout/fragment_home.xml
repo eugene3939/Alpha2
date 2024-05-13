@@ -116,7 +116,17 @@
                 android:textSize="15sp"
                 android:textStyle="bold"/>
 
-            <!-- 商品庫存 -->
+            <!--商品折扣-->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/txtDiscount"
+                android:textColor="@color/blue_500"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
+
+            <!-- 商品小計 -->
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -209,7 +219,7 @@
             android:layout_marginBottom="60dp"
             android:visibility="invisible"
             android:text="@string/txtTotalPrice"
-            android:textSize="30sp"
+            android:textSize="25sp"
             android:textStyle="bold"/>
 
         <!--自訂常用折價券-->
