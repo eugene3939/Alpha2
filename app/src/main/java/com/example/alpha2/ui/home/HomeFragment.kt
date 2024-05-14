@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.GridView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.alpha2.DBManager.Product.Product
@@ -197,19 +199,19 @@ class HomeFragment : Fragment() {
         //變更購物車商品數量(只能變更最後一項，並選0會跳出是否更正之提醒，+1 -1 取消)
         binding.grTableProduct.setOnItemClickListener { parent, _, position, _ ->
             //目前點按項目
-            val clickItem = parent.getItemAtPosition(position) as Product //進行強制轉型確認商品類別
+            val clickItem = parent.getItemAtPosition(position) as CartItem //進行強制轉型確認購物車類別
             // 顯示 BottomView
             bottomSheetDialog.show()
 
             //這邊先確定點及項目是否為最後一項(最後一項才允許變更數量)
-            if (clickItem == cartList.last().productItem){
+            if (clickItem == cartList.last()){
                 if (btnPlus1 != null && btnMinus1 != null && btnConfirm!=null) {
                     //點擊商品的目前數量
                     val selectScanNumber = cartList.last().quantity
 
                     //點擊數量(如果是折價券就變成負金額)
                     var changeAmount= selectScanNumber
-                    if (clickItem.pluType == "75"){
+                    if (clickItem.productItem.pluType == "75"){
                         changeAmount *= (-1)
                     }
 
@@ -258,29 +260,34 @@ class HomeFragment : Fragment() {
                         }
                     }
                     btnConfirm.setOnClickListener {
-                        // 如果變更後的數量變成 0 就刪除選擇商品
-                        if (changeAmount == 0) {
-                            //進行更正作業
-                            merchantClearProcess()
+                        //如果已經有折扣了就不允許變更數量，要求先進行更正
+                        if (clickItem.discount !=0.0 ){
+                            Toast.makeText(requireContext(),"折扣後不允許數量變更",Toast.LENGTH_SHORT).show()
                         }else{
-                            //更新成新數量
-                            //如果商品類別是否為折價券
-                            if (clickItem.pluType == "75"){ //如果屬於折價券類別，就將數量變成負值
-                                cartList[cartList.size-1].quantity = changeAmount*-1
+                            // 如果變更後的數量變成 0 就刪除選擇商品
+                            if (changeAmount == 0) {
+                                //進行更正作業
+                                merchantClearProcess()
                             }else{
-                                cartList[cartList.size-1].quantity = changeAmount*1
-                            }
+                                //更新成新數量
+                                //如果商品類別是否為折價券
+                                if (clickItem.productItem.pluType == "75"){ //如果屬於折價券類別，就將數量變成負值
+                                    cartList[cartList.size-1].quantity = changeAmount*-1
+                                }else{
+                                    cartList[cartList.size-1].quantity = changeAmount*1
+                                }
 
-                            //更新購物車物件的數量
-                            if (cartList.isNotEmpty()) {
-                                val lastItem = cartList.last()
-                                lastItem.quantity = changeAmount as Int
-                                println("變更數量 ${lastItem.quantity}")
-                            } else {
-                                println("購物車為空，無法變更數量")
-                            }
+                                //更新購物車物件的數量
+                                if (cartList.isNotEmpty()) {
+                                    val lastItem = cartList.last()
+                                    lastItem.quantity = changeAmount as Int
+                                    println("變更數量 ${lastItem.quantity}")
+                                } else {
+                                    println("購物車為空，無法變更數量")
+                                }
 
-                            Log.d("商品數量","${cartList.last().quantity}")
+                                Log.d("商品數量","${cartList.last().quantity}")
+                            }
                         }
 
                         //重新載入清單
@@ -530,6 +537,69 @@ class HomeFragment : Fragment() {
             }
         }
 
+        //現折按鈕(修改購物車 折扣選項 : 單向折扣)
+        binding.btnSingleCharge.setOnClickListener {
+            //單向折扣只會變更最後一項的價格
+
+            //開啟alertDialog讓收銀員輸入人工折扣
+            val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.entertext, null)
+            val alertDialogBuilder = AlertDialog.Builder(requireContext())
+
+            alertDialogBuilder.setView(dialogView)
+
+            alertDialogBuilder.apply {
+                //顯示折數
+                val myEditText = dialogView.findViewById<EditText>(R.id.edtEnterTxtContent)
+                //顯示標題
+                val customTitle = dialogView.findViewById<TextView>(R.id.txtEnterTxtTitle)
+
+                customTitle.text="請輸入折數"
+
+                setPositiveButton("確認"){_, _ ->
+                    val discountText = myEditText.text.toString()
+
+                    if (cartList.size>=1) {
+                        if (myEditText.text.isEmpty()){
+                            Toast.makeText(requireContext(),"折數不能為空",Toast.LENGTH_SHORT).show()
+                        }else{
+                            if (discountText.toIntOrNull() == null) //確認是否為整數型
+                                Toast.makeText(requireContext(),"輸入內容必須為整數型",Toast.LENGTH_SHORT).show()
+                            else{ //確認是否為0-100之間
+                                if (discountText.toIntOrNull()!! > 100 || discountText.toIntOrNull()!! < 0 ){
+                                    Toast.makeText(requireContext(),"輸入內容必須在0-100之間",Toast.LENGTH_SHORT).show()
+                                }else{
+                                    val discountValue = discountText.toDouble() / 100 //折數轉換為小數型
+                                    val lastProduct = cartList.last()
+
+                                    //確認是否為會員
+                                    if (nowLoginMember!=null)
+                                    //變更購物車最後一項的折扣金額
+                                        lastProduct.discount = (lastProduct.productItem.memPrc - lastProduct.productItem.memPrc * discountValue) * lastProduct.quantity
+                                    else
+                                        cartList.last().discount = (lastProduct.productItem.unitPrc - lastProduct.productItem.unitPrc * discountValue) * lastProduct.quantity
+
+                                    loadFilterProduct()
+                                }
+                            }
+                        }
+                    }else{
+                        Toast.makeText(requireContext(),"購物車尚未加入商品",Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+
+                setNegativeButton("取消"){dialog, _ ->
+                    dialog.dismiss()
+                }
+            }
+
+            val alertDialog = alertDialogBuilder.create()
+            alertDialog.show()
+        }
+
+        //全折按鈕(小計折扣: 全部都算，不過已經小計折扣過的項目不納入考慮)
+
+
         //按鈕清除輸入貨號(送出購物車)
         binding.btnClear.setOnClickListener {
             binding.edtSearchRow.setText("")
@@ -545,14 +615,21 @@ class HomeFragment : Fragment() {
             }
 
             if (cartList.isNotEmpty() && totalSumUnitPrice >= 0) {
-//                val intent = Intent(requireContext(), Payment::class.java)
-//                intent.putExtra("cartList", cartList as? Serializable)
-//                intent.putExtra("now_member",nowLoginMember as? Serializable)
-//                intent.putExtra("total_price",totalSumUnitPrice)
-//                startActivity(intent)
 
+                //出現相同貨號的進行合併
+                val groupedItems  = cartList.groupBy { it.productItem }
+
+                groupedItems.forEach{ println("我的合併: $it")}
+
+                val mergedCart = groupedItems.values.map { items ->
+                    items.first().copy(quantity = items.sumOf { it.quantity })
+                }
+
+                mergedCart.forEach { println("我的小計: $it") }
+
+                //送出合併後的購物車
                 val intent = Intent(requireContext(), Payment::class.java)
-                intent.putExtra("cartList_key", cartList as? Serializable)
+                intent.putExtra("cartList_key", mergedCart as? Serializable)
 
                 intent.putExtra("now_member",nowLoginMember as? Serializable)
                 intent.putExtra("total_price",totalSumUnitPrice)
@@ -565,25 +642,26 @@ class HomeFragment : Fragment() {
 
     //進行更正作業
     private fun merchantClearProcess() {
-        // 安全鎖
-        var safeDeleteCheck = true
-        // 先用複製的清單確認刪除最後一項是否會導致關聯遭到破壞
-        val copyFilter: MutableList<Product> = ArrayList(cartList.map { it.productItem }) // 使用複製的清單進行檢查
-        val lastItem = copyFilter[copyFilter.size-1]    // 前先儲存最後一項
+        if (cartList.isNotEmpty()){
+            // 安全鎖
+            var safeDeleteCheck = true
+            // 先用複製的清單確認刪除最後一項是否會導致關聯遭到破壞
+            val copyFilter: MutableList<Product> = ArrayList(cartList.map { it.productItem }) // 使用複製的清單進行檢查
+            val lastItem = copyFilter[copyFilter.size-1]    // 前先儲存最後一項
 
-        copyFilter.removeAt(copyFilter.size-1)    // 刪除最後一項
+            copyFilter.removeAt(copyFilter.size-1)    // 刪除最後一項
 
-        // 創建一個新的協程，並在其中執行異步操作
-        lifecycleScope.launch(Dispatchers.IO) {
-            // 確認點案的項目是否會影響 折價券關係
-            if (!couponDeleteCheck(lastItem,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
-                Log.d("警告", "刪除商品 ${lastItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
-                safeDeleteCheck = false
-            }
-            // 如果所有檢查都通過，執行刪除操作
-            if (safeDeleteCheck) {
-                //刪除最後一項購物車物件
-                if (cartList.isNotEmpty()) {
+            // 創建一個新的協程，並在其中執行異步操作
+            lifecycleScope.launch(Dispatchers.IO) {
+                // 確認點案的項目是否會影響 折價券關係
+                if (!couponDeleteCheck(lastItem,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
+                    Log.d("警告", "刪除商品 ${lastItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
+                    safeDeleteCheck = false
+                }
+                // 如果所有檢查都通過，執行刪除操作
+                if (safeDeleteCheck) {
+                    //刪除最後一項購物車物件
+
                     //刪除前先將記錄保存更正紀錄
                     Dno+=1  //更新更正清單項次
                     deleteCartList.add(DeletedCartItem(Dno,cartList.last()))
@@ -594,6 +672,7 @@ class HomeFragment : Fragment() {
                     }
 
                     //更新購物車清單內容
+                    Cno-=1
                     cartList.remove(cartList.last())    //刪除最後一項
                     println("刪除購物車物件成功")
 
@@ -601,32 +680,32 @@ class HomeFragment : Fragment() {
                         println("目前商品貨號: ${i.productItem.pluMagNo} 數量: ${i.quantity}")
                     }
 
-                } else {
-                    println("購物車為空，無法變更數量")
-                }
-                // 使用主執行緒進行UI操作
-                withContext(Dispatchers.Main) {
-                    //詢問用alertDialog詢問是否要進行更正作業
-                    val deleteCheckDialogBuilder = AlertDialog.Builder(requireContext())
-                    deleteCheckDialogBuilder.setTitle("更正作業")
-                    deleteCheckDialogBuilder.setMessage("請問您確定要刪除 ${lastItem.pName} 嗎?")
-                    //確定更正
-                    deleteCheckDialogBuilder.setPositiveButton("確定") { _, _ ->
-                        // 刪除掃描商品提示訊息(商品名稱)
-                        Toast.makeText(requireContext(), "刪除: ${lastItem.pName}", Toast.LENGTH_SHORT).show()
+                    // 使用主執行緒進行UI操作
+                    withContext(Dispatchers.Main) {
+                        //詢問用alertDialog詢問是否要進行更正作業
+                        val deleteCheckDialogBuilder = AlertDialog.Builder(requireContext())
+                        deleteCheckDialogBuilder.setTitle("更正作業")
+                        deleteCheckDialogBuilder.setMessage("請問您確定要刪除 ${lastItem.pName} 嗎?")
+                        //確定更正
+                        deleteCheckDialogBuilder.setPositiveButton("確定") { _, _ ->
+                            // 刪除掃描商品提示訊息(商品名稱)
+                            Toast.makeText(requireContext(), "刪除: ${lastItem.pName}", Toast.LENGTH_SHORT).show()
 
-                        //重新載入清單
-                        loadFilterProduct()
-                    }
-                    //取消更正
-                    deleteCheckDialogBuilder.setNegativeButton("取消") { _, _ ->
-                    }
+                            //重新載入清單
+                            loadFilterProduct()
+                        }
+                        //取消更正
+                        deleteCheckDialogBuilder.setNegativeButton("取消") { _, _ ->
+                        }
 
-                    //顯示alertDialog
-                    val alertDialog = deleteCheckDialogBuilder.create()
-                    alertDialog.show()
+                        //顯示alertDialog
+                        val alertDialog = deleteCheckDialogBuilder.create()
+                        alertDialog.show()
+                    }
                 }
             }
+        } else {
+            Toast.makeText(requireContext(),"購物車為空，無法進行更正",Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -974,20 +1053,17 @@ class HomeFragment : Fragment() {
 
         lifecycleScope.launch(Dispatchers.Main) {
             //變更小計金額
-            for (product in cartList.map { it.productItem }) {
-                // 檢查商品是否在 selectNumberMap 中，如果沒有，預設選擇數量為 0
-                val selectNumber = cartList.associate { it.productItem to it.quantity }.getOrDefault(product, 0)
-
+            for (item in cartList) {
                 //計算單項小計
                 val totalPrice: Int = if(nowLoginMember != null){    //確認是否為會員
                     //防止會員價比折扣價還高的狀況
-                    if (product.memPrc > product.unitPrc){
-                        product.unitPrc * selectNumber     //適用較低的價格
+                    if (item.productItem.memPrc > item.productItem.unitPrc){
+                        (item.productItem.unitPrc * item.quantity - item.discount).toInt()    //適用較低的價格
                     }else{
-                        product.memPrc * selectNumber
+                        (item.productItem.memPrc * item.quantity - item.discount).toInt()
                     }
                 }else{
-                    product.unitPrc * selectNumber
+                    (item.productItem.unitPrc * item.quantity - item.discount).toInt()
                 }
 
                 totalSumUnitPrice += totalPrice
@@ -1003,7 +1079,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    //確認掃描結果能否加入購物車
+    //確認掃描結果能否加入購物車存在對應商品
     private fun productScanCheck(productMagno: String) {
 
         val cartProductItem = cartList.map { it.productItem }   //目前購物車所有商品集合
@@ -1049,7 +1125,11 @@ class HomeFragment : Fragment() {
                 } else {
                     errorHintCode = 1   //重複商品
                     Log.d("商品已存在於清單中","exist product")
-                    existItemCheck = false
+
+                    Cno+=1
+                    cartList.add(CartItem(Cno,product,1,0.00))    //項次+1 (允許重複商品加入)
+
+                    existItemCheck = true  //如果允許重複加入，這邊更改為true
                 }
             } else {
                 errorHintCode = 2   //不存在商品

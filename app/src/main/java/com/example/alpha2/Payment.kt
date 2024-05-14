@@ -221,7 +221,7 @@ class Payment : AppCompatActivity() {
                             TXN_GUIBegNo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
                             TXN_GUICnt = 1,                 /*發票張數*/
                             TXN_TotQty = cartList.size,   /*總數量*/
-                            TXN_TotDiscS = 0,               /*總人工折扣(負數) 最優先*/
+                            TXN_TotDiscS = cartList.sumOf { it.discount }.toInt(),               /*總人工折扣(負數) 最優先*/
                             TXN_TotDiscT = 0,        /*總合小計折扣 目前僅依照會員價與商品單價之差價 第二優先*/
                             TXN_TotDiscM = nowLoginMember?.let { cartList.sumOf{ (it.productItem.unitPrc - it.productItem.memPrc) * (it.quantity) }}?: 0,               /*總會員折扣(負數) 最後算*/
 
@@ -270,7 +270,7 @@ class Payment : AppCompatActivity() {
         //目前最大的TXN_No(交易序號) ，向上疊加
         val maxTXN = paymentDBManager.searchPaymentDetailByMaxYYMM(nowDate)?.plus(1) ?: 1
         var temp = 1    //項次
-        for ((product,amount) in cartList.associate { it.productItem to it.quantity }){
+        for (item in cartList){
             val paymentDetailItem = PaymentDetail(
                 SYS_StoreNo = nowSystem.storeNo,
                 TXN_Date = nowDate,
@@ -280,20 +280,20 @@ class Payment : AppCompatActivity() {
                 TXN_Item = temp,
                 TXN_Time = LocalDateTime.now(),
                 TXN_GUINo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
-                PLU_No = product.pluMagNo,
-                DEP_No = product.DEP_No,
-                VEN_No = product.VEN_No,
-                CAT_No = product.CAT_No,
-                TXN_Qty = amount,
-                PLU_FixPrc = product.fixPrc,
-                PLU_SalePrc = product.salePrc,
-                TXN_DiscS = 0,                  /*人工折扣(負數)*/
-                TXN_DiscM = nowLoginMember?.let { (product.unitPrc - product.memPrc) * amount }?: 0,   /*會員折扣 目前僅計算會員差價*/
+                PLU_No = item.productItem.pluMagNo,
+                DEP_No = item.productItem.DEP_No,
+                VEN_No = item.productItem.VEN_No,
+                CAT_No = item.productItem.CAT_No,
+                TXN_Qty = item.quantity,
+                PLU_FixPrc = item.productItem.fixPrc,
+                PLU_SalePrc = item.productItem.salePrc,
+                TXN_DiscS = item.discount.toInt(),                  /*人工折扣(負數)*/
+                TXN_DiscM = nowLoginMember?.let { (item.productItem.unitPrc - item.productItem.memPrc) * item.quantity }?: 0,   /*會員折扣 目前僅計算會員差價*/
                 TXN_DiscT = 0,                  /*總合折扣(負數)*/
-                TXN_SaleAmt = product.unitPrc,  /*銷售金額=應稅銷售金額+免稅銷售金額*/
-                TXN_SaleTax = product.unitPrc,  /*應稅銷售金額=未稅銷售金額+稅額*/
-                TXN_SaleNoTax = product.unitPrc,/*免稅銷售金額*/
-                TXN_Net = product.unitPrc,      /*未稅銷售金額*/
+                TXN_SaleAmt = item.productItem.unitPrc,  /*銷售金額=應稅銷售金額+免稅銷售金額*/
+                TXN_SaleTax = item.productItem.unitPrc,  /*應稅銷售金額=未稅銷售金額+稅額*/
+                TXN_SaleNoTax = item.productItem.unitPrc,/*免稅銷售金額*/
+                TXN_Net = item.productItem.unitPrc,      /*未稅銷售金額*/
                 TXN_Tax = 0,                    /*稅額*/
                 PLU_TaxType = "0",              /*稅別 0=免稅 1=應稅*/
 
@@ -308,7 +308,7 @@ class Payment : AppCompatActivity() {
                     else -> "F"},               /*交易模式(同POS3008)*/
                 TXN_Status = "N",               /*交易狀態(同POS3008,R=退貨)*/
 
-                PLU_Name = product.pName
+                PLU_Name = item.productItem.pName
             )
 
             //寫入明細檔
