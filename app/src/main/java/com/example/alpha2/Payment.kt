@@ -28,7 +28,6 @@ import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Payment.PaymentDetail
 import com.example.alpha2.DBManager.Payment.PaymentMain
 import com.example.alpha2.DBManager.Payment.PaymentManager
-import com.example.alpha2.DBManager.Product.Product
 import com.example.alpha2.DBManager.System.PaymentMethod
 import com.example.alpha2.DBManager.System.SystemManager
 import com.example.alpha2.DBManager.System.SystemSetting
@@ -221,8 +220,8 @@ class Payment : AppCompatActivity() {
                             TXN_GUIBegNo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
                             TXN_GUICnt = 1,                 /*發票張數*/
                             TXN_TotQty = cartList.size,   /*總數量*/
-                            TXN_TotDiscS = cartList.sumOf { it.discount }.toInt(),               /*總人工折扣(負數) 最優先*/
-                            TXN_TotDiscT = 0,        /*總合小計折扣 目前僅依照會員價與商品單價之差價 第二優先*/
+                            TXN_TotDiscS = cartList.sumOf { it.discountS }.toInt(),               /*總人工折扣(負數) 最優先*/
+                            TXN_TotDiscT = 0,        /*總合小計折扣 目前僅依照會員價與商  品單價之差價 第二優先*/
                             TXN_TotDiscM = nowLoginMember?.let { cartList.sumOf{ (it.productItem.unitPrc - it.productItem.memPrc) * (it.quantity) }}?: 0,               /*總會員折扣(負數) 最後算*/
 
                             TXN_TotSaleAmt = nowPayment,    /*總銷售金額=總應稅銷售金額+總免稅銷售金額  銷售明細加總*/
@@ -287,7 +286,7 @@ class Payment : AppCompatActivity() {
                 TXN_Qty = item.quantity,
                 PLU_FixPrc = item.productItem.fixPrc,
                 PLU_SalePrc = item.productItem.salePrc,
-                TXN_DiscS = item.discount.toInt(),                  /*人工折扣(負數)*/
+                TXN_DiscS = item.discountS.toInt(),                  /*人工折扣(負數)*/
                 TXN_DiscM = nowLoginMember?.let { (item.productItem.unitPrc - item.productItem.memPrc) * item.quantity }?: 0,   /*會員折扣 目前僅計算會員差價*/
                 TXN_DiscT = 0,                  /*總合折扣(負數)*/
                 TXN_SaleAmt = item.productItem.unitPrc,  /*銷售金額=應稅銷售金額+免稅銷售金額*/

@@ -28,9 +28,8 @@
             android:layout_weight="1"
             android:text="@string/txtFname"
             android:textColor="@color/blue_500"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textAlignment="center"/>
+            android:textSize="15sp"
+            android:textStyle="bold"/>
 
         <!-- 商品價格 -->
         <TextView
@@ -39,9 +38,8 @@
             android:layout_weight="1"
             android:text="@string/txtUnitPrice"
             android:textColor="@color/blue_500"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textAlignment="center"/>
+            android:textSize="15sp"
+            android:textStyle="bold"/>
 
         <!--商品點擊數量-->
         <TextView
@@ -50,9 +48,8 @@
             android:layout_weight="1"
             android:text="@string/txtFAmount"
             android:textColor="@color/blue_500"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textAlignment="center"/>
+            android:textSize="15sp"
+            android:textStyle="bold"/>
 
         <!--商品點擊數量-->
         <TextView
@@ -61,9 +58,8 @@
             android:layout_weight="1"
             android:text="@string/txtDiscount"
             android:textColor="@color/blue_500"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textAlignment="center"/>
+            android:textSize="15sp"
+            android:textStyle="bold"/>
 
         <!-- 商品庫存 -->
         <TextView
@@ -72,9 +68,8 @@
             android:layout_weight="1"
             android:text="@string/txtSumShopCart"
             android:textColor="@color/blue_500"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textAlignment="center"/>
+            android:textSize="15sp"
+            android:textStyle="bold"/>
     </LinearLayout>
 
     <!--購物清單顯示區-->

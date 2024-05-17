@@ -8,7 +8,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
-import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
@@ -261,7 +260,7 @@ class HomeFragment : Fragment() {
                     }
                     btnConfirm.setOnClickListener {
                         //如果已經有折扣了就不允許變更數量，要求先進行更正
-                        if (clickItem.discount !=0.0 ){
+                        if (clickItem.discountS !=0.0 ){
                             Toast.makeText(requireContext(),"折扣後不允許數量變更",Toast.LENGTH_SHORT).show()
                         }else{
                             // 如果變更後的數量變成 0 就刪除選擇商品
@@ -280,6 +279,8 @@ class HomeFragment : Fragment() {
                                 //更新購物車物件的數量
                                 if (cartList.isNotEmpty()) {
                                     val lastItem = cartList.last()
+
+                                    //如果是全折類別不允許變數量
                                     lastItem.quantity = changeAmount as Int
                                     println("變更數量 ${lastItem.quantity}")
                                 } else {
@@ -574,9 +575,9 @@ class HomeFragment : Fragment() {
                                     //確認是否為會員
                                     if (nowLoginMember!=null)
                                     //變更購物車最後一項的折扣金額
-                                        lastProduct.discount = (lastProduct.productItem.memPrc - lastProduct.productItem.memPrc * discountValue) * lastProduct.quantity
+                                        lastProduct.discountS = (lastProduct.productItem.memPrc - lastProduct.productItem.memPrc * discountValue) * lastProduct.quantity
                                     else
-                                        cartList.last().discount = (lastProduct.productItem.unitPrc - lastProduct.productItem.unitPrc * discountValue) * lastProduct.quantity
+                                        cartList.last().discountS = (lastProduct.productItem.unitPrc - lastProduct.productItem.unitPrc * discountValue) * lastProduct.quantity
 
                                     loadFilterProduct()
                                 }
@@ -598,6 +599,87 @@ class HomeFragment : Fragment() {
         }
 
         //全折按鈕(小計折扣: 全部都算，不過已經小計折扣過的項目不納入考慮)
+        binding.btnMultipleCharge.setOnClickListener {
+            //平均更新給目前所有的折扣項目，並且依照數量比例進行分攤
+
+            if (cartList.isNotEmpty()){
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val sumT = productDBManager.getProductByID("00")
+                    Cno+=1
+                    if (sumT!=null)
+                        lifecycleScope.launch( Dispatchers.Main) {  //切到主線呈加入商品
+                            //開啟alertDialog讓收銀員輸入人工折扣
+                            val alertDialogBuilder = AlertDialog.Builder(requireContext())
+                            val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.entertext, null)
+                            alertDialogBuilder.setView(dialogView)
+
+                            //顯示折數
+                            val myEditText = dialogView.findViewById<EditText>(R.id.edtEnterTxtContent)
+                            //顯示標題
+                            val customTitle = dialogView.findViewById<TextView>(R.id.txtEnterTxtTitle)
+                            customTitle.text = "請輸入全折數"
+
+                            alertDialogBuilder.setPositiveButton("確定") { dialog, _ ->
+                                val discountText = myEditText.text.toString()
+
+                                val copyCartList = mutableListOf<CartItem>()
+
+                                //由最後一項開始檢查是否有 全折項目，如果有就計算全折項目以後的
+                                for (i in cartList.size-1 downTo 0){
+                                    val item = cartList[i]
+
+                                    if (item.productItem == sumT){  //找到全折項目就停止
+                                        break
+                                    }else{
+                                        copyCartList.add(item)
+                                    }
+                                }
+                                //取得反轉的購物車檢查清單後反轉
+                                copyCartList.reverse()
+
+                                if (discountText.isNotEmpty()) {
+                                    // 確保discountText是數值
+                                    val discountValue = discountText.toDoubleOrNull()
+                                    if (discountValue != null) {
+                                        //計算copyCartList的總價
+                                        var sum =0
+                                        var quantity=0
+                                        for (i in copyCartList){
+                                            if (nowLoginMember!=null){
+                                                sum += (i.quantity * i.productItem.memPrc - i.discountS).toInt()
+                                                quantity += i.quantity
+                                            }
+                                            else{
+                                                sum += (i.quantity * i.productItem.unitPrc- i.discountS).toInt()
+                                                quantity += i.quantity
+                                            }
+                                        }
+
+                                        // 根據輸入的折數更新cartList
+                                        cartList.add(CartItem(Cno, sumT, 0, 0.0, - sum * (100 - discountValue) / 100.00))
+                                        // 加載更新後的購物車
+                                        loadFilterProduct()
+                                    } else {
+                                        Toast.makeText(requireContext(), "請輸入有效的折扣數值", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+
+                            alertDialogBuilder.setNegativeButton("取消") { dialog, _ ->
+                                dialog.dismiss()
+                            }
+
+                            val alertDialog = alertDialogBuilder.create()
+                            alertDialog.show()
+                        }
+                    else
+                        Log.d("不合規的商品","dfs")
+                }
+                loadFilterProduct()
+            }else{
+                Toast.makeText(requireContext(),"還沒有加入任何商品",Toast.LENGTH_SHORT).show()
+            }
+        }
 
 
         //按鈕清除輸入貨號(送出購物車)
@@ -607,29 +689,19 @@ class HomeFragment : Fragment() {
 
         //按下小計按鈕後送出
         binding.btnDeal.setOnClickListener {
-
             if (totalSumUnitPrice < 0){
                 Toast.makeText(requireContext(),"送出金額不可為負",Toast.LENGTH_SHORT).show()
             }else{
                 Toast.makeText(requireContext(),"送出金額 $totalSumUnitPrice",Toast.LENGTH_SHORT).show()
             }
 
+            //送出前合併相同的購物車
+
+            //目前不允許送出0元發票
             if (cartList.isNotEmpty() && totalSumUnitPrice >= 0) {
-
-                //出現相同貨號的進行合併
-                val groupedItems  = cartList.groupBy { it.productItem }
-
-                groupedItems.forEach{ println("我的合併: $it")}
-
-                val mergedCart = groupedItems.values.map { items ->
-                    items.first().copy(quantity = items.sumOf { it.quantity })
-                }
-
-                mergedCart.forEach { println("我的小計: $it") }
-
                 //送出合併後的購物車
                 val intent = Intent(requireContext(), Payment::class.java)
-                intent.putExtra("cartList_key", mergedCart as? Serializable)
+                intent.putExtra("cartList_key", cartList as? Serializable)
 
                 intent.putExtra("now_member",nowLoginMember as? Serializable)
                 intent.putExtra("total_price",totalSumUnitPrice)
@@ -1058,21 +1130,32 @@ class HomeFragment : Fragment() {
                 val totalPrice: Int = if(nowLoginMember != null){    //確認是否為會員
                     //防止會員價比折扣價還高的狀況
                     if (item.productItem.memPrc > item.productItem.unitPrc){
-                        (item.productItem.unitPrc * item.quantity - item.discount).toInt()    //適用較低的價格
+                        (item.productItem.unitPrc * item.quantity - item.discountS).toInt()    //適用較低的價格
                     }else{
-                        (item.productItem.memPrc * item.quantity - item.discount).toInt()
+                        (item.productItem.memPrc * item.quantity - item.discountS).toInt()
                     }
                 }else{
-                    (item.productItem.unitPrc * item.quantity - item.discount).toInt()
+                    (item.productItem.unitPrc * item.quantity - item.discountS).toInt()
                 }
 
                 totalSumUnitPrice += totalPrice
             }
 
+            //確認是否有總折數
+
+            var totoalSumPro = totalSumUnitPrice
+            for (i in cartList){
+                if (i.discountT != 0.00){
+                    totoalSumPro += i.discountT?.toInt() ?: 0
+                }
+            }
+
+//            Toast.makeText(requireContext(),"總金額 $totoalSumPro",Toast.LENGTH_SHORT).show()
+
             //當總小計大於0時，顯示總小計
             if (totalSumUnitPrice>0){
                 binding.txtTotalDollar.visibility = View.VISIBLE    //開啟可視化
-                binding.txtTotalDollar.text = "總計: $totalSumUnitPrice 元"
+                binding.txtTotalDollar.text = "總計: $totoalSumPro 元"
             }else{
                 binding.txtTotalDollar.visibility = View.INVISIBLE   //金額小於0不可視
             }
