@@ -8,6 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import com.example.alpha2.R
 import com.example.alpha2.myObject.CartItem
+import kotlin.math.roundToInt
 
 class FilterProductAdapter(private val dataList: MutableList<CartItem>,private val memberCheck: Boolean) : BaseAdapter() {
     override fun getCount(): Int {
@@ -66,20 +67,22 @@ class FilterProductAdapter(private val dataList: MutableList<CartItem>,private v
             if (memberCheck){
                 //防止會員價比折扣價還高的狀況 (適用較低價格)
                 if (item.productItem.memPrc > item.productItem.unitPrc){
-                    productPrice.text = "${item.productItem.unitPrc}"
-                    productSum.text = "${(item.productItem.unitPrc * item.quantity - item.discountS).toInt()} 元"     //單向小計
+                    productPrice.text = "${item.productItem.unitPrc.roundToInt()}"
+                    productSum.text = "${(item.productItem.unitPrc * item.quantity - item.discountS).roundToInt()} 元"     //單向小計
                 }else{
-                    productPrice.text = "${item.productItem.memPrc}"
-                    productSum.text = "${(item.productItem.memPrc * item.quantity - item.discountS).toInt()} 元"     //單向小計
+                    productPrice.text = "${item.productItem.memPrc.roundToInt()}"
+                    productSum.text = "${(item.productItem.memPrc * item.quantity - item.discountS).roundToInt()} 元"     //單向小計
                 }
             }else{
-                productPrice.text = "${item.productItem.unitPrc}"
-                productSum.text = "${(item.productItem.unitPrc * item.quantity - item.discountS).toInt()} 元"     //單向小計
+                productPrice.text = "${item.productItem.unitPrc.roundToInt()}"
+                productSum.text = "${(item.productItem.unitPrc * item.quantity - item.discountS).roundToInt()} 元"     //單向小計
             }
 
             //如果是 "小計折扣" 就顯示全折金額
-            if (item.productItem.pId == "00")
-                productDiscount.text = item.discountT.toString()
+            if (item.productItem.pId == "00"){
+                productDiscount.text = (item.discountT?: 0.00).roundToInt().toString()     //折扣額
+                productSum.text = "${(item.discountT?: 0.00).roundToInt()} 元"  //小計
+            }
         }
 
         //限制字串長度

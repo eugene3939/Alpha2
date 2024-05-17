@@ -65,22 +65,22 @@ class Login : AppCompatActivity() {
         insertUserDB("2","Oscar", "3", "3")
 
         //----DAO 方式建立預設商品資料庫 (建立商品資料)
-        insertMerchandisesDB("1","Airwaves Super極酷薄荷無糖口香糖 - 極酷薄荷口味", "零食","4710716334875",50, 50, 50,50,100, pluUnit = "包", DEP_No = "1", CAT_No = "1", VEN_No = "1")
-        insertMerchandisesDB("2","零負擔Android程式設計之旅", "書籍","9786263336148", 690, 650,600,500,80,mamMethod = "H", pluType = "2", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
-        insertMerchandisesDB("3","Android開發架構實戰", "書籍","9786263332577", 600,550,550, 500,60,mamMethod = "H", pluType = "4", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
-        insertMerchandisesDB("17","Android初學特訓班", "書籍","9789865023072", 500, 450,400,400,80,mamMethod = "1", pluType = "3", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
-        insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500,500,500, 500,60,mamMethod = "B", pluType = "2", DEP_No = "1", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
-        insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660, 650,650,650,25,mamMethod = "D", pluUnit = "本")
-        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000, 2000,2000,1800,200,mamMethod = "E", pluUnit = "分")
-        insertMerchandisesDB("00","小計折扣","73","0000000",0,0,0,0,0, mamMethod = "0", pluType = "0", pluUnit = "張")
+        insertMerchandisesDB("1","Airwaves Super極酷薄荷無糖口香糖 - 極酷薄荷口味", "零食","4710716334875",50.00, 50.00, 50.00,50.00,100, pluUnit = "包", DEP_No = "1", CAT_No = "1", VEN_No = "1")
+        insertMerchandisesDB("2","零負擔Android程式設計之旅", "書籍","9786263336148", 690.00, 650.00,600.00,500.00,80,mamMethod = "H", pluType = "2", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 1, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 7, 24, 18, 30))
+        insertMerchandisesDB("3","Android開發架構實戰", "書籍","9786263332577", 600.00,550.00,550.00, 500.00,60,mamMethod = "H", pluType = "4", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 5, 24, 18, 30))
+        insertMerchandisesDB("17","Android初學特訓班", "書籍","9789865023072", 500.00, 450.00,400.00,400.00,80,mamMethod = "1", pluType = "3", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
+        insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500.00,500.00,500.00, 500.00,60,mamMethod = "B", pluType = "2", DEP_No = "1", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
+        insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660.00, 650.00,650.00,650.00,25,mamMethod = "D", pluUnit = "本")
+        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000.00, 2000.00,2000.00,1800.00,200,mamMethod = "E", pluUnit = "分")
+        insertMerchandisesDB("00","小計折扣","73","0000000",0.00,0.000,0.00,0.00, mamMethod = "0", pluType = "0", number = 0, pluUnit = "張")
 
-        insertMerchandisesDB("BookCoupon03","貨號券(實戰)","折扣券","SS555555",50,50,50,50,200, pluUnit = "張", pluType = "75")
-        insertMerchandisesDB("BookCoupon11","貨號券(排除 實戰、輕鬆)","折扣券","SS444444",50,50,50,50,200, pluUnit = "張", pluType = "75")
-        insertMerchandisesDB("BookCoupon04","類別券CAT(單一)","折扣券","SS666666",100,100,100,100,300, pluUnit = "張", pluType = "75")
-        insertMerchandisesDB("BookCoupon05","類別券CDV(多重)","折扣券","SS600000",30,30,300,300,300, pluUnit = "張", pluType = "75")
-        insertMerchandisesDB("BookCoupon06","類別券DEP(排除)","折扣券","SS777777",100,100,100,100,300, pluUnit = "張", pluType = "75")
-        insertMerchandisesDB("BookCoupon08","過期類別券(排除)","折扣券","SS888888",100,100,100,100,300, pluUnit = "張", pluType = "75")
-        insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30,30,30,30,100, pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon03","貨號券(實戰)","折扣券","SS555555",50.00,50.00,50.00,50.00,200, pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon11","貨號券(排除 實戰、輕鬆)","折扣券","SS444444",50.00,50.00,50.00,50.00,200, pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon04","類別券CAT(單一)","折扣券","SS666666",100.00,100.00,100.00,100.00,300, pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon05","類別券CDV(多重)","折扣券","SS600000",30.00,30.00,300.00,300.00,300, pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon06","類別券DEP(排除)","折扣券","SS777777",100.00,100.00,100.00,100.00,300, pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("BookCoupon08","過期類別券(排除)","折扣券","SS888888",100.00,100.00,100.00,100.00,300, pluUnit = "張", pluType = "75")
+        insertMerchandisesDB("Coupon100","30元折價券","折價券","SS123456",30.00,30.00,30.00,30.00,100, pluUnit = "張", pluType = "75")
 
         insertCouponDetailDB(DISC_PLU_MagNo = "SS444444", FROM_DATE = LocalDateTime.of(2024, 1, 20, 20, 20), TO_DATE = LocalDateTime.of(2024, 10, 10, 10, 10), SEQ_NO = 177, PLU_MagNo = "9789864343751")
         insertCouponDetailDB(DISC_PLU_MagNo = "SS444444", FROM_DATE = LocalDateTime.of(2024, 1, 20, 20, 20), TO_DATE = LocalDateTime.of(2024, 10, 10, 10, 10), SEQ_NO = 188, PLU_MagNo = "9786263332577")
@@ -304,10 +304,10 @@ class Login : AppCompatActivity() {
                                      name: String,
                                      type: String,
                                      pluMagNo: String,
-                                     fixPrc: Int,
-                                     salePrc: Int,
-                                     unitPrc: Int,
-                                     memPrc: Int,
+                                     fixPrc: Double,
+                                     salePrc: Double,
+                                     unitPrc: Double,
+                                     memPrc: Double,
                                      number: Int,
 
         //商品分類

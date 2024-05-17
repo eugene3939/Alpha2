@@ -34,11 +34,12 @@ import com.example.alpha2.DBManager.System.SystemSetting
 import com.example.alpha2.myAdapter.FilterProductAdapter
 import com.example.alpha2.myObject.CartItem
 import java.time.LocalDateTime
+import kotlin.math.roundToInt
 
 
 class Payment : AppCompatActivity() {
     //從HomeFragment取得的購物清單內容
-    private var totalPrice = 0                                  //購買總價
+    private var totalPrice = 0                              //購買總價
     private var nowLoginMember: Member? = null                  //會員
     private var cartList = mutableListOf<CartItem>()            //購物車項目
 
@@ -51,7 +52,7 @@ class Payment : AppCompatActivity() {
     private var nowPaymentMethod: String? = "現金"               //支付方式: 現金、電子支付...      (預設支付方式為現金)
     private var nowInvoiceText: String? = null                  //載具/電子發票號碼
 
-    private var nowPayment: Int = 0                             //支付金額
+    private var nowPayment: Double = 0.00                       //支付金額
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,7 +85,7 @@ class Payment : AppCompatActivity() {
         try {
             cartList = intent.getSerializableExtra("cartList_key") as MutableList<CartItem>
 
-            totalPrice = intent.getIntExtra("total_price",0)
+            totalPrice = intent.getDoubleExtra("total_price",0.00).roundToInt()
             nowLoginMember = intent.getSerializableExtra("now_member") as? Member
 
             Log.d("小計總額", totalPrice.toString())
@@ -137,7 +138,7 @@ class Payment : AppCompatActivity() {
         edtEnterCash.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 // 文字變化後顯示找零金額
-                val totalAmount = edtEnterCash.text.toString().toIntOrNull() ?: 0
+                val totalAmount = edtEnterCash.text.toString().toDoubleOrNull() ?: 0.00
                 val change = totalAmount - totalPrice
                 if (change >= 0){
                     txtChange.text = change.toString()
@@ -220,9 +221,9 @@ class Payment : AppCompatActivity() {
                             TXN_GUIBegNo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
                             TXN_GUICnt = 1,                 /*發票張數*/
                             TXN_TotQty = cartList.size,   /*總數量*/
-                            TXN_TotDiscS = cartList.sumOf { it.discountS }.toInt(),               /*總人工折扣(負數) 最優先*/
-                            TXN_TotDiscT = 0,        /*總合小計折扣 目前僅依照會員價與商  品單價之差價 第二優先*/
-                            TXN_TotDiscM = nowLoginMember?.let { cartList.sumOf{ (it.productItem.unitPrc - it.productItem.memPrc) * (it.quantity) }}?: 0,               /*總會員折扣(負數) 最後算*/
+                            TXN_TotDiscS = cartList.sumOf { it.discountS },               /*總人工折扣(負數) 最優先*/
+                            TXN_TotDiscT = cartList.sumOf { it.discountT },        /*總合小計折扣 目前僅依照會員價與商  品單價之差價 第二優先*/
+                            TXN_TotDiscM = nowLoginMember?.let { cartList.sumOf{ (it.productItem.unitPrc - it.productItem.memPrc) * (it.quantity) }}?: 0.00,               /*總會員折扣(負數) 最後算*/
 
                             TXN_TotSaleAmt = nowPayment,    /*總銷售金額=總應稅銷售金額+總免稅銷售金額  銷售明細加總*/
                             TXN_TotGUI = totalPrice,        /*總發票金額 有多少錢是要開發票的(可能有禮券，禮券已經開過了)*/
@@ -286,14 +287,16 @@ class Payment : AppCompatActivity() {
                 TXN_Qty = item.quantity,
                 PLU_FixPrc = item.productItem.fixPrc,
                 PLU_SalePrc = item.productItem.salePrc,
-                TXN_DiscS = item.discountS.toInt(),                  /*人工折扣(負數)*/
-                TXN_DiscM = nowLoginMember?.let { (item.productItem.unitPrc - item.productItem.memPrc) * item.quantity }?: 0,   /*會員折扣 目前僅計算會員差價*/
-                TXN_DiscT = 0,                  /*總合折扣(負數)*/
+
+                TXN_DiscS = item.discountS.roundToInt().toDouble(),                  /*人工折扣(負數)*/
+                TXN_DiscT = item.discountT.roundToInt().toDouble(),                  /*總合折扣(負數)*/
+                TXN_DiscM = nowLoginMember?.let { (item.productItem.unitPrc - item.productItem.memPrc) * item.quantity }?: 0.00,   /*會員折扣 目前僅計算會員差價*/
+
                 TXN_SaleAmt = item.productItem.unitPrc,  /*銷售金額=應稅銷售金額+免稅銷售金額*/
                 TXN_SaleTax = item.productItem.unitPrc,  /*應稅銷售金額=未稅銷售金額+稅額*/
                 TXN_SaleNoTax = item.productItem.unitPrc,/*免稅銷售金額*/
                 TXN_Net = item.productItem.unitPrc,      /*未稅銷售金額*/
-                TXN_Tax = 0,                    /*稅額*/
+                TXN_Tax = 0.00,                    /*稅額*/
                 PLU_TaxType = "0",              /*稅別 0=免稅 1=應稅*/
 
                 TXN_Mode = when(transactionMethod){
@@ -416,7 +419,7 @@ class Payment : AppCompatActivity() {
                 if (position != 0 ){
                     val edtEnterCash: EditText = findViewById(R.id.edtCashAmount)
 
-                    nowPayment = totalPrice
+                    nowPayment = totalPrice.toDouble()
 
                     Log.d("目前支付金額",nowPayment.toString())
 

@@ -24,10 +24,10 @@ data class PaymentMain(
     val  TXN_TotQty:            Int,      /*總數量*/
 
 
-    val  TXN_TotDiscS:          Int,      /*總人工折扣(負數)*/
-    val  TXN_TotDiscM:          Int,      /*總組合折扣(負數)*/
-    val  TXN_TotDiscT:          Int,      /*總總合折扣(負數)*/
-    val  TXN_TotSaleAmt:        Int,      /*總銷售金額=總應稅銷售金額+總免稅銷售金額*/
+    val  TXN_TotDiscS:          Double,      /*總人工折扣(負數)*/
+    val  TXN_TotDiscM:          Double,      /*總組合折扣(負數)*/
+    val  TXN_TotDiscT:          Double,      /*總總合折扣(負數)*/
+    val  TXN_TotSaleAmt:        Double,      /*總銷售金額=總應稅銷售金額+總免稅銷售金額*/
     val  TXN_TotSaleTax:        Int ?= null,      /*總應稅銷售金額=總未稅銷售金額+總稅額*/
     val  TXN_TotSaleNoTax:      Int ?= null,      /*總免稅銷售金額*/
     val  TXN_TotNet:            Int ?= null,      /*總未稅銷售金額*/
@@ -57,7 +57,7 @@ data class PaymentMain(
 //        /  B=非銷貨隔日作廢 /
     val  TXN_VIP:            String = "N"   ,      /*外交官交易 Y=是 N=否 */
     val  TXN_ShiftNo:        String? = null ,      /*班別*/
-    val  TXN_TotPayAmt:      Int            ,      /*總付款金額*/  /*********************/
+    val  TXN_TotPayAmt:      Double            ,   /*總付款金額*/  /*********************/
     val  TXN_MemID:          String? = null ,      /*會員身分證字號*/
     val  TXN_PreOrderNo:     String? = null ,      /*預收單號 S/O單號*/
     val  ORG_SYS_StoreNo:    String? = null ,      /*原始店號*/

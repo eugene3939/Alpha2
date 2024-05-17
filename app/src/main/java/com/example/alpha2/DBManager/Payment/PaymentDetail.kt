@@ -22,16 +22,16 @@ data class PaymentDetail(
     val VEN_No:              String? = null      ,      /*廠商編號*/
     val CAT_No:              String? = null      ,      /*分類編號*/
     val TXN_Qty:             Int                 ,      /*數量*/
-    val PLU_FixPrc:          Int                 ,      /*定價*/
-    val PLU_SalePrc:         Int                 ,      /*售價*/
-    val TXN_DiscS:           Int                 ,      /*人工折扣(負數)*/
-    val TXN_DiscM:           Int                 ,      /*會員折扣(負數)*/
-    val TXN_DiscT:           Int                 ,      /*總合折扣(負數)*/
-    val TXN_SaleAmt:         Int                 ,      /*銷售金額=應稅銷售金額+免稅銷售金額*/
-    val TXN_SaleTax:         Int                 ,      /*應稅銷售金額=未稅銷售金額+稅額*/
-    val TXN_SaleNoTax:       Int                 ,      /*免稅銷售金額*/
-    val TXN_Net:             Int                 ,      /*未稅銷售金額*/
-    val TXN_Tax:             Int                 ,      /*稅額*/
+    val PLU_FixPrc:          Double                 ,      /*定價*/
+    val PLU_SalePrc:         Double                 ,      /*售價*/
+    val TXN_DiscS:           Double                 ,      /*人工折扣(負數)*/
+    val TXN_DiscM:           Double                 ,      /*會員折扣(負數)*/
+    val TXN_DiscT:           Double                 ,      /*總合折扣(負數)*/
+    val TXN_SaleAmt:         Double                 ,      /*銷售金額=應稅銷售金額+免稅銷售金額*/
+    val TXN_SaleTax:         Double                 ,      /*應稅銷售金額=未稅銷售金額+稅額*/
+    val TXN_SaleNoTax:       Double                 ,      /*免稅銷售金額*/
+    val TXN_Net:             Double                 ,      /*未稅銷售金額*/
+    val TXN_Tax:             Double                 ,      /*稅額*/
     val PLU_TaxType:         String? = "0"       ,      /*稅別 0=免稅 1=應稅*/
     val MMP_No:              String? = null      ,      /*檔期編號*/
     val MAM_No:              String? = null      ,      /*促銷編號*/

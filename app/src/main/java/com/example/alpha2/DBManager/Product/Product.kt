@@ -46,10 +46,10 @@ data class Product (
   val pluMagNo: String,            //商品條碼 (管理碼)
   val pluDisc: String ?= "Y",      //是否可折扣 (Y/N)
   val pNumber: Int,                //商品數量
-  val fixPrc: Int,                 //商品定價
-  val salePrc: Int,                //商品售價
-  val unitPrc: Int,                //促銷單價
-  val memPrc: Int,                 //會員價
+  val fixPrc: Double,                 //商品定價
+  val salePrc: Double,                //商品售價
+  val unitPrc: Double,                //促銷單價
+  val memPrc: Double,                 //會員價
 
   val mmpBegDate: LocalDateTime? = null,            //促銷開始日期
   val mmpEndDate: LocalDateTime? = null,            //促銷結束日期 (不用考慮超過期限，價格更新於回價時處理)
