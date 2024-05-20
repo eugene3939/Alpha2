@@ -1169,18 +1169,23 @@ class HomeFragment : Fragment() {
                 totalSumUnitPrice += totalPrice
             }
 
+            println("總金額: $totalSumUnitPrice")
+
             //確認是否有全折項目
             totalSumPro = totalSumUnitPrice
             for (i in cartList){
-                if (i.discountT != 0.00){
-                    totalSumPro += i.discountT ?: 0.00
+                if (i.productItem.pluMagNo != "0000000"){   //跳過加總顯示項目，避免重複計算
+                    totalSumPro += i.discountT
 
                     println("全折項目 ${i.discountT}")
                 }
             }
 
+            println("總金額: $totalSumPro")
+
+
             //當總小計大於0時，顯示總小計
-            if (totalSumUnitPrice>0){
+            if (totalSumPro>0){
                 binding.txtTotalDollar.visibility = View.VISIBLE    //開啟可視化
                 binding.txtTotalDollar.text = "總計: ${totalSumPro.roundToInt()} 元" //顯示金額4捨5入
             }else{

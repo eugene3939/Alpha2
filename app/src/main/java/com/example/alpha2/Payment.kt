@@ -197,7 +197,6 @@ class Payment : AppCompatActivity() {
                 val invoiceYYYYMM = getYYYYMM() //取得效期
                 //確認是否有對應的發票效期
                 val existInvoiceSetup = invoiceDBManager.getInvoiceSetupsBy(nowSystem.storeNo,invoiceYYYYMM,nowSystem.ecrNo,"invoiceSerialNo")
-                Log.d("會贏喔",existInvoiceSetup.toString())
 
                 if (existInvoiceSetup != null){     //確認效期許可才會開立發票
                     //付款金額必須大於等於應付金額

@@ -1,5 +1,6 @@
 package com.example.alpha2.myAdapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,7 @@ class SearchPaymentDetailAdapter(private val paymentDetails: List<PaymentDetail>
         return position.toLong()
     }
 
+    @SuppressLint("SetTextI18n")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         var view = convertView
         val holder: ViewHolder
@@ -46,7 +48,7 @@ class SearchPaymentDetailAdapter(private val paymentDetails: List<PaymentDetail>
             holder.TxtDiscount.text = details.TXN_DiscT.toString()
         else                               //一般單向折扣
             holder.TxtDiscount.text = details.TXN_DiscS.toString()
-        holder.TxtTotal.text = (details.TXN_SaleAmt * details.TXN_Qty - details.TXN_DiscS).toString()
+        holder.TxtTotal.text = (details.TXN_SaleAmt * details.TXN_Qty + details.TXN_DiscS).toString()
 
         return view!!
     }
