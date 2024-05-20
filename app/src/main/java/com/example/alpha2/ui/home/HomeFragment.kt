@@ -583,12 +583,12 @@ class HomeFragment : Fragment() {
                                     if (nowLoginMember!=null){
                                         //變更購物車最後一項的折扣金額
                                         val lastPrc = (lastProduct.productItem.memPrc * lastProduct.quantity * discountValue).roundToInt()
-                                        lastProduct.discountS = lastProduct.productItem.memPrc * lastProduct.quantity - lastPrc
+                                        lastProduct.discountS = lastPrc - lastProduct.productItem.memPrc * lastProduct.quantity
                                     }
                                     else{
                                         //變更購物車最後一項的折扣金額
                                         val lastPrc = (lastProduct.productItem.unitPrc * lastProduct.quantity * discountValue).roundToInt()
-                                        lastProduct.discountS = lastProduct.productItem.unitPrc * lastProduct.quantity - lastPrc
+                                        lastProduct.discountS = lastPrc - lastProduct.productItem.unitPrc * lastProduct.quantity
                                     }
 
                                     loadFilterProduct()
@@ -649,27 +649,44 @@ class HomeFragment : Fragment() {
                                 //取得反轉的購物車檢查清單後反轉
                                 copyCartList.reverse()
 
-                                if (discountText.isNotEmpty()) {
-                                    // 確保discountText是數值
-                                    val discountValue = discountText.toIntOrNull()?: 0
-                                    if (discountValue<=100) {   //允許輸入折扣最大百分比
-                                        //計算copyCartList的總價
-                                        var sum =0
-                                        for (i in copyCartList){
-                                            sum += if (nowLoginMember!=null){
-                                                (i.quantity * i.productItem.memPrc - i.discountS).roundToInt()
-                                            } else{
-                                                (i.quantity * i.productItem.unitPrc- i.discountS).roundToInt()
+                                if (copyCartList.isNotEmpty()){         //確認進行折扣的清單是否為空
+                                    if (discountText.isNotEmpty()) {    //確認輸入的折數是否合理
+                                        // 確保discountText是數值
+                                        val discountValue = discountText.toIntOrNull()?: 0
+                                        if (discountValue<=100) {   //允許輸入折扣最大百分比
+                                            //計算copyCartList的總價
+                                            val sum: MutableList<Double> = mutableListOf()
+                                            for (i in copyCartList){
+                                                if (nowLoginMember!=null){
+                                                    sum.add((i.quantity * i.productItem.memPrc + i.discountS).roundToInt().toDouble())
+                                                } else{
+                                                    sum.add((i.quantity * i.productItem.unitPrc + i.discountS).roundToInt().toDouble())
+                                                }
                                             }
-                                        }
 
-                                        // 根據輸入的折數更新cartList
-                                        cartList.add(CartItem(Cno, sumT, 0, 0.0, sum * (discountValue) / 100.00 - sum))
-                                        // 加載更新後的購物車
-                                        loadFilterProduct()
-                                    }else {
-                                        Toast.makeText(requireContext(), "請輸入有效的折扣數值", Toast.LENGTH_SHORT).show()
+                                            //依照比例分攤全折
+                                            var copyIndex = sum.size-1
+                                            for (i in cartList.size-1 downTo 0){
+                                                val item = cartList[i]
+
+                                                if (item.productItem == sumT){  //找到全折項目就停止
+                                                    break
+                                                }else{
+                                                    cartList[i].discountT = sum[copyIndex] /sum.sum() * (sum.sum() * (discountValue) / 100.00 - sum.sum())
+                                                    copyIndex--
+                                                }
+                                            }
+
+                                            // 根據輸入的折數更新cartList
+                                            cartList.add(CartItem(Cno, sumT, 0, 0.0, sum.sum() * (discountValue) / 100.00 - sum.sum()))
+                                            // 加載更新後的購物車
+                                            loadFilterProduct()
+                                        }else {
+                                            Toast.makeText(requireContext(), "請輸入有效的折扣數值", Toast.LENGTH_SHORT).show()
+                                        }
                                     }
+                                }else{
+                                    Toast.makeText(requireContext(),"沒有可進行小計折扣的項目",Toast.LENGTH_SHORT).show()
                                 }
                             }
 
@@ -1139,12 +1156,12 @@ class HomeFragment : Fragment() {
                 val totalPrice: Double = if(nowLoginMember != null){    //確認是否為會員
                     //防止會員價比折扣價還高的狀況
                     if (item.productItem.memPrc > item.productItem.unitPrc){
-                        item.productItem.unitPrc * item.quantity - item.discountS   //適用較低的價格
+                        item.productItem.unitPrc * item.quantity + item.discountS   //適用較低的價格
                     }else{
-                        item.productItem.memPrc * item.quantity - item.discountS
+                        item.productItem.memPrc * item.quantity + item.discountS
                     }
                 }else{
-                    item.productItem.unitPrc * item.quantity - item.discountS
+                    item.productItem.unitPrc * item.quantity + item.discountS
                 }
 
                 println("單項小計 $totalPrice")

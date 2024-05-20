@@ -42,8 +42,11 @@ class SearchPaymentDetailAdapter(private val paymentDetails: List<PaymentDetail>
         holder.TxtPName.text = details.PLU_Name
         holder.TxtAmount.text = details.TXN_Qty.toString()
         holder.TxtPrice.text = details.TXN_SaleAmt.toString()
-        holder.TxtDiscount.text = details.TXN_DiscM.toString()
-        holder.TxtTotal.text = (details.TXN_SaleAmt * details.TXN_Qty).toString()
+        if (details.PLU_No == "0000000")  //總小計折扣 另外顯示
+            holder.TxtDiscount.text = details.TXN_DiscT.toString()
+        else                               //一般單向折扣
+            holder.TxtDiscount.text = details.TXN_DiscS.toString()
+        holder.TxtTotal.text = (details.TXN_SaleAmt * details.TXN_Qty - details.TXN_DiscS).toString()
 
         return view!!
     }

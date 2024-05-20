@@ -1,5 +1,6 @@
 package com.example.alpha2.ui.notifications
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import com.example.alpha2.DBManager.Payment.PaymentMain
 import com.example.alpha2.DBManager.Payment.PaymentManager
 import com.example.alpha2.databinding.FragmentNotificationsBinding
 import com.example.alpha2.myAdapter.SearchPaymentDetailAdapter
+import kotlin.math.roundToInt
 
 class NotificationsFragment : Fragment() {
 
@@ -68,12 +70,20 @@ class NotificationsFragment : Fragment() {
     }
 
     //更新查詢顯示文字
+    @SuppressLint("SetTextI18n")
     private fun updateShowText() {
         //明細總和
         if (nowSearchPaymentMain != null){
-            binding.txtSearchSalesAmount.text = nowSearchPaymentMain!!.TXN_TotPayAmt.toString()    //發票金額
-            binding.txtSearchSalesNumber.text = nowSearchPaymentMain!!.TXN_TotQty.toString()        //銷售數量
-            binding.txtSearchDiscountValue.text = nowSearchPaymentMain!!.TXN_TotDiscT.toString()      //折扣總額
+            binding.txtSearchSalesAmount.text = nowSearchPaymentMain!!.TXN_TotPayAmt.roundToInt().toString()    //發票金額
+            //銷售數量要去掉小計折扣選項
+            var discT_No = 0
+            for (i in nowSearchPaymentDetail!!){
+                if (i.PLU_No == "0000000"){    //存在全折項目
+                    discT_No+=1
+                }
+            }
+            binding.txtSearchSalesNumber.text = (nowSearchPaymentMain!!.TXN_TotQty-discT_No).toString()        //銷售數量
+            binding.txtSearchDiscountValue.text = (nowSearchPaymentMain!!.TXN_TotDiscS + nowSearchPaymentMain!!.TXN_TotDiscT).roundToInt().toString()      //折扣總額
             binding.txtSearchSalesTotalPrice.text = nowSearchPaymentMain!!.TXN_TotGUI.toString()      //銷售總額
         }
 

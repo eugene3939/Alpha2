@@ -56,10 +56,7 @@ class FilterProductAdapter(private val dataList: MutableList<CartItem>,private v
             // 使用 Glide 或其他圖片載入庫載入商品圖片
             shopNumber.text = "x ${item.quantity}"
 
-            if (item.discountS == 0.0)
-                productDiscount.text = "${item.discountS.toInt()}"
-            else
-                productDiscount.text = "-${item.discountS.toInt()}"
+            productDiscount.text = "${item.discountS.toInt()}"
 
             productName.text = truncateString(item.productItem.pName, 20)
 
@@ -68,20 +65,20 @@ class FilterProductAdapter(private val dataList: MutableList<CartItem>,private v
                 //防止會員價比折扣價還高的狀況 (適用較低價格)
                 if (item.productItem.memPrc > item.productItem.unitPrc){
                     productPrice.text = "${item.productItem.unitPrc.roundToInt()}"
-                    productSum.text = "${(item.productItem.unitPrc * item.quantity - item.discountS).roundToInt()} 元"     //單向小計
+                    productSum.text = "${(item.productItem.unitPrc * item.quantity + item.discountS).roundToInt()} 元"     //單向小計
                 }else{
                     productPrice.text = "${item.productItem.memPrc.roundToInt()}"
-                    productSum.text = "${(item.productItem.memPrc * item.quantity - item.discountS).roundToInt()} 元"     //單向小計
+                    productSum.text = "${(item.productItem.memPrc * item.quantity + item.discountS).roundToInt()} 元"     //單向小計
                 }
             }else{
                 productPrice.text = "${item.productItem.unitPrc.roundToInt()}"
-                productSum.text = "${(item.productItem.unitPrc * item.quantity - item.discountS).roundToInt()} 元"     //單向小計
+                productSum.text = "${(item.productItem.unitPrc * item.quantity + item.discountS).roundToInt()} 元"     //單向小計
             }
 
             //如果是 "小計折扣" 就顯示全折金額
             if (item.productItem.pId == "00"){
-                productDiscount.text = (item.discountT?: 0.00).roundToInt().toString()     //折扣額
-                productSum.text = "${(item.discountT?: 0.00).roundToInt()} 元"  //小計
+                productDiscount.text = (item.discountT).roundToInt().toString()     //折扣額
+                productSum.text = "${(item.discountT).roundToInt()} 元"  //小計
             }
         }
 
