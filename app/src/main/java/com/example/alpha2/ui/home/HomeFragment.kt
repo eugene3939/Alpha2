@@ -66,9 +66,6 @@ class HomeFragment : Fragment() {
     //購物車項次物件 (序號、貨號、購買數量、折扣)
     private val cartList = mutableListOf<CartItem>()    //購物車項次清單
 
-    private val cartDetail = mutableListOf<PaymentDetail>()             //交易明細清單 (按下小計後會送出此清單)
-    private val deleteCartDetail = mutableListOf<PaymentDetail>()       //交易明細清單紀錄 (回復紀錄，可能會進行儲存)
-
     //--------------------------------------------------------------------------------------
 
     private val REQUEST_CODE_SCAN = 1002    //掃描請求碼
@@ -797,6 +794,24 @@ class HomeFragment : Fragment() {
             binding.edtSearchRow.setText("")
         }
 
+        //取消交易按鈕
+        binding.btnCancel.setOnClickListener {
+            //先保留刪除的內容
+            for (i in cartList){
+                Dno+=1
+                deleteCartList.add(DeletedCartItem(Dno,i))
+            }
+
+            for (i in deleteCartList){
+                Log.d("刪除紀錄",i.cartItem.productItem.pName)
+            }
+
+            //離開頁面就清除 購物車清單
+            cartList.clear()
+
+            loadFilterProduct()
+        }
+
         //按下小計按鈕後送出
         binding.btnDeal.setOnClickListener {
             if (totalSumPro < 0){
@@ -1372,31 +1387,6 @@ class HomeFragment : Fragment() {
 
         //啟動掃描頁
         barcodeScannerLauncher.launch(integrator.createScanIntent())
-    }
-
-    //將目前日期(LocalDateTime)轉換為YYYYMM
-    private fun getYYYYMM(): String {
-
-        // 取得目前時間
-        val now = LocalDateTime.now()
-
-        // 從時間中擷取年份和月份
-        val year = now.year
-        val month = now.monthValue
-
-        // 生成表示法 "YYYYMM"
-        // 將單數月份轉換成雙數形式
-        val formattedMonth = if (month % 2 == 0) {
-            (month - 1).toString().padStart(2, '0')
-        } else {
-            month.toString().padStart(2, '0')
-        }
-
-        // 生成表示法 "YYYYMM"
-        val yearMonthString = "%04d%s".format(year, formattedMonth)
-
-        // 回傳結果
-        return  yearMonthString
     }
 
     //離開頁面的處理

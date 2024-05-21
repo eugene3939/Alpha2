@@ -222,7 +222,7 @@
             android:textSize="25sp"
             android:textStyle="bold"/>
 
-        <!--用戶自定義按鍵-->
+        <!--用戶自定義按鍵(左)-->
         <LinearLayout
             android:id="@+id/lrLeftButton"
             android:layout_width="match_parent"
@@ -248,6 +248,26 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="現折"
+                android:textSize="15sp"
+                android:textColor="@color/blue_800"
+                android:background="@color/blue_200"/>
+        </LinearLayout>
+
+        <!--用戶自定義按鍵(右)-->
+        <LinearLayout
+            android:id="@+id/lrRightButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/btn_deal"
+            android:layout_toStartOf="@+id/txt_totalDollar"
+            android:layout_alignBottom="@+id/txt_totalDollar">
+
+            <!--取消交易按鈕-->
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="取消交易"
                 android:textSize="15sp"
                 android:textColor="@color/blue_800"
                 android:background="@color/blue_200"/>
