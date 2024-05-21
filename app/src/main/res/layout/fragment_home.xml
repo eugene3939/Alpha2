@@ -151,7 +151,7 @@
             android:id="@+id/lrClerkOpr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btnDiscountList">
+            android:layout_above="@+id/lrLeftButton">
 
             <!--會員選項 (非會員就會成會員)-->
             <Button
@@ -170,7 +170,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="@color/blue_200"
-                android:text="9折"
+                android:text="折數"
                 android:textColor="@color/blue_800"
                 android:textSize="15sp"/>
 
@@ -222,16 +222,36 @@
             android:textSize="25sp"
             android:textStyle="bold"/>
 
-        <!--自訂常用折價券-->
-        <Button
-            android:id="@+id/btnDiscountList"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:text="@string/txtCoupon"
-            android:textSize="15sp"
-            android:textColor="@color/blue_800"
-            android:layout_alignBottom="@+id/txt_totalDollar"
-            android:background="@color/blue_200"/>
+        <!--用戶自定義按鍵-->
+        <LinearLayout
+            android:id="@+id/lrLeftButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/btn_deal"
+            android:layout_alignBottom="@+id/txt_totalDollar">
+
+            <!--自訂常用折價券-->
+            <Button
+                android:id="@+id/btnDiscountList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/txtCoupon"
+                android:textSize="15sp"
+                android:textColor="@color/blue_800"
+                android:background="@color/blue_200"/>
+
+            <!--現折按鈕-->
+            <Button
+                android:id="@+id/btnCharge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="現折"
+                android:textSize="15sp"
+                android:textColor="@color/blue_800"
+                android:background="@color/blue_200"/>
+        </LinearLayout>
     </RelativeLayout>
 
     <!--drawer table test-->

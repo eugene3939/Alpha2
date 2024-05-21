@@ -12,7 +12,7 @@ data class PaymentDetail(
     val SYS_StoreNo:         String              ,      /*店號*/
     val TXN_Date:            LocalDateTime       ,      /*交易日期*/
     val ECR_No:              String              ,      /*收銀機代碼*/
-    val TXN_No:              Int                 ,      /*交易序號*/
+    val TXN_No:              Int                 ,      /*交易序號 今日的第幾筆交易*/
     val TXN_Item:            Int                 ,      /*項次*/ //商品A -> 1, 商品B -> 2
 
     val TXN_Time:            LocalDateTime       ,      /*交易時間*/
