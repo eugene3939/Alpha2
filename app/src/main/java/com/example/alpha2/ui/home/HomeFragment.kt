@@ -779,6 +779,18 @@ class HomeFragment : Fragment() {
                         println("目前商品貨號: ${i.productItem.pluMagNo} 數量: ${i.quantity}")
                     }
 
+                    //如果是全折物件被刪除，需要清除依照比例分攤的折扣額(discT)，會持續走訪直到遇見全折物件或是整個購物車 (刪除全折物件後再進行此步驟) ex: m1 m2 t1 m3 m4 t2(刪除t2 後連帶重製m3 m4 遇到t1 停止)
+                    if(lastItem.pluMagNo == "0000000"){ //全折物件
+                        for (i in cartList.size-1 downTo 0){
+                            if (cartList[i].productItem.pName == "小計折扣")   //遇到全折物件就停止
+                                break
+                            else{
+                                cartList[i].discountT = 0.0 //重新初始化折扣比例
+                                println("初始化 ${cartList[i].productItem.pName}")
+                            }
+                        }
+                    }
+
                     // 使用主執行緒進行UI操作
                     withContext(Dispatchers.Main) {
                         //詢問用alertDialog詢問是否要進行更正作業
