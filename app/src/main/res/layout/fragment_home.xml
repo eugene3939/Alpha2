@@ -12,18 +12,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/textDashboard"
+        <!--人員顯示區-->
+        <LinearLayout
+            android:id="@+id/lrMemberGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/txtClerkName"
-            android:textSize="20sp"/>
+            android:orientation="horizontal">
+
+            <!--收銀員-->
+            <TextView
+                android:id="@+id/textDashboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/txtClerkName"
+                android:textSize="20sp"/>
+
+            <!--會員-->
+            <TextView
+                android:id="@+id/textMemberAuth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:text="非會員"
+                android:textSize="20sp"/>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/SearchBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textDashboard"
+            android:layout_below="@+id/lrMemberGroup"
             android:orientation="horizontal">
 
             <EditText
@@ -45,7 +63,8 @@
                 android:layout_weight="0.1"
                 android:text="@string/txtBarcode"
                 android:textSize="15sp"
-                android:backgroundTint="@color/blue_500"/>
+                android:textColor="@color/blue_800"
+                android:backgroundTint="@color/cornBlue"/>
 
             <Button
                 android:id="@+id/btnSearch"
@@ -56,7 +75,7 @@
                 android:text="@string/txtAddProduct"
                 android:textSize="15sp"
                 android:textColor="@color/blue_800"
-                android:backgroundTint="@color/blue_200"/>
+                android:backgroundTint="@color/lavender"/>
 
             <Button
                 android:id="@+id/btn_clear"
@@ -67,7 +86,7 @@
                 android:text="@string/txtClearText"
                 android:textSize="15sp"
                 android:textColor="@color/blue_800"
-                android:backgroundTint="@color/blue_200"/>
+                android:backgroundTint="@color/blue2"/>
         </LinearLayout>
 
         <LinearLayout
@@ -158,29 +177,33 @@
                 android:id="@+id/btnUserFavor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="3dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/blue_500"
+                android:backgroundTint="@color/lavender"
                 android:text="@string/txtUserSettingButton"
+                android:textColor="@color/blue_800"
                 android:textSize="15sp"/>
 
             <!--現折 (單一商品折扣，輸入折抵金額)-->
             <Button
-                android:id="@+id/btnSingleCharge"
+                android:id="@+id/btnCharge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="3dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/blue_200"
-                android:text="折數"
+                android:backgroundTint="@color/lavender"
+                android:text="現折"
                 android:textColor="@color/blue_800"
-                android:textSize="15sp"/>
+                android:textSize="15sp" />
 
             <!--全折 (所有商品折扣，輸入折抵比例)-->
             <Button
                 android:id="@+id/btnMultipleCharge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="3dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/blue_200"
+                android:backgroundTint="@color/lavender"
                 android:text="全折"
                 android:textColor="@color/blue_800"
                 android:textSize="15sp"/>
@@ -190,88 +213,123 @@
                 android:id="@+id/btnMerchantClear"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="3dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/blue_200"
+                android:backgroundTint="@color/cornBlue"
                 android:text="更正"
                 android:textColor="@color/blue_800"
                 android:textSize="15sp"/>
         </LinearLayout>
 
-        <!-- 確認價格 -->
-        <Button
-            android:id="@+id/btn_deal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="60dp"
-            android:text="@string/txtSumShopCart"
-            android:textSize="25sp"
-            android:backgroundTint="@color/blue_500"/>
-
-        <!--總小計-->
-        <TextView
-            android:id="@+id/txt_totalDollar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <!--顯示總價-->
+        <LinearLayout
+            android:id="@+id/lrShowUpSum"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/lrClerkOpr"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="60dp"
-            android:visibility="invisible"
-            android:text="@string/txtTotalPrice"
-            android:textSize="25sp"
-            android:textStyle="bold"/>
+            android:orientation="vertical"
+            android:layout_marginBottom="60dp">
 
-        <!--用戶自定義按鍵(左)-->
+            <!--總小計-->
+            <TextView
+                android:id="@+id/txt_totalDollar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/txtTotalPrice"
+                android:textSize="25sp"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
+        <!--用戶自定義按鍵-->
         <LinearLayout
             android:id="@+id/lrLeftButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/btn_deal"
-            android:layout_alignBottom="@+id/txt_totalDollar">
+            android:layout_toStartOf="@+id/lrShowUpSum"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:layout_marginBottom="60dp">
 
-            <!--自訂常用折價券-->
-            <Button
-                android:id="@+id/btnDiscountList"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/txtCoupon"
-                android:textSize="15sp"
-                android:textColor="@color/blue_800"
-                android:background="@color/blue_200"/>
+                <!--layout1-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
 
-            <!--現折按鈕-->
-            <Button
-                android:id="@+id/btnCharge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="現折"
-                android:textSize="15sp"
-                android:textColor="@color/blue_800"
-                android:background="@color/blue_200"/>
-        </LinearLayout>
+                    <!--自訂常用折價券-->
+                    <Button
+                        android:id="@+id/btnDiscountList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="3dp"
+                        android:text="@string/txtCoupon"
+                        android:textSize="15sp"
+                        android:textColor="@color/blue_800"
+                        android:backgroundTint="@color/green1"/>
 
-        <!--用戶自定義按鍵(右)-->
-        <LinearLayout
-            android:id="@+id/lrRightButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/btn_deal"
-            android:layout_toStartOf="@+id/txt_totalDollar"
-            android:layout_alignBottom="@+id/txt_totalDollar">
+                    <!--取消交易按鈕-->
+                    <Button
+                        android:id="@+id/btnCancel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="3dp"
+                        android:layout_weight="1"
+                        android:text="取消交易"
+                        android:textSize="15sp"
+                        android:textColor="@color/blue_800"
+                        android:backgroundTint="@color/blue2"/>
+                </LinearLayout>
 
-            <!--取消交易按鈕-->
-            <Button
-                android:id="@+id/btnCancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="取消交易"
-                android:textSize="15sp"
-                android:textColor="@color/blue_800"
-                android:background="@color/blue_200"/>
-        </LinearLayout>
+                <!--layout2-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+
+                    <!--現折按鈕-->
+                    <Button
+                        android:id="@+id/btnSingleCharge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="3dp"
+                        android:layout_weight="1"
+                        android:text="折數"
+                        android:textSize="15sp"
+                        android:textColor="@color/blue_800"
+                        android:backgroundTint="@color/blue_200"/>
+
+                    <!-- 9折 -->
+                    <Button
+                        android:id="@+id/btnNinetyCharge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="3dp"
+                        android:layout_weight="1"
+                        android:text="9折"
+                        android:textSize="15sp"
+                        android:textColor="@color/blue_800"
+                        android:backgroundTint="@color/lavender"/>
+
+                    <!-- 確認價格 -->
+                    <Button
+                        android:id="@+id/btn_deal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="3dp"
+                        android:layout_weight="1"
+                        android:text="@string/txtSumShopCart"
+                        android:textSize="15sp"
+                        android:textColor="@color/blue_800"
+                        android:backgroundTint="@color/pink1"/>
+                </LinearLayout>
+            </LinearLayout>
     </RelativeLayout>
 
     <!--drawer table test-->

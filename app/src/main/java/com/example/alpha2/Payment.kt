@@ -266,52 +266,56 @@ class Payment : AppCompatActivity() {
         val maxTXN = paymentDBManager.searchPaymentDetailByMaxYYMM(nowDate)?.plus(1) ?: 1
         var temp = 1    //項次
         for (item in cartList){
-            val paymentDetailItem = PaymentDetail(
-                SYS_StoreNo = nowSystem.storeNo,
-                TXN_Date = nowDate,
-                ECR_No = nowSystem.ecrNo,
-                TXN_No = maxTXN,       /*交易序號 (今日開出數+1 ，確認今天開出幾張，由1開始)*/
+            if (item.productItem.pluMagNo == "0000000"){    //跳過小計折扣商品
+                continue
+            }else{
+                val paymentDetailItem = PaymentDetail(
+                    SYS_StoreNo = nowSystem.storeNo,
+                    TXN_Date = nowDate,
+                    ECR_No = nowSystem.ecrNo,
+                    TXN_No = maxTXN,       /*交易序號 (今日開出數+1 ，確認今天開出幾張，由1開始)*/
 
-                TXN_Item = temp,
-                TXN_Time = LocalDateTime.now(),
-                TXN_GUINo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
-                PLU_No = item.productItem.pluMagNo,
-                DEP_No = item.productItem.DEP_No,
-                VEN_No = item.productItem.VEN_No,
-                CAT_No = item.productItem.CAT_No,
-                TXN_Qty = item.quantity,
-                PLU_FixPrc = item.productItem.fixPrc,
-                PLU_SalePrc = item.productItem.salePrc,
+                    TXN_Item = temp,
+                    TXN_Time = LocalDateTime.now(),
+                    TXN_GUINo = existInvoiceSetup.GUI_TRACK.toString() + existInvoiceSetup.GUI_SNOS.toString(),  /*發票起始發票號*/
+                    PLU_No = item.productItem.pluMagNo,
+                    DEP_No = item.productItem.DEP_No,
+                    VEN_No = item.productItem.VEN_No,
+                    CAT_No = item.productItem.CAT_No,
+                    TXN_Qty = item.quantity,
+                    PLU_FixPrc = item.productItem.fixPrc,
+                    PLU_SalePrc = item.productItem.salePrc,
 
-                TXN_DiscS =item.discountS.roundToInt().toDouble(),                   /*人工折扣(負數)*/
-                TXN_DiscT = item.discountT.roundToInt().toDouble(),                  /*總合折扣(負數)*/
-                TXN_DiscM = nowLoginMember?.let { (item.productItem.unitPrc - item.productItem.memPrc) * item.quantity }?: 0.00,   /*會員折扣 目前僅計算會員差價*/
+                    TXN_DiscS =item.discountS.roundToInt().toDouble(),                   /*人工折扣(負數)*/
+                    TXN_DiscT = item.discountT.roundToInt().toDouble(),                  /*總合折扣(負數)*/
+                    TXN_DiscM = nowLoginMember?.let { (item.productItem.unitPrc - item.productItem.memPrc) * item.quantity }?: 0.00,   /*會員折扣 目前僅計算會員差價*/
 
-                TXN_SaleAmt = item.productItem.unitPrc * item.quantity,  /*銷售金額=應稅銷售金額+免稅銷售金額*/
-                TXN_SaleTax = item.productItem.unitPrc,  /*應稅銷售金額=未稅銷售金額+稅額*/
-                TXN_SaleNoTax = item.productItem.unitPrc,/*免稅銷售金額*/
-                TXN_Net = item.productItem.unitPrc,      /*未稅銷售金額*/
-                TXN_Tax = 0.00,                    /*稅額*/
-                PLU_TaxType = "0",                 /*稅別 0=免稅 1=應稅*/
+                    TXN_SaleAmt = item.productItem.unitPrc * item.quantity - item.discountS.roundToInt().toDouble() - item.discountT.roundToInt().toDouble(),  /*銷售金額=應稅銷售金額+免稅銷售金額*/
+                    TXN_SaleTax = item.productItem.unitPrc,  /*應稅銷售金額=未稅銷售金額+稅額*/
+                    TXN_SaleNoTax = item.productItem.unitPrc,/*免稅銷售金額*/
+                    TXN_Net = item.productItem.unitPrc,      /*未稅銷售金額*/
+                    TXN_Tax = 0.00,                    /*稅額*/
+                    PLU_TaxType = "0",                 /*稅別 0=免稅 1=應稅*/
 
-                TXN_Mode = when(transactionMethod){
-                    "收銀" -> "R"
-                    "補輸入"-> "E"
-                    "訓練"->"T"
-                    "預收取貨"->"W"
-                    "銷退"->"Y"
-                    "折讓"->"X"
-                    "財務手開"->"F"
-                    else -> "F"},               /*交易模式(同POS3008)*/
-                TXN_Status = "N",               /*交易狀態(同POS3008,R=退貨)*/
+                    TXN_Mode = when(transactionMethod){
+                        "收銀" -> "R"
+                        "補輸入"-> "E"
+                        "訓練"->"T"
+                        "預收取貨"->"W"
+                        "銷退"->"Y"
+                        "折讓"->"X"
+                        "財務手開"->"F"
+                        else -> "F"},               /*交易模式(同POS3008)*/
+                    TXN_Status = "N",               /*交易狀態(同POS3008,R=退貨)*/
 
-                PLU_Name = item.productItem.pName
-            )
+                    PLU_Name = item.productItem.pName
+                )
 
-            //寫入明細檔
-            paymentDBManager.addPaymentDetail(paymentDetailItem)
+                //寫入明細檔
+                paymentDBManager.addPaymentDetail(paymentDetailItem)
 
-            temp+=1
+                temp+=1
+            }
         }
     }
 

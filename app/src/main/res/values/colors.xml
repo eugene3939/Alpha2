@@ -8,14 +8,19 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="pink1">#FFB5B5</color>
+    <color name="red1">#FF9797</color>
+    <color name="blue2">#97CBFF</color>
+    <color name="green1">#95CACA</color>
+    <color name="orange1">#FFC78E</color>
 
-    <color name="aliceBlue">#F0F8FF</color>
-    <color name="lavender">#E6E6FA</color>
-    <color name="jasmineButter">#F5FFFA</color>
-    <color name="cornBlue">#6495ED</color>
-    <color name="douBlue">#1E90FF</color>
-    <color name="blue_100">#F1EFEF</color>
-    <color name="blue_200">#CCC8AA</color>
+    <color name="aliceBlue">#B8B8DC</color>
+    <color name="lavender">#ACD6FF</color>
+    <color name="jasmineButter">#95CACA</color>
+    <color name="cornBlue">#AAAAFF</color>
+    <color name="douBlue">#97CBFF</color>
+    <color name="blue_100">#FFFFFF</color>
+    <color name="blue_200">#B9B9FF</color>
     <color name="blue_500">#7D7C7C</color>
     <color name="blue_800">#191717</color>
 
