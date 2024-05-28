@@ -211,8 +211,10 @@ class HomeFragment : Fragment() {
             if (btnPlus1 != null && btnMinus1 != null && btnConfirm != null && btnClear!=null) {
                 //更正作業不需指定最後一項，都可進行
                 btnClear.setOnClickListener {
-                    Log.d("點案位置",position.toString())
+                    Log.d("點按位置",position.toString())
                     merchantClearProcess(position)
+
+                    bottomSheetDialog.dismiss()
                 }
 
                 //點擊商品的目前數量
@@ -267,8 +269,7 @@ class HomeFragment : Fragment() {
 
                     //顯示點擊數量
                     if (edtNumber != null) {
-                        edtNumber.text =
-                            Editable.Factory.getInstance().newEditable(changeAmount.toString())
+                        edtNumber.text = Editable.Factory.getInstance().newEditable(changeAmount.toString())
                     }
                 }
                 btnMinus1.setOnClickListener {
@@ -279,8 +280,7 @@ class HomeFragment : Fragment() {
 
                     //顯示點擊數量
                     if (edtNumber != null) {
-                        edtNumber.text =
-                            Editable.Factory.getInstance().newEditable(changeAmount.toString())
+                        edtNumber.text = Editable.Factory.getInstance().newEditable(changeAmount.toString())
                     }
                 }
 
@@ -306,24 +306,18 @@ class HomeFragment : Fragment() {
                                 //進行更正作業
                                 merchantClearProcess(cartList.lastIndex)
                             } else {
-                                //更新成新數量
-                                //如果商品類別是否為折價券
-                                if (clickItem.productItem.pluType == "75") { //如果屬於折價券類別，就將數量變成負值
-                                    cartList[cartList.size - 1].quantity = changeAmount * -1
-                                } else {
-                                    cartList[cartList.size - 1].quantity = changeAmount * 1
-                                }
-
                                 //更新購物車物件的數量
                                 if (cartList.isNotEmpty()) {
-                                    val lastItem = cartList.last()
+                                    //如果商品類別是否為折價券
+                                    if (clickItem.productItem.pluType == "75") { //如果屬於折價券類別，就將數量變成負值
+                                        cartList.last().quantity = changeAmount * -1
+                                        Log.d("數量變更結果",(changeAmount * -1).toString() )
+                                    } else {
+                                        cartList.last().quantity = changeAmount * 1
+                                    }
 
-                                    //如果是全折類別不允許變數量
-                                    lastItem.quantity = changeAmount
-                                    println("變更數量 ${lastItem.quantity}")
                                 } else {
                                     println("購物車為空，無法變更數量")
-
                                 }
 
                                 Log.d("商品數量", "${cartList.last().quantity}")
@@ -579,6 +573,7 @@ class HomeFragment : Fragment() {
                                     withContext(Dispatchers.Main) {
                                         //確認優惠券能否放入清單
                                         if (couponAddCheck(product)) {
+                                            Cno+=1
                                             cartList.add(CartItem(Cno, product, -1, 0.00))
                                             Toast.makeText(
                                                 requireContext(),
@@ -1030,6 +1025,9 @@ class HomeFragment : Fragment() {
             lifecycleScope.launch(Dispatchers.IO) {
                 // 確認點案的項目是否會影響 折價券關係
                 if (!couponDeleteCheck(clearItem,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
+                    withContext(Dispatchers.Main){
+                        Toast.makeText(requireContext(),"刪除商品 ${clearItem.pName} 可能會破壞折價券關聯，請先刪除折價券",Toast.LENGTH_SHORT).show()
+                    }
                     Log.d("警告", "刪除商品 ${clearItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
                     safeDeleteCheck = false
                 }
@@ -1113,7 +1111,7 @@ class HomeFragment : Fragment() {
             }
         }else{
             addCoupon.unitPrc
-        }    //產品單價(較低的)
+        }
 
         //這邊抓coupon Main對應的所有coupon Detail 商品項目去跟 filterList 比對(多筆的SEQ_NO都放入清單: 不同的where 條件)
         Log.d("折價券類別",selectItem.DISC_TYPE)
@@ -1237,21 +1235,21 @@ class HomeFragment : Fragment() {
                             Toast.makeText(requireContext(),"不符合折價券需求的貨號",Toast.LENGTH_SHORT).show()
                         }2 ->{
                         Toast.makeText(requireContext(),"不符合折價券需求的部門",Toast.LENGTH_SHORT).show()
-                    }3 ->{
-                        Toast.makeText(requireContext(),"不符合折價券需求的分類",Toast.LENGTH_SHORT).show()
-                    }4 ->{
-                        Toast.makeText(requireContext(),"不符合折價券需求的廠商",Toast.LENGTH_SHORT).show()
-                    }5 ->{
-                        Toast.makeText(requireContext(),"折價券需求的異常",Toast.LENGTH_SHORT).show()
-                    }6 ->{
-                        Toast.makeText(requireContext(),"超過折價券期限",Toast.LENGTH_SHORT).show()
-                    }7 -> {
-                        Toast.makeText(requireContext(),"不符合折價券使用規範(僅有排除類商品)",Toast.LENGTH_SHORT).show()
-                    }99 -> {
-                        Toast.makeText(requireContext(),"成功新增折價券",Toast.LENGTH_SHORT).show()
-                    }else ->{
-                        Toast.makeText(requireContext(),"不合規的檢核碼(A)",Toast.LENGTH_SHORT).show()
-                    }
+                        }3 ->{
+                            Toast.makeText(requireContext(),"不符合折價券需求的分類",Toast.LENGTH_SHORT).show()
+                        }4 ->{
+                            Toast.makeText(requireContext(),"不符合折價券需求的廠商",Toast.LENGTH_SHORT).show()
+                        }5 ->{
+                            Toast.makeText(requireContext(),"折價券需求的異常",Toast.LENGTH_SHORT).show()
+                        }6 ->{
+                            Toast.makeText(requireContext(),"超過折價券期限",Toast.LENGTH_SHORT).show()
+                        }7 -> {
+                            Toast.makeText(requireContext(),"不符合折價券使用規範(僅有排除類商品)",Toast.LENGTH_SHORT).show()
+                        }99 -> {
+                            Toast.makeText(requireContext(),"成功新增折價券",Toast.LENGTH_SHORT).show()
+                        }else ->{
+                            Toast.makeText(requireContext(),"不合規的檢核碼(A)",Toast.LENGTH_SHORT).show()
+                        }
                     }
 
                     // 等待協程結果( 依照類別或是排除決定
@@ -1384,12 +1382,8 @@ class HomeFragment : Fragment() {
         //全部都是true就可以加入
         Log.d("明細檔檢查狀況",cycleCheckMutableList.toString())
 
-        //回報檢查結果
-        return if (cycleCheckMutableList.contains(false)){
-            false    //有一個檢查錯誤就不許可進行更正(要求先刪除折價券)
-        } else{
-            true
-        }
+        //回報檢查結果 (//有一個檢查錯誤就不許可進行更正(要求先刪除折價券))
+        return !cycleCheckMutableList.contains(false)
     }
 
     // 檢查現在的時間是否在折價券適用期間內
