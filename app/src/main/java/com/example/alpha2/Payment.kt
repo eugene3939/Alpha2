@@ -96,7 +96,7 @@ class Payment : AppCompatActivity() {
             //顯示小計總額
             txtCashSum.text = totalPrice.toString()
             //顯示會員內容
-            txtMember.text = nowLoginMember?.name ?: "非會員"  //顯示是否為會員身分
+            txtMember.text = nowLoginMember?.name ?: "_"  //顯示是否為會員身分
 
         }catch (e: Exception){
             Log.d("傳遞失敗","空的intent")
@@ -290,7 +290,7 @@ class Payment : AppCompatActivity() {
                     TXN_DiscT = item.discountT.roundToInt().toDouble(),                  /*總合折扣(負數)*/
                     TXN_DiscM = nowLoginMember?.let { (item.productItem.unitPrc - item.productItem.memPrc) * item.quantity }?: 0.00,   /*會員折扣 目前僅計算會員差價*/
 
-                    TXN_SaleAmt = item.productItem.unitPrc * item.quantity - item.discountS.roundToInt().toDouble() - item.discountT.roundToInt().toDouble(),  /*銷售金額=應稅銷售金額+免稅銷售金額*/
+                    TXN_SaleAmt = item.productItem.unitPrc * item.quantity + item.discountS.roundToInt().toDouble() + item.discountT.roundToInt().toDouble(),  /*銷售金額=應稅銷售金額+免稅銷售金額*/
                     TXN_SaleTax = item.productItem.unitPrc,  /*應稅銷售金額=未稅銷售金額+稅額*/
                     TXN_SaleNoTax = item.productItem.unitPrc,/*免稅銷售金額*/
                     TXN_Net = item.productItem.unitPrc,      /*未稅銷售金額*/

@@ -13,7 +13,7 @@
     <string name="txtSearchBarHint">請輸入貨號</string>
     <string name="txtConfirm">確定</string>
     <string name="txtClearText">清除</string>
-    <string name="txtTotalPrice">總價</string>
+    <string name="txtTotalPrice">總計</string>
     <string name="txtSumShopCart">小計</string>
     <string name="txtClerkName">收銀員</string>
     <string name="txtBarcode">掃描條碼</string>
@@ -21,13 +21,13 @@
     <string name="txtFname">品名</string>
     <string name="txtFMagno">貨號</string>
     <string name="txtFclickNum">0 個</string>
-    <string name="txtFsum">付款</string>
+    <string name="txtFsum">已付</string>
     <string name="txtUnitPrice">價格</string>
     <string name="txtCancelSelection">0</string>
     <string name="txtPlus1">+1</string>
     <string name="txtMinus1">-1</string>
     <string name="txtSelfPriceSetting">商品變價</string>
-    <string name="txtUserSettingButton">非會員</string>
+    <string name="txtUserSettingButton">會員</string>
     <string name="txtMemberClass">非會員</string>
 
     <string name="txtUserBtn1">按鈕</string>

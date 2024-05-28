@@ -88,6 +88,7 @@ class HomeFragment : Fragment() {
     //總小計金額
     private var totalSumUnitPrice: Double = 0.00
 
+    //最終送出金額
     private var sendoutPrice: Double = 0.00
 
     //鏡頭開啟時處理條碼邏輯 (加入會員)
@@ -188,6 +189,8 @@ class HomeFragment : Fragment() {
         val bottomSheetDialog = BottomSheetDialog(requireContext())
         bottomSheetDialog.setContentView(R.layout.selectnum) // 將你的 變更數量的xml 設置為BottomView內容
 
+        // 找到 更正數量 按鈕
+        val btnClear = bottomSheetDialog.findViewById<Button>(R.id.btnDeleteItem)
         // 找到 修改數量畫面的 +1按鈕
         val btnPlus1 = bottomSheetDialog.findViewById<Button>(R.id.btnSelectPlus1)
         // 找到 修改數量畫面的 -1按鈕
@@ -205,93 +208,103 @@ class HomeFragment : Fragment() {
             bottomSheetDialog.show()
 
             //這邊先確定點及項目是否為最後一項(最後一項才允許變更數量)
-            if (clickItem == cartList.last()) {
-                if (btnPlus1 != null && btnMinus1 != null && btnConfirm != null) {
-                    //點擊商品的目前數量
-                    val selectScanNumber = cartList.last().quantity
+            if (btnPlus1 != null && btnMinus1 != null && btnConfirm != null && btnClear!=null) {
+                //更正作業不需指定最後一項，都可進行
+                btnClear.setOnClickListener {
+                    Log.d("點案位置",position.toString())
+                    merchantClearProcess(position)
+                }
 
-                    //點擊數量(如果是折價券就變成負金額)
-                    var changeAmount = selectScanNumber
-                    if (clickItem.productItem.pluType == "75") {
-                        changeAmount *= (-1)
+                //點擊商品的目前數量
+                val selectScanNumber = cartList[position].quantity
+
+                //點擊數量(如果是折價券就變成負金額)
+                var changeAmount = selectScanNumber
+                if (clickItem.productItem.pluType == "75") {
+                    changeAmount *= (-1)
+                }
+
+                //顯示點數量
+                if (edtNumber != null) {
+                    //如果是折價券商品就變成負金額
+                    edtNumber.text =
+                        Editable.Factory.getInstance().newEditable(changeAmount.toString())
+                }
+
+                // 更新editText內容
+                edtNumber?.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+                        // 不需要實現
                     }
 
-                    //顯示點數量
+                    override fun onTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
+                        // 當 EditText 的文字變更時，更新 changeAmount 的值
+                        if (!s.isNullOrEmpty()) {
+                            changeAmount = s.toString().toIntOrNull() ?: 0
+                        }
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                        // 不需要實現
+                    }
+                })
+
+                Log.d("點按數量",selectScanNumber.toString())
+
+                btnPlus1.setOnClickListener {
+                    changeAmount += 1       //點擊數量+1
+                    Log.d("數量", "$changeAmount")
+
+                    //顯示點擊數量
                     if (edtNumber != null) {
-                        //如果是折價券商品就變成負金額
                         edtNumber.text =
                             Editable.Factory.getInstance().newEditable(changeAmount.toString())
                     }
+                }
+                btnMinus1.setOnClickListener {
+                    if (changeAmount >= 1)   //數量最少要是1
+                        changeAmount -= 1           //點擊數量-1
 
-                    // 更新editText內容
-                    edtNumber?.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            count: Int,
-                            after: Int
-                        ) {
-                            // 不需要實現
-                        }
+                    Log.d("數量", "$changeAmount")
 
-                        override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            before: Int,
-                            count: Int
-                        ) {
-                            // 當 EditText 的文字變更時，更新 changeAmount 的值
-                            if (!s.isNullOrEmpty()) {
-                                changeAmount = s.toString().toIntOrNull() ?: 0
-                            }
-                        }
-
-                        override fun afterTextChanged(s: Editable?) {
-                            // 不需要實現
-                        }
-                    })
-
-                    btnPlus1.setOnClickListener {
-                        changeAmount += 1       //點擊數量+1
-                        Log.d("數量", "$changeAmount")
-
-                        //顯示點擊數量
-                        if (edtNumber != null) {
-                            edtNumber.text =
-                                Editable.Factory.getInstance().newEditable(changeAmount.toString())
-                        }
+                    //顯示點擊數量
+                    if (edtNumber != null) {
+                        edtNumber.text =
+                            Editable.Factory.getInstance().newEditable(changeAmount.toString())
                     }
-                    btnMinus1.setOnClickListener {
-                        if (changeAmount >= 1)   //數量最少要是1
-                            changeAmount -= 1           //點擊數量-1
+                }
 
-                        Log.d("數量", "$changeAmount")
-
-                        //顯示點擊數量
-                        if (edtNumber != null) {
-                            edtNumber.text =
-                                Editable.Factory.getInstance().newEditable(changeAmount.toString())
-                        }
-                    }
-                    btnConfirm.setOnClickListener {
-                        //如果已經有單向折扣了就不允許變更數量，要求先進行更正
-                        if (clickItem.discountS != 0.0) {
-                            Toast.makeText(
-                                requireContext(),
-                                "折扣後不允許數量變更",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else if (clickItem.productItem.pName == "小計折扣") {    //小計折扣項目不允許更正
-                            Toast.makeText(
-                                requireContext(),
-                                "小計折扣不允許數量變更",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
+                btnConfirm.setOnClickListener {
+                    //如果已經有單向折扣了就不允許變更數量，要求先進行更正
+                    if (clickItem.discountS != 0.0) {
+                        Toast.makeText(
+                            requireContext(),
+                            "折扣後不允許數量變更",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (clickItem.productItem.pName == "小計折扣") {    //小計折扣項目不允許更正
+                        Toast.makeText(
+                            requireContext(),
+                            "小計折扣不允許數量變更",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        //最後一項才允許輸出最後一項的項目
+                        if(clickItem == cartList.last()){
                             // 如果變更後的數量變成 0 就刪除選擇商品
                             if (changeAmount == 0) {
                                 //進行更正作業
-                                merchantClearProcess()
+                                merchantClearProcess(cartList.lastIndex)
                             } else {
                                 //更新成新數量
                                 //如果商品類別是否為折價券
@@ -315,27 +328,22 @@ class HomeFragment : Fragment() {
 
                                 Log.d("商品數量", "${cartList.last().quantity}")
                             }
+                        }else{
+                            Toast.makeText(requireContext(),"只有最後一項才允許數量變更",Toast.LENGTH_SHORT).show()
                         }
-
-                        //重新載入清單
-                        loadFilterProduct()
-
-                        bottomSheetDialog.dismiss()     //結束bottomView
                     }
+
+                    //重新載入清單
+                    loadFilterProduct()
+
+                    bottomSheetDialog.dismiss()     //結束bottomView
                 }
-            } else {
-                bottomSheetDialog.dismiss() //關閉商品數量視窗
-                Toast.makeText(
-                    requireContext(),
-                    "請先進行更正作業，再變更商品數量",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
         }
 
         //更正按鈕(將最後一項商品刪除，並且留下刪除紀錄)
         binding.btnMerchantClear.setOnClickListener {
-            merchantClearProcess()
+            merchantClearProcess(cartList.lastIndex)
         }
 
         //顯示用戶自定義側滑式清單
@@ -578,16 +586,17 @@ class HomeFragment : Fragment() {
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         } else {
-                                            //錯誤回報在couponAddCheck就會跳出提示，這邊用Log說明新增出現異常即可
-                                            Log.d("折價券新增狀況", "未滿足折價券使用條件")
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "未滿足折價券使用條件",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
                                         //主程序外更新顯示內容
                                         loadFilterProduct()
                                     }
                                 }
                             }
-
-                            Log.d("優惠券檢查", "已經更新")
                         }
                     })
 
@@ -1005,30 +1014,32 @@ class HomeFragment : Fragment() {
     }
 
     //進行更正作業
-    private fun merchantClearProcess() {
+    private fun merchantClearProcess(clearIndex: Int) {
         if (cartList.isNotEmpty()){
             // 安全鎖
             var safeDeleteCheck = true
             // 先用複製的清單確認刪除最後一項是否會導致關聯遭到破壞
             val copyFilter: MutableList<Product> = ArrayList(cartList.map { it.productItem }) // 使用複製的清單進行檢查
-            val lastItem = copyFilter[copyFilter.size-1]    // 前先儲存最後一項
+            val clearItem = copyFilter[clearIndex]    // 前先儲存刪除項目
 
-            copyFilter.removeAt(copyFilter.size-1)    // 刪除最後一項
+            copyFilter.removeAt(clearIndex)    // 刪除項目
+            for (i in copyFilter)
+                Log.d("刪除後清單",i.pName)
 
             // 創建一個新的協程，並在其中執行異步操作
             lifecycleScope.launch(Dispatchers.IO) {
                 // 確認點案的項目是否會影響 折價券關係
-                if (!couponDeleteCheck(lastItem,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
-                    Log.d("警告", "刪除商品 ${lastItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
+                if (!couponDeleteCheck(clearItem,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
+                    Log.d("警告", "刪除商品 ${clearItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
                     safeDeleteCheck = false
                 }
                 // 如果所有檢查都通過，執行刪除操作
                 if (safeDeleteCheck) {
-                    //刪除最後一項購物車物件
+                    //刪除購物車物件
 
                     //刪除前先將記錄保存更正紀錄
                     Dno+=1  //更新更正清單項次
-                    deleteCartList.add(DeletedCartItem(Dno,cartList.last()))
+                    deleteCartList.add(DeletedCartItem(Dno,cartList[clearIndex]))
                     println("已經保存更正紀錄到清單")
 
                     for (i in deleteCartList){
@@ -1037,7 +1048,7 @@ class HomeFragment : Fragment() {
 
                     //更新購物車清單內容
                     Cno-=1
-                    cartList.remove(cartList.last())    //刪除最後一項
+                    cartList.removeAt(clearIndex)    //刪除最後一項
                     println("刪除購物車物件成功")
 
                     for (i in cartList){
@@ -1045,7 +1056,7 @@ class HomeFragment : Fragment() {
                     }
 
                     //如果是全折物件被刪除，需要清除依照比例分攤的折扣額(discT)，會持續走訪直到遇見全折物件或是整個購物車 (刪除全折物件後再進行此步驟) ex: m1 m2 t1 m3 m4 t2(刪除t2 後連帶重製m3 m4 遇到t1 停止)
-                    if(lastItem.pluMagNo == "0000000"){ //全折物件
+                    if(clearItem.pluMagNo == "0000000"){ //全折物件
                         for (i in cartList.size-1 downTo 0){
                             if (cartList[i].productItem.pluMagNo == "0000000")   //遇到全折物件就停止
                                 break
@@ -1061,11 +1072,11 @@ class HomeFragment : Fragment() {
                         //詢問用alertDialog詢問是否要進行更正作業
                         val deleteCheckDialogBuilder = AlertDialog.Builder(requireContext())
                         deleteCheckDialogBuilder.setTitle("更正作業")
-                        deleteCheckDialogBuilder.setMessage("請問您確定要刪除 ${lastItem.pName} 嗎?")
+                        deleteCheckDialogBuilder.setMessage("請問您確定要刪除 ${clearItem.pName} 嗎?")
                         //確定更正
                         deleteCheckDialogBuilder.setPositiveButton("確定") { _, _ ->
                             // 刪除掃描商品提示訊息(商品名稱)
-                            Toast.makeText(requireContext(), "刪除: ${lastItem.pName}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), "刪除: ${clearItem.pName}", Toast.LENGTH_SHORT).show()
 
                             //重新載入清單
                             loadFilterProduct()
@@ -1105,6 +1116,7 @@ class HomeFragment : Fragment() {
         }    //產品單價(較低的)
 
         //這邊抓coupon Main對應的所有coupon Detail 商品項目去跟 filterList 比對(多筆的SEQ_NO都放入清單: 不同的where 條件)
+        Log.d("折價券類別",selectItem.DISC_TYPE)
 
         //已知 pluType='75' 類別
         return when (selectItem.DISC_TYPE) {
@@ -1115,7 +1127,7 @@ class HomeFragment : Fragment() {
                 val result = lifecycleScope.async(Dispatchers.IO) {
                     val detail = productDBManager.getCouponDetailBypluMagNo(selectItem.DISC_PLU_MagNo)  //多筆明細檔
 
-                    if (detail != null) {
+                    if (detail != null) {   //存在明細檔
                         val detailLength = detail.size  //幾個 明細檔
                         val cycleCheckMutableList = mutableListOf<Product>()  //排除型折價券檢集合
                         Log.d("折價券","有 ${detailLength}個規則分支")   //確認明細數量，要每張都確認曾能回報
@@ -1205,10 +1217,12 @@ class HomeFragment : Fragment() {
                                     println("列表中只有排除項項目存在")
                                 } else {
                                     subCheck = 99
-                                    println("列表中有排除項以外的項目")
+                                    println("列表中只有排除項項目存在")
                                 }
                             }
                         }
+                    }else{
+                        Log.d("提示","不存在明細檔")
                     }
 
                     // 將等待協程結果返回
@@ -1243,18 +1257,10 @@ class HomeFragment : Fragment() {
                     // 等待協程結果( 依照類別或是排除決定
                     when (selectItem.BASE_TYPE) {
                         "1" -> {        //折價券主檔類別為1 其中一項符合即可 (出現一個就可以)
-                            if (result.await() == 99){
-                                true
-                            }else{
-                                false
-                            }
+                            result.await() == 99
                         }
                         "2" -> {        //折價券主檔類別為2 必須所有都不符合 (出現條件外的就可以用)
-                            if (result.await() == 99){
-                                true
-                            }else{
-                                false
-                            }
+                            result.await() == 99
                         }
                         else -> {
                             true
@@ -1264,7 +1270,8 @@ class HomeFragment : Fragment() {
             }
             "1" -> {   //打折券
                 //如果折價券金額小於總價則許可加入
-                totalSumUnitPrice >= singlePrc
+                Log.d("檢查",sendoutPrice.toString())
+                sendoutPrice >= singlePrc
             }
             else -> {
                 //非折價券類型的商品可直接加入
@@ -1454,7 +1461,7 @@ class HomeFragment : Fragment() {
             }
 
             sendoutPrice = totalSumUnitPrice
-            binding.txtTotalDollar.text = "總計\n${totalSumUnitPrice.roundToInt() } 元" // 顯示金額4捨5入
+            binding.txtTotalDollar.text = "總計: ${totalSumUnitPrice.roundToInt()}" // 顯示金額4捨5入
         }
 
     }
