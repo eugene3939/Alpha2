@@ -69,13 +69,13 @@ class Login : AppCompatActivity() {
         insertMerchandisesDB("17","Android初學特訓班", "書籍","9789865023072", 500.00, 450.00,400.00,400.00,80,mamMethod = "1", pluType = "3", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
         insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500.00,500.00,500.00, 500.00,60,mamMethod = "B", pluType = "2", DEP_No = "1", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
         insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660.00, 650.00,650.00,650.00,25,mamMethod = "D", pluUnit = "本")
-        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 1500.00, 1500.00,1500.00,1500.00,200,mamMethod = "E", pluUnit = "分", pluType = "6", MAM_Combo = "T07")
+        insertMerchandisesDB("20","Android初學者套組", "組合商品","0024", 0.00, 0.00,0.00,0.00,200,mamMethod = "E", pluUnit = "分", pluType = "6", MAM_Combo = "T07")
         insertMerchandisesDB("00","小計折扣","73","0000000",0.00,0.000,0.00,0.00, mamMethod = "0", pluType = "0", number = 0, pluUnit = "張")
 
         //匯入組合商品
-        insertPairProduct("T07","9786263336148",600.00,1,-12.50,"N","0")
-        insertPairProduct("T07","9786263332577",550.00,1,-12.50,"N","0")
-        insertPairProduct("T07","9789865023072",400.00,2,-25.00,"N","0")
+        insertPairProduct("T07","9786263336148",600.00,1,-0.00,"N","0")
+        insertPairProduct("T07","9786263332577",550.00,1,-0.00,"N","0")
+        insertPairProduct("T07","9789865023072",400.00,2,-0.00,"N","0")
 
 
         insertMerchandisesDB("BookCoupon03","貨號券(實戰)","折扣券","SS555555",50.00,50.00,50.00,50.00,200, pluUnit = "張", pluType = "75")

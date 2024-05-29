@@ -86,6 +86,10 @@ interface ProductDao {
     @Query("SELECT * FROM PairedProducts WHERE CMB_No = :CMB_No AND PLU_No = :PLU_No LIMIT 1") //尋找符合項目的單一組合編號
     fun getParedSetByID(CMB_No: String, PLU_No: String): MutableList<PairedProduct>?
 
+    //找出組合編號對應的貨號
+    @Query("SELECT * FROM PairedProducts WHERE CMB_No = :CMB_No") //尋找符合項目的單一組合編號
+    fun getParedSetByCMB_No(CMB_No: String): MutableList<PairedProduct>?
+
     //掃描商品
     @Insert
     suspend fun insertScan(cm: ScanProduct)

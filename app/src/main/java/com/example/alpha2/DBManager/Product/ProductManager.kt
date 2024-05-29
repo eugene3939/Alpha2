@@ -165,10 +165,17 @@ class ProductManager(context: Context) {
         }
     }
 
-    //尋找商品id
+    //確認組合商品能否加入(CMB_No,PLU_No)
     fun getParedSetByID(CMB_No: String, PLU_No: String): MutableList<PairedProduct>?{
         return runBlocking {
             productDao.getParedSetByID(CMB_No,PLU_No)
+        }
+    }
+
+    //找出組合編號對應的貨號
+    fun getParedSetByCMB_No(CMB_No: String): MutableList<PairedProduct>?{
+        return runBlocking {
+            productDao.getParedSetByCMB_No(CMB_No)
         }
     }
 

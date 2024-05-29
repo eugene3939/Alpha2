@@ -274,7 +274,7 @@ class Payment : AppCompatActivity() {
         val maxTXN = paymentDBManager.searchPaymentDetailByMaxYYMM(nowDate)?.plus(1) ?: 1
         var temp = 1    //項次
         for (item in cartList){
-            if (item.productItem.pluMagNo == "0000000"){    //跳過小計折扣商品
+            if (item.info == "discT"){    //跳過小計折扣商品
                 continue
             }else{
                 val paymentDetailItem = PaymentDetail(

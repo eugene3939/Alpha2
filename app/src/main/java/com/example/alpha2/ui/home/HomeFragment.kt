@@ -411,7 +411,6 @@ class HomeFragment : Fragment() {
                                 //重設會員提示文字
                                 binding.btnUserFavor.text = "非會員"
                                 binding.textMemberAuth.text = "非會員"
-
                             }
                         }
 
@@ -905,7 +904,8 @@ class HomeFragment : Fragment() {
                                                     sumT,
                                                     0,
                                                     0.0,
-                                                    copySum.sum() * (discountValue) / 100.00 - copySum.sum()
+                                                    copySum.sum() * (discountValue) / 100.00 - copySum.sum(),
+                                                    "discT"
                                                 )
                                             )
                                             // 加載更新後的購物車
@@ -1492,12 +1492,41 @@ class HomeFragment : Fragment() {
                             existItemCheck = false
                         }
                     }else{          //非折價券商品
-                        //將掃描結果加入購物車物件
-                        Cno+=1  //更新購物車項次
-                        cartList.add(CartItem(Cno,product,1,0.00))    //項次+1
+                        //如果是組合商品必須把子項目也放入購物車
+                        if (product.PLU_Type == "6"){
+                            launch(Dispatchers.IO) {
+                                val pairedList = product.MAM_CombNo?.let {
+                                    productDBManager.getParedSetByCMB_No(
+                                        it
+                                    )
+                                }
 
-                        Log.d("加入商品", cartList.last().productItem.PLU_PrnName)
-                        existItemCheck = true
+                                if (pairedList != null) {
+                                    //將組合標頭加入購物車物件
+                                    Cno+=1  //更新購物車項次
+                                    cartList.add(CartItem(Cno,product,1,0.00))    //項次+1
+                                    for (i in pairedList){
+                                        //用組合編號對應的商品貨號加入商品
+                                        val singleItem = productDBManager.getProductByMagNo(i.PLU_No)
+                                        if (singleItem!=null){  //若存在該商品子項目就放入購物車
+                                            singleItem.unitPrc = i.CMB_UnitPrice    //用組合商品指定的價格作為依據，取代原價格
+
+                                            //將掃描結果加入購物車物件
+                                            Cno+=1  //更新購物車項次
+                                            cartList.add(CartItem(Cno,singleItem,quantity= i.CMB_QTY, discountS = i.CMB_Disc,info = "comb"))    //項次+1
+                                        }
+                                        println("商品組合: $i")
+                                    }
+                                }
+                            }
+                        }else{
+                            //將掃描結果加入購物車物件
+                            Cno+=1  //更新購物車項次
+                            cartList.add(CartItem(Cno,product,1,0.00))    //項次+1
+
+                            Log.d("加入商品", cartList.last().productItem.PLU_PrnName)
+                            existItemCheck = true
+                        }
                     }
 
                 } else {
