@@ -12,7 +12,7 @@ interface ProductDao {
     fun getAllProductTable(): MutableList<Product>?
 
     //尋找符合單一ID項目的Product
-    @Query("SELECT * FROM Products WHERE pId = :id")
+    @Query("SELECT * FROM Products WHERE PLU_No = :id")
     fun getProductByID(id: String): Product?
 
     //尋找符合單一貨號的Product
@@ -32,17 +32,21 @@ interface ProductDao {
     fun getProductByVENNo(ven: String):  Product?
 
     //尋找符合單一商品類別(pluType)的Product
-    @Query("SELECT * FROM Products WHERE pluType = :plu")
+    @Query("SELECT * FROM Products WHERE PLU_Type = :plu")
     fun getProductByPluType(plu: String): MutableList<Product>?
 
     //尋找所有PluType的所有內容中非空值的項目
     @Query("SELECT DISTINCT pType FROM Products WHERE :columnName IS NOT NULL")
     fun getCategoryList(columnName: String): List<String>?
 
+    //尋找所有組合商品 (MAM_CombNo非空)
+    @Query("SELECT * FROM Products WHERE MAM_CombNo IS NOT NULL")
+    fun getPairedList(): MutableList<Product>?
+
     @Insert
     suspend fun insert(merchandise: Product)
 
-    @Query("DELETE FROM Products WHERE pId = :id")
+    @Query("DELETE FROM Products WHERE PLU_No = :id")
     suspend fun delete(id: String)
 
     //  折扣券 商品
@@ -71,15 +75,16 @@ interface ProductDao {
 
     @Query("SELECT * FROM CouponDetails WHERE DISC_PLU_MagNo = :pluMagNo") //尋找符合項目的單一pluMagNo
     fun getCouponDetailBypluMagNo(pluMagNo: String): MutableList<CouponDetail>?
+
     //    組合商品
     @Insert
-    suspend fun insertCluster(cm: ClusterProduct)
+    suspend fun insertParedSet(cm: PairedProduct)
 
-    @Query("DELETE FROM ClusterProducts WHERE pId = :id")
-    suspend fun deleteCluster(id: String)
+    @Query("DELETE FROM PairedProducts WHERE CMB_No = :CMB_No")
+    suspend fun deleteParedSet(CMB_No: String)
 
-    @Query("SELECT * FROM ClusterProducts WHERE pId = :id") //尋找符合項目的單一id
-    fun getClusterByID(id: String): ClusterProduct?
+    @Query("SELECT * FROM PairedProducts WHERE CMB_No = :CMB_No AND PLU_No = :PLU_No LIMIT 1") //尋找符合項目的單一組合編號
+    fun getParedSetByID(CMB_No: String, PLU_No: String): MutableList<PairedProduct>?
 
     //掃描商品
     @Insert

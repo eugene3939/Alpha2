@@ -31,6 +31,7 @@ import com.example.alpha2.DBManager.Payment.PaymentManager
 import com.example.alpha2.DBManager.System.PaymentMethod
 import com.example.alpha2.DBManager.System.SystemManager
 import com.example.alpha2.DBManager.System.SystemSetting
+import com.example.alpha2.DBManager.User.UserManager
 import com.example.alpha2.myAdapter.FilterProductAdapter
 import com.example.alpha2.myObject.CartItem
 import java.time.LocalDateTime
@@ -43,6 +44,7 @@ class Payment : AppCompatActivity() {
     private var nowLoginMember: Member? = null                  //會員
     private var cartList = mutableListOf<CartItem>()            //購物車項目
 
+    private lateinit var userDBManager: UserManager       //用戶Dao (用封裝的方式獲取Dao)
     private lateinit var systemDBManager: SystemManager         //系統主檔 (取得支援的付款方式)
     private lateinit var paymentDBManager: PaymentManager       //付款主檔 (取得付款相關Dao資料)
     private lateinit var invoiceDBManager: InvoiceManager       //發票號碼設定檔 (取得發票號碼相關Dao資料)
@@ -80,6 +82,10 @@ class Payment : AppCompatActivity() {
         systemDBManager = SystemManager(this)
         paymentDBManager = PaymentManager(this)
         invoiceDBManager = InvoiceManager(this)
+        userDBManager = UserManager(this)
+
+        val sharedPreferences = this.getSharedPreferences("loginUser", Context.MODE_PRIVATE)
+        val userID = sharedPreferences.getString("userId", null)
 
         // 用 intent 獲取 商品清單
         try {
@@ -232,7 +238,9 @@ class Payment : AppCompatActivity() {
                                 "財務手開"->"F"
                                 else -> "F"},                 /*交易模式*/
                             TXN_Status = "N",
-                            TXN_TotPayAmt = nowPayment.toDouble())     /*總付款金額 付款明細加總*/
+                            TXN_TotPayAmt = nowPayment.toDouble(),  /*總付款金額 付款明細加總*/
+                            TXN_Sales = clerkId)
+
 
                         paymentDBManager.addPaymentMain(paymentMainItem)
 
@@ -308,7 +316,7 @@ class Payment : AppCompatActivity() {
                         else -> "F"},               /*交易模式(同POS3008)*/
                     TXN_Status = "N",               /*交易狀態(同POS3008,R=退貨)*/
 
-                    PLU_Name = item.productItem.pName
+                    PLU_Name = item.productItem.PLU_PrnName
                 )
 
                 //寫入明細檔

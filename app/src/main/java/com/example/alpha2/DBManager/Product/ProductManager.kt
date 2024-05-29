@@ -84,6 +84,13 @@ class ProductManager(context: Context) {
         }
     }
 
+    //尋找折扣商品(主項目)
+    fun getPairedList(): MutableList<Product>?{
+        return runBlocking {
+            productDao.getPairedList()
+        }
+    }
+
     //----------以下為折價券 商品------------
     //新增商品
     fun insertCouponMain(dm: CouponMain) {
@@ -142,25 +149,26 @@ class ProductManager(context: Context) {
         }
     }
 
-    //---------以下為配對商品---------
+    //---------以下為組合商品(子項目)---------
+
     //新增商品
-    fun insertCluster(cm: ClusterProduct) {
+    fun insertParedSet(cm: PairedProduct) {
         runBlocking {
-            productDao.insertCluster(cm)
+            productDao.insertParedSet(cm)
         }
     }
 
     //刪除商品
-    fun deleteCluster(id: String){
+    fun deleteParedSet(id: String){
         runBlocking {
-            productDao.deleteCluster(id)
+            productDao.deleteParedSet(id)
         }
     }
 
     //尋找商品id
-    fun getClusterByID(id: String): ClusterProduct?{
+    fun getParedSetByID(CMB_No: String, PLU_No: String): MutableList<PairedProduct>?{
         return runBlocking {
-            productDao.getClusterByID(id)
+            productDao.getParedSetByID(CMB_No,PLU_No)
         }
     }
 

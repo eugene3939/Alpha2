@@ -29,7 +29,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Member.MemberManager
-import com.example.alpha2.DBManager.Payment.PaymentDetail
 import com.example.alpha2.DBManager.Product.CouponDetail
 import com.example.alpha2.DBManager.Product.CouponMain
 import com.example.alpha2.Payment
@@ -173,7 +172,7 @@ class HomeFragment : Fragment() {
         if (userID != null) {
             val accessUser = userDBManager.getUserById(userID)
             if (accessUser != null) {
-                binding.textDashboard.text = "收銀員: ${accessUser.name}"
+                binding.textDashboard.text = "收銀員: ${accessUser.USR_Name}"
             }
         } else {
             binding.textDashboard.text = "Null user access"
@@ -222,7 +221,7 @@ class HomeFragment : Fragment() {
 
                 //點擊數量(如果是折價券就變成負金額)
                 var changeAmount = selectScanNumber
-                if (clickItem.productItem.pluType == "75") {
+                if (clickItem.productItem.PLU_Type == "75") {
                     changeAmount *= (-1)
                 }
 
@@ -292,7 +291,7 @@ class HomeFragment : Fragment() {
                             "折扣後不允許數量變更",
                             Toast.LENGTH_SHORT
                         ).show()
-                    } else if (clickItem.productItem.pName == "小計折扣") {    //小計折扣項目不允許更正
+                    } else if (clickItem.productItem.PLU_PrnName == "小計折扣") {    //小計折扣項目不允許更正
                         Toast.makeText(
                             requireContext(),
                             "小計折扣不允許數量變更",
@@ -309,7 +308,7 @@ class HomeFragment : Fragment() {
                                 //更新購物車物件的數量
                                 if (cartList.isNotEmpty()) {
                                     //如果商品類別是否為折價券
-                                    if (clickItem.productItem.pluType == "75") { //如果屬於折價券類別，就將數量變成負值
+                                    if (clickItem.productItem.PLU_Type == "75") { //如果屬於折價券類別，就將數量變成負值
                                         cartList.last().quantity = changeAmount * -1
                                         Log.d("數量變更結果",(changeAmount * -1).toString() )
                                     } else {
@@ -464,7 +463,7 @@ class HomeFragment : Fragment() {
                     //和規的貨號，加入清單
                     try {
                         //檢查是否為折價券商品
-                        if (selectItem.pluType == "75") {
+                        if (selectItem.PLU_Type == "75") {
                             //確認折價券能否加入
                             val isCouponValid = couponAddCheck(selectItem)
 
@@ -475,7 +474,7 @@ class HomeFragment : Fragment() {
                                 //更新購物車清單顯示內容
                                 loadFilterProduct()
 
-                                Log.d("加入商品", selectItem.pName)
+                                Log.d("加入商品", selectItem.PLU_PrnName)
                                 resultCode = 99
                             } else {
                                 Log.d("不符合折價券規格", "未達折價券指定最低金額")
@@ -541,7 +540,7 @@ class HomeFragment : Fragment() {
                 val filterPluList = productDBManager.getProductByPluType("75")  //類別是折價券
 
                 //折價券商品(顯示欄位)
-                val showUpList = filterPluList?.map { "${it.pId}, ${it.pName}, ${it.unitPrc}" }
+                val showUpList = filterPluList?.map { "${it.PLU_No}, ${it.PLU_PrnName}, ${it.unitPrc}" }
 
                 // 顯示篩選出的列印資訊
                 showUpList?.forEach { Log.d("Product Info", it) }
@@ -577,7 +576,7 @@ class HomeFragment : Fragment() {
                                             cartList.add(CartItem(Cno, product, -1, 0.00))
                                             Toast.makeText(
                                                 requireContext(),
-                                                "新增折價券 ${product.pName}",
+                                                "新增折價券 ${product.PLU_PrnName}",
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         } else {
@@ -846,7 +845,7 @@ class HomeFragment : Fragment() {
 
                                     if (item.productItem.pluMagNo == sumT.pluMagNo) {  //找到全折項目就停止
                                         break
-                                    } else if(item.productItem.pluType == "75"){       //跳過折價券類別
+                                    } else if(item.productItem.PLU_Type == "75"){       //跳過折價券類別
                                         continue
                                     } else {
                                         copyCartList.add(item)
@@ -886,7 +885,7 @@ class HomeFragment : Fragment() {
                                                 if (item.productItem.pluMagNo == sumT.pluMagNo) {  //找到全折項目就停止
 //
                                                     break
-                                                } else if(item.productItem.pluType == "75"){       //跳過折價券類別
+                                                } else if(item.productItem.PLU_Type == "75"){       //跳過折價券類別
                                                     continue
                                                 }else {
                                                     cartList[i].discountT =
@@ -897,7 +896,7 @@ class HomeFragment : Fragment() {
                                                 }
                                             }
 
-                                            sumT.pName = "小計折扣 -${100 - discountValue}%"
+                                            sumT.PLU_PrnName = "小計折扣 -${100 - discountValue}%"
 
                                             // 根據輸入的折數更新cartList
                                             cartList.add(
@@ -966,7 +965,7 @@ class HomeFragment : Fragment() {
                 }
 
                 for (i in deleteCartList){
-                    Log.d("刪除紀錄",i.cartItem.productItem.pName)
+                    Log.d("刪除紀錄",i.cartItem.productItem.PLU_PrnName)
                 }
 
                 //離開頁面就清除 購物車清單
@@ -1019,16 +1018,16 @@ class HomeFragment : Fragment() {
 
             copyFilter.removeAt(clearIndex)    // 刪除項目
             for (i in copyFilter)
-                Log.d("刪除後清單",i.pName)
+                Log.d("刪除後清單",i.PLU_PrnName)
 
             // 創建一個新的協程，並在其中執行異步操作
             lifecycleScope.launch(Dispatchers.IO) {
                 // 確認點案的項目是否會影響 折價券關係
                 if (!couponDeleteCheck(clearItem,copyFilter)) { // 檢查刪除後商品是否會破壞關聯
                     withContext(Dispatchers.Main){
-                        Toast.makeText(requireContext(),"刪除商品 ${clearItem.pName} 可能會破壞折價券關聯，請先刪除折價券",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(),"刪除商品 ${clearItem.PLU_PrnName} 可能會破壞折價券關聯，請先刪除折價券",Toast.LENGTH_SHORT).show()
                     }
-                    Log.d("警告", "刪除商品 ${clearItem.pName} 可能會破壞折價券關聯，請先刪除折價券")
+                    Log.d("警告", "刪除商品 ${clearItem.PLU_PrnName} 可能會破壞折價券關聯，請先刪除折價券")
                     safeDeleteCheck = false
                 }
                 // 如果所有檢查都通過，執行刪除操作
@@ -1060,7 +1059,7 @@ class HomeFragment : Fragment() {
                                 break
                             else{
                                 cartList[i].discountT = 0.0 //重新初始化折扣比例
-                                println("初始化 ${cartList[i].productItem.pName}")
+                                println("初始化 ${cartList[i].productItem.PLU_PrnName}")
                             }
                         }
                     }
@@ -1070,11 +1069,11 @@ class HomeFragment : Fragment() {
                         //詢問用alertDialog詢問是否要進行更正作業
                         val deleteCheckDialogBuilder = AlertDialog.Builder(requireContext())
                         deleteCheckDialogBuilder.setTitle("更正作業")
-                        deleteCheckDialogBuilder.setMessage("請問您確定要刪除 ${clearItem.pName} 嗎?")
+                        deleteCheckDialogBuilder.setMessage("請問您確定要刪除 ${clearItem.PLU_PrnName} 嗎?")
                         //確定更正
                         deleteCheckDialogBuilder.setPositiveButton("確定") { _, _ ->
                             // 刪除掃描商品提示訊息(商品名稱)
-                            Toast.makeText(requireContext(), "刪除: ${clearItem.pName}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), "刪除: ${clearItem.PLU_PrnName}", Toast.LENGTH_SHORT).show()
 
                             //重新載入清單
                             loadFilterProduct()
@@ -1281,7 +1280,7 @@ class HomeFragment : Fragment() {
     //確認優惠券能否移出清單(必須新移除對應的優惠券)
     private fun couponDeleteCheck(deleteItem: Product, copyFilter: MutableList<Product>): Boolean {
         // 檢查刪除項目是否為折價券，如果是直接返回 true
-        if (deleteItem.pluType == "75") {
+        if (deleteItem.PLU_Type == "75") {
             Log.d("類型", "折價券")
             return true
         }
@@ -1291,7 +1290,7 @@ class HomeFragment : Fragment() {
 
         //輪流檢查每一個折價券是否有對應的項目(是否有不滿足條件的折價券)
         for (item in cartList.map { it.productItem }){      //走訪商品項次清單
-            if (item.pluType == "75"){          //折價券商品
+            if (item.PLU_Type == "75"){          //折價券商品
                 //確認該折價券的主檔和明細檔
                 val couponMain = productDBManager.getCouponMainByPluMagNo(item.pluMagNo)
                 val couponDetail = productDBManager.getCouponDetailBypluMagNo(item.pluMagNo)
@@ -1359,7 +1358,7 @@ class HomeFragment : Fragment() {
                             )
 
                             //去除掉折價券類型的商品(去除其他折價券的干擾項)
-                            copyFilterMinus = copyFilterMinus.filter { it.pluType != "75" }.toSet()
+                            copyFilterMinus = copyFilterMinus.filter { it.PLU_Type != "75" }.toSet()
 
                             //檢查是否只有排除項目
                             if (copyFilterMinus.isEmpty()) {
@@ -1399,7 +1398,7 @@ class HomeFragment : Fragment() {
         totalSumUnitPrice = 0.00
 
         if (isFirstCreation){
-            Log.d("會空喔",cartList.map{ it.productItem.pName }.toString())
+            Log.d("會空喔",cartList.map{ it.productItem.PLU_PrnName }.toString())
 
             //目前只要離開頁面就清除項目，不要紀錄
             //以下是因應螢幕旋轉，以viewmodel紀錄內容，避免生命週期重建導致資料流失(保留、清空資料會較麻煩)
@@ -1448,7 +1447,7 @@ class HomeFragment : Fragment() {
                         (item.productItem.unitPrc * item.quantity + item.discountS + item.discountT)
                     }
 
-                    println("單項 ${item.productItem.pName} 數量: ${item.quantity} 折扣s: ${item.discountS} 折扣t: ${item.discountT} 小計:$totalPrice")
+                    println("單項 ${item.productItem.PLU_PrnName} 數量: ${item.quantity} 折扣s: ${item.discountS} 折扣t: ${item.discountT} 小計:$totalPrice")
 
                     totalSumUnitPrice += totalPrice
                 }
@@ -1471,21 +1470,21 @@ class HomeFragment : Fragment() {
                 productDBManager.getProductByMagNo(productMagno)
             }
             if (product != null) {
-                Log.d("存在對應商品", product.pName)
+                Log.d("存在對應商品", product.PLU_PrnName)
                 // 檢查是否存在相同商品
                 if (!cartProductItem.contains(product)) {
 
                     //確認是否為特殊條件才能加入的商品(像是折價券...)
-                    if (product.pluType == "75"){       //折價券商品
+                    if (product.PLU_Type == "75"){       //折價券商品
                         //確認是否可加入折價券商品
                         if (couponAddCheck(product)){       //確認折價券能否加入清單
                             //將掃描結果加入購物車物件
                             Cno+=1  //更新購物車項次
                             cartList.add(CartItem(Cno,product,-1))    //項次+1
 
-                            Log.d("加入商品", cartList.last().productItem.pName)
+                            Log.d("加入商品", cartList.last().productItem.PLU_PrnName)
 
-//                            // 如果商品已經存在，數量指定為-1
+                            // 如果商品已經存在，數量指定為-1
                             existItemCheck = true
                         }else{
                             errorHintCode = 3   //未達折價券指定金額
@@ -1497,7 +1496,7 @@ class HomeFragment : Fragment() {
                         Cno+=1  //更新購物車項次
                         cartList.add(CartItem(Cno,product,1,0.00))    //項次+1
 
-                        Log.d("加入商品", cartList.last().productItem.pName)
+                        Log.d("加入商品", cartList.last().productItem.PLU_PrnName)
                         existItemCheck = true
                     }
 
@@ -1522,7 +1521,7 @@ class HomeFragment : Fragment() {
                 loadFilterProduct()
 
                 if (existItemCheck) {
-                    Toast.makeText(requireContext(), "加入商品: ${cartList.last().productItem.pName}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "加入商品: ${cartList.last().productItem.PLU_PrnName}", Toast.LENGTH_SHORT).show()
                 } else {
                     when (errorHintCode) {
                         0 -> Toast.makeText(requireContext(), "掃描取消", Toast.LENGTH_SHORT).show()

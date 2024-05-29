@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "Users")
 data class User (
     @PrimaryKey
-    val id: String,                    //用戶id
-    val name: String,                  //用戶名稱
+    val USR_No: String,                    //用戶id
+    val USR_Name: String,                  //用戶名稱
     val account: String,               //用戶帳號
     val password: String,              //用戶密碼
     val level: String = "0",           //鍵盤等級(0-9) 個別鍵盤樣式  ， 預設為0

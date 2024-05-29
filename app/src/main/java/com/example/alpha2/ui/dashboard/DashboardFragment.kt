@@ -42,7 +42,7 @@ class DashboardFragment : Fragment() {
         if (userID!=null){
             val accessUser = userDBManager.getUserById(userID)
             if (accessUser != null) {
-                binding.textDashboard.text = "收銀員: ${accessUser.name}"
+                binding.textDashboard.text = "收銀員: ${accessUser.USR_Name}"
 
                 Toast.makeText(requireContext(), "這是主頁面", Toast.LENGTH_SHORT).show()
             }

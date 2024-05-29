@@ -58,7 +58,7 @@ class FilterProductAdapter(private val dataList: MutableList<CartItem>,private v
 
             productDiscount.text = "${item.discountS.toInt()}"
 
-            productName.text = truncateString(item.productItem.pName, 20)
+            productName.text = truncateString(item.productItem.PLU_PrnName, 20)
 
             //如果是會員就顯示會員價，非會員unitPrice
             if (memberCheck){
@@ -76,7 +76,7 @@ class FilterProductAdapter(private val dataList: MutableList<CartItem>,private v
             }
 
             //如果是 "小計折扣" 就顯示全折金額
-            if (item.productItem.pId == "00"){
+            if (item.productItem.PLU_No == "00"){
                 productDiscount.text = (item.discountT).roundToInt().toString()     //折扣額
                 productSum.text = "${(item.discountT).roundToInt()} 元"  //小計
             }

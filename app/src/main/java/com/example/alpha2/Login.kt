@@ -9,15 +9,13 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.SimpleAdapter
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import com.example.alpha2.DBManager.Invoice.InvoiceDao
 import com.example.alpha2.DBManager.Invoice.InvoiceManager
 import com.example.alpha2.DBManager.Invoice.InvoiceSetup
 import com.example.alpha2.DBManager.Member.Member
 import com.example.alpha2.DBManager.Member.MemberManager
-import com.example.alpha2.DBManager.Product.ClusterProduct
+import com.example.alpha2.DBManager.Product.PairedProduct
 import com.example.alpha2.DBManager.Product.CouponDetail
 import com.example.alpha2.DBManager.Product.CouponMain
 import com.example.alpha2.DBManager.Product.Product
@@ -71,8 +69,14 @@ class Login : AppCompatActivity() {
         insertMerchandisesDB("17","Android初學特訓班", "書籍","9789865023072", 500.00, 450.00,400.00,400.00,80,mamMethod = "1", pluType = "3", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 3, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 3, 24, 18, 30))
         insertMerchandisesDB("18","輕鬆學會Android kotlin程式開發", "書籍","9789864343751", 500.00,500.00,500.00, 500.00,60,mamMethod = "B", pluType = "2", DEP_No = "1", CAT_No = "1", pluUnit = "本",mmpBegDate = LocalDateTime.of(2024, 8, 22, 10, 0),mmpEndDate = LocalDateTime.of(2024, 11, 24, 18, 30))
         insertMerchandisesDB("19","SQL Server 2022/2019資料庫設計與開發實務", "書籍","9786263245198", 660.00, 650.00,650.00,650.00,25,mamMethod = "D", pluUnit = "本")
-        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 2000.00, 2000.00,2000.00,1800.00,200,mamMethod = "E", pluUnit = "分")
+        insertMerchandisesDB("20","Android初學者套組", "組合商品","4902778915202", 1500.00, 1500.00,1500.00,1500.00,200,mamMethod = "E", pluUnit = "分", pluType = "6", MAM_Combo = "T07")
         insertMerchandisesDB("00","小計折扣","73","0000000",0.00,0.000,0.00,0.00, mamMethod = "0", pluType = "0", number = 0, pluUnit = "張")
+
+        //匯入組合商品
+        insertPairProduct("T07","9786263336148",600.00,1,-12.50,"N","0")
+        insertPairProduct("T07","9786263332577",550.00,1,-12.50,"N","0")
+        insertPairProduct("T07","9789865023072",400.00,2,-25.00,"N","0")
+
 
         insertMerchandisesDB("BookCoupon03","貨號券(實戰)","折扣券","SS555555",50.00,50.00,50.00,50.00,200, pluUnit = "張", pluType = "75")
         insertMerchandisesDB("BookCoupon11","貨號券(排除 實戰、輕鬆)","折扣券","SS444444",50.00,50.00,50.00,50.00,200, pluUnit = "張", pluType = "75")
@@ -97,8 +101,6 @@ class Login : AppCompatActivity() {
         insertCouponMainDB(pluMagNo = "SS777777", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"0","2")
         insertCouponMainDB(pluMagNo = "SS888888", fromDate = LocalDateTime.of(2022, 1, 20, 20, 20), toDate = LocalDateTime.of(2023, 10, 10, 10, 10),"0","2")
         insertCouponMainDB(pluMagNo = "SS123456", fromDate = LocalDateTime.of(2024, 1, 20, 20, 20), toDate = LocalDateTime.of(2024, 10, 10, 10, 10),"1")                   //折價券(單價) baseType = 0 就不用檢查明細檔，直接適用
-
-        insertPairProduct("20","1,2,3","1,2,3",60)    //綑綁商品清單
 
         //Dao匯入收銀機設定檔 (預設)
         insertCashSystemDB("031","Eugene")
@@ -165,11 +167,11 @@ class Login : AppCompatActivity() {
                 //有許可用戶
                 if (accessUser != null){
                     //顯示登入成功訊息
-                    Log.d("登入成功", "用戶名稱: ${accessUser.name}")
+                    Log.d("登入成功", "用戶名稱: ${accessUser.USR_Name}")
 
                     //保存用戶訊息到sharedReference
                     val editor = sharedPreferences.edit()
-                    editor.putString("userId", accessUser.id)   //傳遞用戶id到sharedReference
+                    editor.putString("userId", accessUser.USR_No)   //傳遞用戶id到sharedReference
                     editor.apply()
 
                     //跳轉到登入頁面
@@ -319,15 +321,17 @@ class Login : AppCompatActivity() {
                                      pluUnit: String,                       //單位
                                      pluType: String = "1",
                                      mmpBegDate: LocalDateTime? = null,
-                                     mmpEndDate:LocalDateTime? = null) {
+                                     mmpEndDate:LocalDateTime? = null,
+
+                                     MAM_Combo: String ?= null) {
         lifecycleScope.launch(Dispatchers.IO) {
             //確認用戶是否已經存在
             val existingMerchandise = productDBManager.getProductByID(id)
             if (existingMerchandise == null) {
-                val item = Product( pId = id, pName = name, pType = type, pluMagNo = pluMagNo, pluType = pluType, pluUnit = pluUnit, pNumber = number,
+                val item = Product( PLU_No = id, PLU_PrnName = name, pType = type, pluMagNo = pluMagNo, PLU_Type = pluType, PLU_Unit = pluUnit, pNumber = number,
                     fixPrc = fixPrc,salePrc = salePrc, unitPrc = unitPrc, memPrc = memPrc,
                     DEP_No = DEP_No,CAT_No = CAT_No, VEN_No = VEN_No,
-                    mamMethod = mamMethod,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate)
+                    mamMethod = mamMethod,mmpBegDate = mmpBegDate,mmpEndDate= mmpEndDate, MAM_CombNo = MAM_Combo)
 
                 productDBManager.insert(item)
                 Log.d("新增商品", "Merchandise added: $item")
@@ -381,16 +385,31 @@ class Login : AppCompatActivity() {
     }
 
     //組合商品清單
-    private fun insertPairProduct(pId: String,itemSet : String, number: String, total: Int) {
-        lifecycleScope.launch(Dispatchers.IO){
-            //確認組合商品是否已經存在
-            val existingCProduct = productDBManager.getClusterByID(pId)
-            if (existingCProduct == null) {
-                val item = ClusterProduct(pId = pId, itemSet = itemSet, number = number, total = total)
-                productDBManager.insertCluster(item)
-                Log.d("新增組合商品", "CProduct added: $item")
-            } else {    //確認是否為已知id
-                Log.d("既有組合商品", "CProduct with ID $pId already exists")
+    private fun insertPairProduct(
+        CMB_No: String,
+        PLU_No: String, CMB_UnitPrice: Double, CMB_QTY: Int, CMB_Disc: Double, CMB_Change: String, CMB_Type: String) {
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            //確認組合此商品組合是否已經存在(方法這邊要想想)
+            //暫定必須從 product 找到對應的CMB_No編號
+            val existPairedProduct = productDBManager.getParedSetByID(CMB_No, PLU_No)
+
+            if (existPairedProduct != null) {
+                if(existPairedProduct.isEmpty()){
+                    val item = PairedProduct(
+                        CMB_No = CMB_No,
+                        PLU_No = PLU_No,
+                        CMB_UnitPrice = CMB_UnitPrice,
+                        CMB_QTY = CMB_QTY,
+                        CMB_Disc = CMB_Disc,
+                        CMB_Change = CMB_Change,
+                        CMB_Type = CMB_Type
+                    )
+                    productDBManager.insertParedSet(item)
+                    Log.d("新增組合商品子項", "DProduct added: $item")
+                }else {    //確認是否為已知id
+                    Log.d("既有組合商品子項", "DProduct with ID $CMB_No already exists")
+                }
             }
         }
     }
